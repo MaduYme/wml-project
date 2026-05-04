@@ -186,23 +186,94 @@ tr:hover td{background:rgba(255,255,255,.015);}
     <div class="ntab" onclick="goNav('new-project')">New Project</div>
     <div class="ntab" onclick="goNav('projects')">Projects</div>
     <div class="ntab" onclick="goNav('stock')">Stock</div>
+    <div class="ntab" onclick="goNav('requests')">Requests</div>
     <div class="ntab" onclick="goNav('materials')">Materials</div>
   </div>
 </nav>
 
 <!-- ══════════ DASHBOARD ══════════ -->
 <div class="page active" id="page-dashboard">
-  <div class="pg-title">Dashboard</div>
-  <div class="pg-sub">WML Signage Project Overview</div>
-  <div class="g4" style="margin-bottom:20px;">
-    <div class="stat"><div class="stat-lbl">Projects</div><div class="stat-val c-blue" id="d-proj">0</div></div>
-    <div class="stat"><div class="stat-lbl">Total Value</div><div class="stat-val c-acc" id="d-val">Rs.0</div></div>
-    <div class="stat"><div class="stat-lbl">Low Stock</div><div class="stat-val c-red" id="d-low">0</div></div>
-    <div class="stat"><div class="stat-lbl">Materials</div><div class="stat-val c-green" id="d-mats">0</div></div>
+  <div style="margin-bottom:20px;">
+    <div class="pg-title">Dashboard</div>
+    <div class="pg-sub" id="d-greeting">WML Signage — Stock &amp; Costing System</div>
   </div>
+
+  <!-- Stat Cards — clickable -->
+  <div class="g4" style="margin-bottom:20px;">
+    <div class="stat" onclick="goNav('projects')" style="cursor:pointer;transition:all .2s;border-color:rgba(59,130,246,0.3);" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='rgba(59,130,246,0.3)'">
+      <div class="stat-lbl">📁 Projects</div>
+      <div class="stat-val c-blue" id="d-proj">0</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">click to view →</div>
+    </div>
+    <div class="stat" onclick="goNav('projects')" style="cursor:pointer;transition:all .2s;border-color:rgba(240,165,0,0.3);" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='rgba(240,165,0,0.3)'">
+      <div class="stat-lbl">💰 Total Value</div>
+      <div class="stat-val c-acc" id="d-val">Rs.0</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="d-pending-count">0 pending approval</div>
+    </div>
+    <div class="stat" onclick="goNav('stock')" style="cursor:pointer;transition:all .2s;border-color:rgba(239,68,68,0.3);" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='rgba(239,68,68,0.3)'">
+      <div class="stat-lbl">⚠ Low Stock</div>
+      <div class="stat-val c-red" id="d-low">0</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">click to view →</div>
+    </div>
+    <div class="stat" onclick="goNav('materials')" style="cursor:pointer;transition:all .2s;border-color:rgba(34,197,94,0.3);" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='rgba(34,197,94,0.3)'">
+      <div class="stat-lbl">📦 Materials</div>
+      <div class="stat-val c-green" id="d-mats">0</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">click to view →</div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    <button class="btn btn-acc" onclick="goNav('new-project')" style="flex:1;justify-content:center;min-width:140px;">
+      ➕ New Project
+    </button>
+    <button class="btn btn-blue" onclick="goNav('requests')" style="flex:1;justify-content:center;min-width:140px;">
+      📋 Stock Requests <span id="d-req-badge" style="display:none;background:#fff;color:var(--blue);border-radius:20px;padding:0 8px;font-size:11px;margin-left:4px;"></span>
+    </button>
+    <button class="btn btn-ghost" onclick="goNav('stock')" style="flex:1;justify-content:center;min-width:140px;">
+      📦 View Stock
+    </button>
+    <button class="btn btn-ghost" onclick="syncFromSheets()" style="flex:1;justify-content:center;min-width:140px;">
+      ↻ Sync Database
+    </button>
+  </div>
+
   <div class="g2">
-    <div class="card card0"><div class="ctitle">Recent Projects</div><div id="d-proj-list"><p class="empty">No projects yet.</p></div></div>
-    <div class="card card0"><div class="ctitle">⚠ Low Stock</div><div id="d-low-list"><p class="empty">All OK.</p></div></div>
+    <!-- Recent Projects -->
+    <div class="card card0">
+      <div class="ctitle" style="justify-content:space-between;">
+        <span>📁 Recent Projects</span>
+        <button class="btn btn-ghost btn-xs" onclick="goNav('projects')">View All →</button>
+      </div>
+      <div id="d-proj-list"><p class="empty">No projects yet.</p></div>
+
+      <!-- Pending approval section -->
+      <div id="d-pending-sec" style="display:none;margin-top:14px;border-top:1px solid var(--border);padding-top:12px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:8px;">⏳ Pending Approval</div>
+        <div id="d-pending-list"></div>
+      </div>
+    </div>
+
+    <!-- Stock & Materials -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <!-- Low Stock -->
+      <div class="card card0">
+        <div class="ctitle" style="justify-content:space-between;">
+          <span>⚠ Low Stock</span>
+          <button class="btn btn-ghost btn-xs" onclick="goNav('stock')">View Stock →</button>
+        </div>
+        <div id="d-low-list"><p class="empty">All OK.</p></div>
+      </div>
+
+      <!-- Stock Requests pending -->
+      <div class="card card0" id="d-req-card" style="display:none;">
+        <div class="ctitle" style="justify-content:space-between;">
+          <span>📋 Pending Requests</span>
+          <button class="btn btn-ghost btn-xs" onclick="goNav('requests')">View All →</button>
+        </div>
+        <div id="d-req-list"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -247,10 +318,15 @@ tr:hover td{background:rgba(255,255,255,.015);}
         <span id="lock-indicator" style="font-size:14px;color:var(--red);">🔐 Locked</span>
       </div>
       <div class="pg-sub">Material stock levels — Edit ලදී PIN ඕනා</div>
+      <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:10px 14px;margin-top:8px;font-size:12px;color:var(--muted2);line-height:1.8;">
+        📤 <strong style="color:#fca5a5;">Issue</strong> — Use කළ quantity enter කරන්න <span style="color:var(--muted)">(eg: Box Bar → ft ලෙ | Sheet → sq.ft ලෙ | Wire → mtr ලෙ)</span><br>
+        📥 <strong style="color:#86efac;">Receive</strong> — ලැබුණු quantity enter කරන්න <span style="color:var(--muted)">(stock unit ලෙ — eg: Bars, Sheets, Rolls)</span>
+      </div>
     </div>
-    <div class="flex gap-12 items-center">
-      <input type="text" id="stock-search" placeholder="Search..." style="width:180px;" oninput="renderStock()">
-      <button class="btn btn-ghost" onclick="printStock()">🖨 Print Stock</button>
+    <div class="flex gap-12 items-center flex-wrap">
+      <input type="text" id="stock-search" placeholder="Search..." style="width:150px;" oninput="renderStock()">
+      <button class="btn btn-blue btn-sm" onclick="requirePin(()=>openAddMatStock())">＋ Add Material</button>
+      <button class="btn btn-ghost btn-sm" onclick="printStock()">🖨 Print</button>
     </div>
   </div>
   <div class="g4" style="margin-bottom:16px;">
@@ -261,8 +337,51 @@ tr:hover td{background:rgba(255,255,255,.015);}
   </div>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>#</th><th>Material</th><th>Size</th><th>Unit</th><th>Rate (Rs.)</th><th>Stock</th><th>Min</th><th>Status</th><th>Issue</th><th>Receive</th><th>Actions</th></tr></thead>
+      <thead><tr>
+  <th>#</th>
+  <th>Material</th>
+  <th>Size</th>
+  <th>Unit</th>
+  <th>Rate (Rs.)</th>
+  <th>Stock</th>
+  <th>Min</th>
+  <th>Status</th>
+  <th style="background:rgba(239,68,68,0.3);color:#fca5a5;">📤 Issue<br><span style="font-size:9px;font-weight:400;">Use කළ qty (issue unit)</span></th>
+  <th style="background:rgba(34,197,94,0.3);color:#86efac;">📥 Receive<br><span style="font-size:9px;font-weight:400;">ලැබුණු qty (stock unit)</span></th>
+  <th>Request</th>
+  <th>Actions</th>
+</tr></thead>
       <tbody id="stock-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════ STOCK REQUESTS ══════════ -->
+<div class="page" id="page-requests">
+  <div class="flex justify-between items-center flex-wrap gap-8" style="margin-bottom:16px;">
+    <div><div class="pg-title">Stock Requests</div><div class="pg-sub">Material requests සහ GM Approval</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="printRequests()">🖨 Print Requests</button>
+  </div>
+
+  <div class="g4" style="margin-bottom:16px;">
+    <div class="stat"><div class="stat-lbl">Pending</div><div class="stat-val c-acc" id="req-pending">0</div></div>
+    <div class="stat"><div class="stat-lbl">GM Approved</div><div class="stat-val c-blue" id="req-gm-approved">0</div></div>
+    <div class="stat"><div class="stat-lbl">Received</div><div class="stat-val c-green" id="req-received">0</div></div>
+    <div class="stat"><div class="stat-lbl">Cancelled</div><div class="stat-val c-red" id="req-cancelled">0</div></div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <button class="btn btn-sm btn-acc" id="req-filter-all" onclick="setReqFilter('all')">All</button>
+    <button class="btn btn-sm btn-ghost" id="req-filter-pending" onclick="setReqFilter('pending')">⏳ Pending</button>
+    <button class="btn btn-sm btn-ghost" id="req-filter-gm" onclick="setReqFilter('gm_approved')">✅ GM Approved</button>
+    <button class="btn btn-sm btn-ghost" id="req-filter-received" onclick="setReqFilter('received')">📦 Received</button>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Material</th><th>Qty</th><th>Unit</th><th>Reason</th><th>Date</th><th>Status</th><th>GM Approval</th><th>Receive</th></tr></thead>
+      <tbody id="req-tbody"></tbody>
     </table>
   </div>
 </div>
@@ -270,12 +389,12 @@ tr:hover td{background:rgba(255,255,255,.015);}
 <!-- ══════════ MATERIALS ══════════ -->
 <div class="page" id="page-materials">
   <div class="flex justify-between items-center flex-wrap gap-8" style="margin-bottom:16px;">
-    <div><div class="pg-title">Materials</div><div class="pg-sub">Rates, units, stock settings</div></div>
-    <button class="btn btn-acc" onclick="openAddMat()">＋ Add Material</button>
+    <div><div class="pg-title">Materials</div><div class="pg-sub">Material list — view &amp; print only</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="printMaterialsList()">🖨 Print Materials</button>
   </div>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>#</th><th>Name</th><th>Size</th><th>Unit</th><th>Unit Len</th><th>Rate (Rs.)</th><th>Stock</th><th>Min</th><th>Edit</th><th>Del</th></tr></thead>
+      <thead><tr><th>#</th><th>Name</th><th>Size</th><th>Unit</th><th>Unit Length</th><th>Rate (Rs.)</th><th>Stock</th><th>Is Box Bar</th></tr></thead>
       <tbody id="mat-tbody"></tbody>
     </table>
   </div>
@@ -661,26 +780,96 @@ tr:hover td{background:rgba(255,255,255,.015);}
 </div>
 </div>
 
-<!-- ══════════ MODAL: ADD MATERIAL ══════════ -->
+<!-- ══════════ MODAL: ADD/EDIT MATERIAL ══════════ -->
 <div class="overlay" id="modal-mat" onclick="overlayClose(event,'modal-mat')">
-<div class="modal">
-  <div class="modal-title" id="mat-modal-title">Add Material</div>
+<div class="modal" style="width:min(560px,100%);">
+  <div class="modal-title" id="mat-modal-title">Material</div>
   <input type="hidden" id="edit-mat-id">
-  <div class="fg"><label>Name</label><input type="text" id="am-name" placeholder="eg: Box Bar 1.5×1.5"></div>
-  <div class="g2">
-    <div class="fg"><label>Size / Spec</label><input type="text" id="am-size" placeholder="eg: 18ft/bar"></div>
-    <div class="fg"><label>Unit</label><input type="text" id="am-unit" placeholder="eg: Bar, Sheet, mtr, Nos"></div>
+
+  <!-- Step 1: Basic Info -->
+  <div style="margin-bottom:16px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">① Basic Info</div>
+    <div class="fg"><label>Name</label><input type="text" id="am-name" placeholder="eg: Cladding Sheet Blue, Box Bar 1.5×1.5"></div>
+    <div class="g2">
+      <div class="fg"><label>Size / Spec</label><input type="text" id="am-size" placeholder="eg: 8×4 3mm, 18ft/bar"></div>
+      <div class="fg fg0"><label>Rate (Rs. per stock unit)</label><input type="number" id="am-rate" placeholder="eg: 3840"></div>
+    </div>
   </div>
-  <div class="g2">
-    <div class="fg"><label>Unit Length (numeric)</label><input type="number" id="am-ul" placeholder="eg: 18"></div>
-    <div class="fg"><label>Rate per Unit (Rs.)</label><input type="number" id="am-rate" placeholder="eg: 3500"></div>
+
+  <!-- Step 2: How do you BUY it? -->
+  <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:14px;margin-bottom:14px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--green);margin-bottom:10px;">② ගන්නේ (Receive) කොහොමද?</div>
+    <div class="g2">
+      <div class="fg fg0">
+        <label>Stock Unit</label>
+        <select id="am-unit" onchange="amUnitChange()" style="border-color:rgba(34,197,94,0.3);">
+          <option value="Sheet">Sheet</option>
+          <option value="Bar">Bar</option>
+          <option value="Length">Length</option>
+          <option value="Roll">Roll</option>
+          <option value="Box">Box</option>
+          <option value="Nos">Nos</option>
+          <option value="mtr">mtr</option>
+          <option value="L">L (Liter)</option>
+          <option value="kg">kg</option>
+          <option value="Can">Can</option>
+          <option value="Tube">Tube</option>
+          <option value="sq.ft">sq.ft</option>
+        </select>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="am-unit-eg"></div>
+      </div>
+      <div class="fg fg0">
+        <label>1 unit ලදී ඇතුළත්</label>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <input type="number" id="am-ul" placeholder="eg: 32" style="border-color:rgba(34,197,94,0.3);" oninput="amUpdatePreview()">
+          <span style="color:var(--muted);font-size:13px;" id="am-ul-unit-label">sq.ft</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="am-ul-eg"></div>
+      </div>
+    </div>
   </div>
-  <div class="g2">
-    <div class="fg"><label>Current Stock</label><input type="number" id="am-stock" placeholder="0"></div>
-    <div class="fg fg0"><label>Min Stock (alert)</label><input type="number" id="am-min" placeholder="5"></div>
+
+  <!-- Step 3: How do you USE it? -->
+  <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:14px;margin-bottom:14px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red);margin-bottom:10px;">③ Use (Issue) කරන්නේ කොහොමද?</div>
+    <div class="fg fg0">
+      <label>Issue Unit</label>
+      <select id="am-issue-unit" onchange="amUpdatePreview()" style="border-color:rgba(239,68,68,0.3);">
+        <option value="sq.ft">sq.ft — Square Feet</option>
+        <option value="ft">ft — Feet</option>
+        <option value="inch">inch — Inches</option>
+        <option value="mtr">mtr — Meters</option>
+        <option value="Nos">Nos — Numbers</option>
+        <option value="L">L — Liters</option>
+        <option value="kg">kg — Kilograms</option>
+        <option value="same">Same as Stock Unit</option>
+      </select>
+    </div>
+    <!-- Live conversion preview -->
+    <div id="am-conversion-preview" style="display:none;margin-top:10px;background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 12px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">📊 Conversion</div>
+      <div id="am-conv-text" style="font-size:13px;font-weight:600;color:var(--text);line-height:1.8;"></div>
+    </div>
   </div>
-  <div class="flex gap-12 mt-12">
-    <button class="btn btn-acc" onclick="saveMat()" style="flex:1;justify-content:center;">Save</button>
+
+  <!-- Step 4: Current Stock -->
+  <div style="margin-bottom:16px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">④ Current Stock</div>
+    <div class="g2">
+      <div class="fg fg0">
+        <label>Stock Qty <span id="am-stock-unit-lbl" style="color:var(--green);font-weight:600;"></span></label>
+        <input type="number" id="am-stock" placeholder="0" oninput="amUpdatePreview()">
+        <div style="font-size:11px;color:var(--green);margin-top:4px;" id="am-stock-preview"></div>
+      </div>
+      <div class="fg fg0">
+        <label>Min Stock Alert <span id="am-min-unit-lbl" style="color:var(--muted);font-size:10px;"></span></label>
+        <input type="number" id="am-min" placeholder="eg: 3">
+      </div>
+    </div>
+  </div>
+
+  <div class="flex gap-12">
+    <button class="btn btn-acc" onclick="saveMat()" style="flex:1;justify-content:center;">💾 Save</button>
     <button class="btn btn-ghost" onclick="closeModal('modal-mat')">Cancel</button>
   </div>
 </div>
@@ -723,9 +912,19 @@ const DEFAULT_MATS=[{"id":1,"name":"Cladding Sheet Blue","size":"8x4 3mm","unit"
 
 function initDB(){ 
   const stored=DB.mats;
-  // if stored has fewer items than DEFAULT_MATS, refresh
   if(stored.length < DEFAULT_MATS.length){ DB.mats=DEFAULT_MATS; }
   else if(!stored.length){ DB.mats=DEFAULT_MATS; }
+  // Apply default issueUnit if missing
+  const ms=DB.mats;
+  let changed=false;
+  ms.forEach(m=>{
+    if(!m.issueUnit){
+      const def=UNIT_DEFAULTS[m.unit];
+      if(def){ m.issueUnit=def.issueUnit; m.ul=m.ul||def.ul; changed=true; }
+      else { m.issueUnit=m.unit; }
+    }
+  });
+  if(changed) DB.mats=ms;
 }
 function getM(name){ return DB.mats.find(m=>m.name===name)||null; }
 function rateOf(name){ const m=getM(name); return m?m.rate:0; }
@@ -1179,7 +1378,9 @@ async function syncFromSheets(){
     if(!Array.isArray(data)||!data.length) throw new Error('No data. Insert materials first.');
     const mats=data.map(row=>({
       id:row.id, name:row.name||'', size:row.size||'',
-      unit:row.unit||'Nos', ul:parseFloat(row.ul)||1,
+      unit:row.unit||'Nos',
+      issueUnit:row.issueunit||row.unit||'Nos',
+      ul:parseFloat(row.ul)||1,
       rate:parseFloat(row.rate)||0, stock:parseFloat(row.stock)||0,
       min:parseFloat(row.min)||0, isBoxBar:row.isboxbar||false,
     })).filter(m=>m.name);
@@ -1190,6 +1391,7 @@ async function syncFromSheets(){
     if(btn){btn.textContent='✓ Synced!';btn.style.background='var(--green)';btn.style.color='#000';btn.disabled=false;
       setTimeout(()=>{btn.textContent='↻ Sync';btn.style.background='';btn.style.color='';},2500);}
     toast(`✓ ${mats.length} materials synced from database`);
+    loadRequestsFromDB();
     const ap=document.querySelector('.page.active')?.id;
     if(ap==='page-stock') renderStock();
     if(ap==='page-materials') renderMats();
@@ -1209,7 +1411,9 @@ async function autoSync(){
     const data=await res.json();
     if(!Array.isArray(data)||!data.length) return;
     const mats=data.map(row=>({
-      id:row.id,name:row.name||'',size:row.size||'',unit:row.unit||'Nos',
+      id:row.id,name:row.name||'',size:row.size||'',
+      unit:row.unit||'Nos',
+      issueUnit:row.issueunit||row.unit||'Nos',
       ul:parseFloat(row.ul)||1,rate:parseFloat(row.rate)||0,
       stock:parseFloat(row.stock)||0,min:parseFloat(row.min)||0,
       isBoxBar:row.isboxbar||false,
@@ -1233,7 +1437,8 @@ async function saveMatToSheet(mat){
       headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
       body:JSON.stringify({
         id:mat.id, name:mat.name, size:mat.size||'',
-        unit:mat.unit, ul:mat.ul, rate:mat.rate,
+        unit:mat.unit, issueunit:mat.issueUnit||mat.unit,
+        ul:mat.ul, rate:mat.rate,
         stock:mat.stock, min:mat.min, isboxbar:mat.isBoxBar||false
       })
     });
@@ -1247,6 +1452,7 @@ async function saveAllToSheet(){
     const mats=DB.mats;
     const payload=mats.map(m=>({
       id:m.id,name:m.name,size:m.size||'',unit:m.unit,
+      issueunit:m.issueUnit||m.unit,
       ul:m.ul,rate:m.rate,stock:m.stock,min:m.min,isboxbar:m.isBoxBar||false
     }));
     const res=await fetch(SUPABASE_URL+'/rest/v1/materials?on_conflict=id',{
@@ -1268,6 +1474,362 @@ function setMobTab(id){
   const el=document.getElementById('mob-'+id);
   if(el) el.classList.add('active');
 }
+
+
+// ══════════════════════════════════════════════════
+// UNIT CONVERSION SYSTEM
+// ══════════════════════════════════════════════════
+const UNIT_DEFAULTS = {
+  'Sheet':  { issueUnit:'sq.ft', ul:32,  eg:'eg: Cladding 8×4 = 32 sq.ft',   ulEg:'8×4=32, 6×4=24' },
+  'Bar':    { issueUnit:'ft',    ul:18,  eg:'eg: Box Bar 18ft, GI Pipe 8ft',  ulEg:'Box Bar=18, GI Pipe 6"=8' },
+  'Length': { issueUnit:'ft',    ul:12,  eg:'eg: Angle Iron, Flat Iron 12ft', ulEg:'12ft/length' },
+  'Roll':   { issueUnit:'mtr',   ul:50,  eg:'eg: Wire Roll, Tape Roll',       ulEg:'Wire Roll=50mtr' },
+  'Box':    { issueUnit:'Nos',   ul:100, eg:'eg: Paper Cutter Blades, Nails', ulEg:'Blade Box=100nos' },
+  'Nos':    { issueUnit:'Nos',   ul:1,   eg:'eg: LED, Bolts, Nobs',           ulEg:'1 Nos = 1 Nos' },
+  'mtr':    { issueUnit:'mtr',   ul:1,   eg:'eg: Wire TT, 2 Core Wire',       ulEg:'1 mtr = 1 mtr' },
+  'L':      { issueUnit:'L',     ul:1,   eg:'eg: Thinner, Paint, Shampoo',    ulEg:'1 L = 1 L' },
+  'kg':     { issueUnit:'kg',    ul:1,   eg:'eg: Iron Plate by weight',       ulEg:'1 kg = 1 kg' },
+  'Can':    { issueUnit:'L',     ul:4,   eg:'eg: Multi Bond, Paint Can',      ulEg:'1 Can = 4L' },
+  'Tube':   { issueUnit:'Tube',  ul:1,   eg:'eg: Silicon, Adhesive',          ulEg:'1 Tube = 1 Tube' },
+  'sq.ft':  { issueUnit:'sq.ft', ul:1,   eg:'eg: Print, Lamination',         ulEg:'1 sq.ft = 1 sq.ft' },
+};
+
+function amUnitChange(){
+  const unit = document.getElementById('am-unit').value;
+  const def = UNIT_DEFAULTS[unit]||{issueUnit:'Nos',ul:1,eg:'',ulEg:''};
+  document.getElementById('am-issue-unit').value = def.issueUnit;
+  document.getElementById('am-ul').value = def.ul;
+  const ulUnitLbl = document.getElementById('am-ul-unit-label');
+  if(ulUnitLbl) ulUnitLbl.textContent = def.issueUnit==='same'?unit:def.issueUnit;
+  const unitEg = document.getElementById('am-unit-eg');
+  if(unitEg) unitEg.textContent = def.eg;
+  const ulEg = document.getElementById('am-ul-eg');
+  if(ulEg) ulEg.textContent = def.ulEg;
+  amUpdatePreview();
+}
+
+function amUpdatePreview(){
+  const unit = document.getElementById('am-unit').value;
+  const issueUnit = document.getElementById('am-issue-unit').value;
+  const ul = parseFloat(document.getElementById('am-ul').value)||1;
+  const stock = parseFloat(document.getElementById('am-stock').value)||0;
+  const isSame = issueUnit==='same'||unit===issueUnit;
+  const realIssue = isSame ? unit : issueUnit;
+
+  // update unit label next to ul input
+  const ulUnitLbl=document.getElementById('am-ul-unit-label');
+  if(ulUnitLbl) ulUnitLbl.textContent=realIssue;
+
+  // update stock unit labels
+  const sLbl=document.getElementById('am-stock-unit-lbl');
+  if(sLbl) sLbl.textContent=`(${unit})`;
+  const mLbl=document.getElementById('am-min-unit-lbl');
+  if(mLbl) mLbl.textContent=`in ${unit}`;
+
+  // conversion preview
+  const convEl=document.getElementById('am-conversion-preview');
+  const convText=document.getElementById('am-conv-text');
+  if(!isSame && ul>0){
+    convEl.style.display='block';
+    convText.innerHTML=
+      `📥 Receive 1 <strong>${unit}</strong> → Stock +1 ${unit} (+${ul} ${realIssue})<br>`+
+      `📤 Issue ${ul} <strong>${realIssue}</strong> → Stock -1 ${unit}<br>`+
+      `📤 Issue 1 <strong>${realIssue}</strong> → Stock -${(1/ul).toFixed(4)} ${unit}`;
+  } else {
+    convEl.style.display='none';
+  }
+
+  // stock preview
+  const sPrev=document.getElementById('am-stock-preview');
+  if(sPrev){
+    if(stock>0 && !isSame && ul>0){
+      sPrev.textContent=`= ${(stock*ul).toFixed(1)} ${realIssue} total`;
+      sPrev.style.display='block';
+    } else if(stock>0){
+      sPrev.textContent=`${stock} ${unit}`;
+      sPrev.style.display='block';
+    } else {
+      sPrev.style.display='none';
+    }
+  }
+}
+
+// alias for old calls
+function amStockPreview(){ amUpdatePreview(); }
+function amUpdateConversionPreview(){ amUpdatePreview(); }
+
+// Calculate remaining issue units from stock
+function getRemaining(mat){
+  const issueUnit = mat.issueUnit||mat.unit;
+  if(issueUnit===mat.unit||!mat.ul||mat.ul===1) return {val:mat.stock, unit:mat.unit};
+  return {val:parseFloat((mat.stock*mat.ul).toFixed(2)), unit:issueUnit};
+}
+
+// Convert issued quantity to stock units
+function issueToStock(issuedQty, mat){
+  const issueUnit = mat.issueUnit||mat.unit;
+  if(issueUnit===mat.unit||!mat.ul||mat.ul===1) return issuedQty;
+  return issuedQty / mat.ul;
+}
+
+// ══════════════════════════════════════════════════
+// STOCK REQUESTS SYSTEM
+// ══════════════════════════════════════════════════
+let _stockRequests = [];
+
+function loadRequests(){
+  try{ _stockRequests=JSON.parse(localStorage.getItem('wml_requests')||'[]'); }catch(e){ _stockRequests=[]; }
+}
+
+function saveRequests(){
+  try{ localStorage.setItem('wml_requests',JSON.stringify(_stockRequests)); }catch(e){}
+  // Also save to Supabase
+  syncRequestsToDB();
+}
+
+async function syncRequestsToDB(){
+  if(!_stockRequests.length) return;
+  try{
+    const payload = _stockRequests.map(r=>({
+      id:r.id, material_name:r.name, qty:r.qty,
+      unit:r.unit, reason:r.reason||'',
+      status:r.status, requested_by:r.by||'',
+      created_at:r.date
+    }));
+    await fetch(SUPABASE_URL+'/rest/v1/stock_requests?on_conflict=id',{
+      method:'POST',
+      headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify(payload)
+    });
+  }catch(e){ console.log('Request sync error:',e); }
+}
+
+async function loadRequestsFromDB(){
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/stock_requests?select=*&order=created_at.desc',{headers:SB_HEADERS});
+    if(!res.ok) return;
+    const data=await res.json();
+    _stockRequests=data.map(r=>({
+      id:r.id, name:r.material_name, qty:r.qty,
+      unit:r.unit, reason:r.reason||'',
+      status:r.status||'pending', by:r.requested_by||'',
+      date:r.created_at
+    }));
+    try{ localStorage.setItem('wml_requests',JSON.stringify(_stockRequests)); }catch(e){}
+    renderRequests();
+  }catch(e){ console.log('Load requests error:',e); }
+}
+
+function openStockRequest(matId){
+  const mat = DB.mats.find(m=>m.id===matId);
+  if(!mat) return;
+  const qty = parseFloat(prompt(`${mat.name} — Request Qty (${mat.unit}):`)||0);
+  if(!qty) return;
+  const reason = prompt('Reason (optional):') || '';
+  const req = {
+    id: Date.now(),
+    name: mat.name,
+    qty, unit: mat.unit,
+    reason, status: 'pending',
+    by: '', date: new Date().toISOString()
+  };
+  _stockRequests.unshift(req);
+  saveRequests();
+  toast(`✓ Request added — ${mat.name} ${qty} ${mat.unit}`);
+  renderRequests();
+}
+
+let _reqFilter='all';
+function setReqFilter(f){
+  _reqFilter=f;
+  ['all','pending','gm','received'].forEach(x=>{
+    const el=document.getElementById('req-filter-'+x);
+    if(el) el.className='btn btn-sm btn-ghost';
+  });
+  const active=document.getElementById('req-filter-'+f)||document.getElementById('req-filter-all');
+  if(active) active.className='btn btn-sm btn-acc';
+  renderRequests();
+}
+
+function renderRequests(){
+  loadRequests();
+  const el=document.getElementById('req-tbody');
+  if(!el) return;
+  const pending=_stockRequests.filter(r=>r.status==='pending').length;
+  const gmApproved=_stockRequests.filter(r=>r.status==='gm_approved').length;
+  const received=_stockRequests.filter(r=>r.status==='received').length;
+  const cancelled=_stockRequests.filter(r=>r.status==='cancelled').length;
+  const _s=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  _s('req-pending',pending); _s('req-gm-approved',gmApproved);
+  _s('req-received',received); _s('req-cancelled',cancelled);
+
+  let filtered=_stockRequests;
+  if(_reqFilter==='pending') filtered=_stockRequests.filter(r=>r.status==='pending');
+  else if(_reqFilter==='gm_approved') filtered=_stockRequests.filter(r=>r.status==='gm_approved');
+  else if(_reqFilter==='received') filtered=_stockRequests.filter(r=>r.status==='received');
+
+  if(!filtered.length){
+    el.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;">No requests.</td></tr>';
+    return;
+  }
+  el.innerHTML=filtered.map((r,i)=>{
+    const stMap={
+      'pending':['b-low','⏳ Pending'],
+      'gm_approved':['b-blue','✅ GM Approved'],
+      'received':['b-ok','📦 Received'],
+      'cancelled':['b-out','✕ Cancelled'],
+    };
+    const [stClass,stLabel]=stMap[r.status]||['b-low','Pending'];
+    const dt=new Date(r.date).toLocaleDateString('en-LK');
+    return `<tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td><strong>${r.name}</strong></td>
+      <td>${r.qty}</td>
+      <td style="color:var(--muted)">${r.unit}</td>
+      <td style="color:var(--muted);font-size:12px;">${r.reason||'-'}</td>
+      <td style="color:var(--muted);font-size:12px;">${dt}</td>
+      <td><span class="badge ${stClass}">${stLabel}</span></td>
+      <td style="white-space:nowrap;">
+        ${r.status==='pending'?
+          `<button class="btn btn-blue btn-xs" onclick="gmApproveRequest(${r.id})">✅ GM Approve</button>
+           <button class="btn btn-red btn-xs" style="margin-left:3px;" onclick="cancelRequest(${r.id})">✕</button>`
+        :r.status==='gm_approved'?
+          `<span class="badge b-blue" style="font-size:10px;">✅ Approved by GM</span>`
+        :'<span style="color:var(--muted);font-size:11px;">—</span>'}
+      </td>
+      <td style="white-space:nowrap;">
+        ${r.status==='gm_approved'?
+          `<button class="btn btn-green btn-xs" onclick="markRequestReceived(${r.id})">📦 Received</button>`
+        :r.status==='pending'?
+          '<span style="color:var(--muted);font-size:11px;">Await GM</span>'
+        :'<span style="color:var(--muted);font-size:11px;">—</span>'}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function gmApproveRequest(id){
+  requirePin(()=>{
+    const r=_stockRequests.find(x=>x.id===id); if(!r) return;
+    r.status='gm_approved';
+    saveRequests();
+    renderRequests();
+    toast(`✅ GM Approved — ${r.name} ${r.qty} ${r.unit}`);
+  });
+}
+
+function markRequestReceived(id){
+  const r=_stockRequests.find(x=>x.id===id); if(!r) return;
+  if(r.status!=='gm_approved'){ toast('GM Approval ඕනා!','warn'); return; }
+  requirePin(()=>{
+    const mat=DB.mats.find(m=>m.name===r.name);
+    if(mat){
+      mat.stock+=r.qty;
+      DB.mats=DB.mats.map(m=>m.id===mat.id?mat:m);
+      saveMatToSheet(mat);
+    }
+    r.status='received';
+    saveRequests();
+    renderRequests();
+    if(document.getElementById('page-stock').classList.contains('active')) renderStock();
+    toast(`📦 ${r.name} ${r.qty} ${r.unit} received — stock updated`);
+  });
+}
+
+function cancelRequest(id){
+  _stockRequests=_stockRequests.map(r=>r.id===id?{...r,status:'cancelled'}:r);
+  saveRequests();
+  renderRequests();
+  toast('Request cancelled','warn');
+}
+
+function printRequests(){
+  const pending=_stockRequests.filter(r=>r.status==='pending');
+  const gmApproved=_stockRequests.filter(r=>r.status==='gm_approved');
+  const received=_stockRequests.filter(r=>r.status==='received');
+  const stLabel={pending:'⏳ Pending',gm_approved:'✅ GM Approved',received:'📦 Received',cancelled:'✕ Cancelled'};
+  let rows=[...pending,...gmApproved,...received].map((r,i)=>`
+    <tr style="background:${r.status==='received'?'#dcfce7':r.status==='cancelled'?'#fee2e2':''};">
+      <td>${i+1}</td><td><strong>${r.name}</strong></td>
+      <td>${r.qty} ${r.unit}</td><td>${r.reason||'-'}</td>
+      <td>${new Date(r.date).toLocaleDateString('en-LK')}</td>
+      <td><span style="font-weight:bold;color:${r.status==='received'?'#16a34a':r.status==='cancelled'?'#dc2626':'#d97706'};">${r.status.toUpperCase()}</span></td>
+    </tr>`).join('');
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Stock Requests</title>
+    <style>body{font-family:Arial;padding:24px;}table{width:100%;border-collapse:collapse;font-size:12px;}
+    th{background:#1e2436;color:#fff;padding:8px;}td{padding:7px;border-bottom:1px solid #eee;}
+    @media print{button{display:none!important;}}</style></head><body>
+    <button onclick="window.print()" style="margin-bottom:16px;padding:8px 20px;background:#f0a500;border:none;border-radius:6px;font-weight:bold;cursor:pointer;">🖨 Print</button>
+    <div style="font-size:20px;font-weight:bold;margin-bottom:4px;">Stock Requests</div>
+    <div style="color:#555;font-size:12px;margin-bottom:16px;">Pending: ${pending.length} | GM Approved: ${gmApproved.length} | Received: ${received.length}</div>
+    <table><thead><tr><th>#</th><th>Material</th><th>Qty</th><th>Reason</th><th>Date</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table></body></html>`);
+  win.document.close();
+}
+
+// ══════════════════════════════════════════════════
+// STOCK ADD MATERIAL (from stock page)
+// ══════════════════════════════════════════════════
+function openAddMatStock(){
+  // reuse existing modal
+  document.getElementById('mat-modal-title').textContent='Add Material to Stock';
+  document.getElementById('edit-mat-id').value='';
+  ['am-name','am-size','am-unit','am-ul','am-rate','am-stock','am-min'].forEach(id=>document.getElementById(id).value='');
+  openModal('modal-mat');
+}
+
+// ══════════════════════════════════════════════════
+// PROJECT → DATABASE SAVE + APPROVAL
+// ══════════════════════════════════════════════════
+async function saveProjectToDB(proj){
+  try{
+    const payload={
+      id:proj.id, name:proj.name, client:proj.client||'',
+      date:proj.date, boards:proj.boards, total:proj.total,
+      status:'pending'
+    };
+    const res=await fetch(SUPABASE_URL+'/rest/v1/projects?on_conflict=id',{
+      method:'POST',
+      headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify(payload)
+    });
+    if(res.ok) toast('✓ Project saved to database');
+    else throw new Error(await res.text());
+  }catch(e){ toast('DB save failed: '+e.message,'warn'); }
+}
+
+async function approveProject(projId){
+  requirePin(async()=>{
+    const p=DB.projects.find(x=>x.id===projId);
+    if(!p){ toast('Project not found','err'); return; }
+    if(!confirm(`"${p.name}" approve කරලා stock deduct කරන්නද?`)) return;
+    // Deduct stock
+    const mats=DB.mats;
+    p.boards.forEach(b=>b.items.forEach(it=>{
+      const m=mats.find(x=>x.name===it.n);
+      if(m&&it.u!=='sq.ft'&&it.u!=='Lump'){
+        m.stock=Math.max(0,m.stock-it.qty);
+        saveMatToSheet(m);
+      }
+    }));
+    DB.mats=mats;
+    // Update status in DB
+    p.status='approved';
+    DB.projects=DB.projects.map(x=>x.id===projId?p:x);
+    try{
+      await fetch(SUPABASE_URL+`/rest/v1/projects?id=eq.${projId}`,{
+        method:'PATCH',
+        headers:SB_HEADERS,
+        body:JSON.stringify({status:'approved'})
+      });
+    }catch(e){}
+    toast(`✓ "${p.name}" approved! Stock deducted.`);
+    renderProjects();
+    closeModal('modal-proj');
+  });
+}
+
 // ══════════════════════════════════════════════════
 // NAV
 // ══════════════════════════════════════════════════
@@ -1275,13 +1837,14 @@ function goNav(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
-  ['dashboard','new-project','projects','stock','materials'].forEach((p,i)=>{
+  ['dashboard','new-project','projects','stock','requests','materials'].forEach((p,i)=>{
     if(p===id) document.querySelectorAll('.ntab')[i].classList.add('active');
   });
   setMobTab(id);
   if(id==='dashboard') renderDash();
   if(id==='projects') renderProjects();
   if(id==='stock') renderStock();
+  if(id==='requests') renderRequests();
   if(id==='materials') renderMats();
 }
 function openModal(id){ document.getElementById(id).classList.add('show'); }
@@ -1804,17 +2367,26 @@ function renderProjects(){
   const ps=DB.projects;
   const el=document.getElementById('proj-list');
   if(!ps.length){el.innerHTML='<p class="empty">No projects saved.</p>';return;}
-  el.innerHTML=ps.map(p=>`<div class="proj-card" onclick="showProjDetail(${p.id})">
-    <div class="flex justify-between items-center flex-wrap gap-8">
-      <div class="proj-name">${p.name}</div>
-      <button class="btn btn-red btn-sm" onclick="event.stopPropagation();delProj(${p.id})">Delete</button>
-    </div>
-    <div class="proj-meta">${p.client?p.client+' | ':''}${p.date} | ${p.boards.length} board(s)</div>
-    <div class="proj-total">Rs. ${p.total.toLocaleString()}</div>
-    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-      ${p.boards.map(b=>`<span class="badge b-blue">${b.label}</span>`).join('')}
-    </div>
-  </div>`).join('');
+  el.innerHTML=ps.map(p=>{
+    const isApproved=p.status==='approved';
+    return `<div class="proj-card" onclick="showProjDetail(${p.id})">
+      <div class="flex justify-between items-center flex-wrap gap-8">
+        <div>
+          <span class="proj-name">${p.name}</span>
+          ${isApproved?'<span class="badge b-ok" style="margin-left:8px;font-size:11px;">✓ Approved</span>':'<span class="badge b-low" style="margin-left:8px;font-size:11px;">Pending</span>'}
+        </div>
+        <div class="flex gap-8">
+          ${!isApproved?`<button class="btn btn-green btn-sm" onclick="event.stopPropagation();approveProject(${p.id})">✓ Approve</button>`:''}
+          <button class="btn btn-red btn-sm" onclick="event.stopPropagation();delProj(${p.id})">Delete</button>
+        </div>
+      </div>
+      <div class="proj-meta">${p.client?p.client+' | ':''}${p.date} | ${p.boards.length} board(s)</div>
+      <div class="proj-total">Rs. ${p.total.toLocaleString()}</div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+        ${p.boards.map(b=>`<span class="badge b-blue">${b.label}</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 let _editProjId=null;
@@ -1951,16 +2523,45 @@ function renderStock(){
         <input type="number" value="${m.rate||0}" style="width:76px;padding:4px 7px;font-size:12px;border:1px solid var(--border2);border-radius:6px;background:rgba(240,165,0,0.07);color:var(--accent);font-weight:600;" id="rate-${m.id}">
         <button class="btn btn-xs" id="rate-save-${m.id}" onclick="updateRate(${m.id})" style="margin-left:3px;background:rgba(240,165,0,0.15);color:var(--accent);border:1px solid rgba(240,165,0,0.3);">Save</button>
       </td>
-      <td><strong>${m.stock}</strong></td>
+      <td>
+        <div style="font-weight:700;font-size:13px;">${Math.floor(m.stock)} <span style="color:var(--muted);font-size:11px;font-weight:400;">${m.unit}</span></div>
+        ${(m.issueUnit&&m.issueUnit!==m.unit&&m.ul>1)?
+          `<div style="font-size:11px;color:var(--blue);margin-top:2px;">${(m.stock*m.ul).toFixed(1)} ${m.issueUnit}</div>`
+          :''
+        }
+      </td>
       <td>${m.min}</td>
       <td>${badge}</td>
-      <td style="white-space:nowrap;">
-        <input type="number" min="0" placeholder="qty" style="width:58px;padding:4px 6px;font-size:12px;" id="iss-${m.id}">
-        <button class="btn btn-red btn-xs" style="margin-left:2px;" onclick="issueS(${m.id})">Issue</button>
+      <td style="white-space:nowrap;background:rgba(239,68,68,0.05);">
+        <div style="font-size:10px;font-weight:600;color:#fca5a5;margin-bottom:3px;">
+          📤 ${(m.issueUnit&&m.issueUnit!==m.unit)?m.issueUnit:m.unit}
+        </div>
+        <div style="display:flex;align-items:center;gap:3px;">
+          <input type="number" min="0" step="0.1" placeholder="0"
+            style="width:58px;padding:4px 6px;font-size:12px;border:1px solid rgba(239,68,68,0.4);border-radius:6px;" id="iss-${m.id}">
+          <button class="btn btn-red btn-xs" onclick="issueS(${m.id})">Go</button>
+        </div>
+        ${(m.issueUnit&&m.issueUnit!==m.unit&&m.ul>1)?
+          `<div style="font-size:9px;color:var(--muted);margin-top:3px;">1 ${m.unit} = ${m.ul} ${m.issueUnit}</div>`
+          :''
+        }
+      </td>
+      <td style="white-space:nowrap;background:rgba(34,197,94,0.05);">
+        <div style="font-size:10px;font-weight:600;color:#86efac;margin-bottom:3px;">
+          📥 ${m.unit}
+        </div>
+        <div style="display:flex;align-items:center;gap:3px;">
+          <input type="number" min="0" step="0.01" placeholder="0"
+            style="width:58px;padding:4px 6px;font-size:12px;border:1px solid rgba(34,197,94,0.4);border-radius:6px;" id="rcv-${m.id}">
+          <button class="btn btn-green btn-xs" onclick="receiveS(${m.id})">Go</button>
+        </div>
+        ${(m.issueUnit&&m.issueUnit!==m.unit&&m.ul>1)?
+          `<div style="font-size:9px;color:var(--muted);margin-top:3px;">Stock unit ලෙ</div>`
+          :`<div style="font-size:9px;color:var(--muted);margin-top:3px;">${m.unit} ලෙ</div>`
+        }
       </td>
       <td style="white-space:nowrap;">
-        <input type="number" min="0" placeholder="qty" style="width:58px;padding:4px 6px;font-size:12px;" id="rcv-${m.id}">
-        <button class="btn btn-green btn-xs" style="margin-left:2px;" onclick="receiveS(${m.id})">Receive</button>
+        <button class="btn btn-blue btn-xs" onclick="openStockRequest(${m.id})">📋 Request</button>
       </td>
       <td style="white-space:nowrap;">
         <button class="btn btn-ghost btn-xs" onclick="openEditMat(${m.id})" style="margin-right:3px;">✏</button>
@@ -1985,21 +2586,96 @@ function updateRate(id){
   toast(`✓ ${m?m.name:''} rate updated — Rs.${rate.toLocaleString()}`);
   });
 }
-function issueS(id){ requirePin(()=>{ const q=parseFloat(document.getElementById('iss-'+id)?.value)||0; if(!q) return; const ms=DB.mats,m=ms.find(x=>x.id===id); if(m){m.stock=Math.max(0,m.stock-q);DB.mats=ms;renderStock();saveMatToSheet(m);toast(`Issued ${q} ${m.unit} — ${m.name}. Balance: ${m.stock}`,'warn');} }); }
-function receiveS(id){ requirePin(()=>{ const q=parseFloat(document.getElementById('rcv-'+id)?.value)||0; if(!q) return; const ms=DB.mats,m=ms.find(x=>x.id===id); if(m){m.stock+=q;DB.mats=ms;renderStock();saveMatToSheet(m);toast(`✓ Received ${q} ${m.unit} — ${m.name}. Stock: ${m.stock}`);} }); }
+function issueS(id){ requirePin(()=>{
+  const q=parseFloat(document.getElementById('iss-'+id)?.value)||0; if(!q) return;
+  const ms=DB.mats,m=ms.find(x=>x.id===id); if(!m) return;
+  // Convert issued qty to stock units
+  const stockDeduct = issueToStock(q, m);
+  const newStock = Math.max(0, m.stock - stockDeduct);
+  const rem = getRemaining({...m, stock:newStock});
+  m.stock = parseFloat(newStock.toFixed(4));
+  DB.mats=ms; renderStock(); saveMatToSheet(m);
+  const issUnit = m.issueUnit&&m.issueUnit!==m.unit?m.issueUnit:m.unit;
+  const remStockUnits = Math.floor(newStock);
+  const remIssueUnits = (m.issueUnit&&m.issueUnit!==m.unit&&m.ul>1)
+    ? ` = ${(newStock*m.ul).toFixed(1)} ${m.issueUnit}` : '';
+  toast(`📤 Issued ${q} ${issUnit} — ${m.name}\n✅ Remaining: ${remStockUnits} ${m.unit}${remIssueUnits}`,'warn');
+}); }
+function receiveS(id){ requirePin(()=>{
+  const q=parseFloat(document.getElementById('rcv-'+id)?.value)||0; if(!q) return;
+  const ms=DB.mats,m=ms.find(x=>x.id===id); if(!m) return;
+  // Receive in stock units (Bars, Sheets etc)
+  m.stock=parseFloat((m.stock+q).toFixed(4));
+  DB.mats=ms; renderStock(); saveMatToSheet(m);
+  const remR=getRemaining(m);
+  const extraR=(m.issueUnit&&m.issueUnit!==m.unit&&m.ul>1)?
+    ` = ${remR.val} ${remR.unit}` : '';
+  toast(`📥 Received ${q} ${m.unit} — ${m.name}\n✅ Stock: ${Math.floor(m.stock)} ${m.unit}${extraR}`);
+}); }
 function delMatFromStock(id){ requirePin(()=>{ if(!confirm('Delete this material?')) return; DB.mats=DB.mats.filter(m=>m.id!==id); renderStock(); }); }
 
 // ══════════════════════════════════════════════════
 // MATERIALS
 // ══════════════════════════════════════════════════
 function renderMats(){
-  document.getElementById('mat-tbody').innerHTML=DB.mats.map((m,i)=>`<tr>
-    <td style="color:var(--muted)">${i+1}</td><td><strong>${m.name}</strong>${m.isBoxBar?'<span class="badge b-teal" style="margin-left:6px;font-size:9px;">Box Bar</span>':''}</td>
-    <td style="color:var(--muted)">${m.size||'-'}</td><td>${m.unit}</td><td>${m.ul||'-'}</td>
-    <td>Rs.${(m.rate||0).toLocaleString()}</td><td>${m.stock}</td><td>${m.min||0}</td>
-    <td><button class="btn btn-ghost btn-xs" onclick="openEditMat(${m.id})">Edit</button></td>
-    <td><button class="btn btn-red btn-xs" onclick="delMat(${m.id})">Del</button></td>
-  </tr>`).join('');
+  document.getElementById('mat-tbody').innerHTML=DB.mats.map((m,i)=>{
+    const needBuy = m.stock < m.min && m.min > 0;
+    const outOfStock = m.stock === 0;
+    const rowBg = outOfStock
+      ? 'background:rgba(239,68,68,0.08);'
+      : needBuy
+      ? 'background:rgba(240,165,0,0.08);'
+      : i%2===0 ? 'background:rgba(255,255,255,0.025);' : 'background:transparent;';
+    const stockColor = outOfStock ? 'color:#ef4444;font-weight:700;'
+      : needBuy ? 'color:#f0a500;font-weight:700;' : 'color:#22c55e;font-weight:700;';
+    const needTag = outOfStock
+      ? '<span style="margin-left:6px;font-size:10px;padding:1px 7px;border-radius:10px;background:rgba(239,68,68,0.2);color:#ef4444;font-weight:700;">Buy!</span>'
+      : needBuy ? '<span style="margin-left:6px;font-size:10px;padding:1px 7px;border-radius:10px;background:rgba(240,165,0,0.2);color:#f0a500;font-weight:700;">Low</span>' : '';
+    // Stock display — show in stock units (for print list clarity)
+    const stockDisplay = `<strong style="${stockColor}">${Math.floor(m.stock)}</strong> <span style="color:var(--muted);font-size:11px;">${m.unit}</span>`;
+    return `<tr style="${rowBg}">
+      <td style="color:var(--muted);font-size:12px;">${i+1}</td>
+      <td><strong>${m.name}</strong>${m.isBoxBar?'<span class="badge b-teal" style="margin-left:5px;font-size:9px;">Bar</span>':''}${needTag}</td>
+      <td style="color:var(--muted);font-size:12px;">${m.size||'-'}</td>
+      <td style="font-size:12px;">${m.unit}</td>
+      <td style="color:var(--muted);font-size:12px;">${m.ul||'-'}</td>
+      <td style="color:var(--accent);font-weight:600;">Rs.${(m.rate||0).toLocaleString()}</td>
+      <td>${stockDisplay}</td>
+      <td style="color:var(--muted);font-size:12px;">${m.isBoxBar?'✓':'-'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function printMaterialsList(){
+  const mats=DB.mats;
+  const rows=mats.map((m,i)=>{
+    const needBuy=m.stock<m.min&&m.min>0;
+    const out=m.stock===0;
+    const rowBg=out?'background:#fee2e2;':needBuy?'background:#fef3c7;':'';
+    const stockUnits=Math.floor(m.stock); // whole stock units for print
+    const statusLabel=out?'⚠ Buy!':needBuy?'Low':'OK';
+    const statusColor=out?'#dc2626':needBuy?'#d97706':'#16a34a';
+    return `<tr style="${rowBg}">
+      <td style="text-align:center;color:#888;">${i+1}</td>
+      <td><strong>${m.name}</strong>${m.isBoxBar?' <span style="font-size:10px;color:#0284c7;">[Bar]</span>':''}</td>
+      <td style="color:#555;">${m.size||'-'}</td>
+      <td>${m.unit}</td>
+      <td style="text-align:right;">Rs.${(m.rate||0).toLocaleString()}</td>
+      <td style="text-align:center;font-weight:bold;">${stockUnits} ${m.unit}</td>
+      <td style="text-align:center;font-weight:bold;color:${statusColor};">${statusLabel}</td>
+    </tr>`;
+  }).join('');
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>WML Materials List</title>
+    <style>body{font-family:Arial;padding:24px;}table{width:100%;border-collapse:collapse;font-size:12px;}
+    th{background:#1e2436;color:#fff;padding:8px 10px;text-align:left;}td{padding:7px 10px;border-bottom:1px solid #eee;}
+    @media print{button{display:none!important;}}</style></head><body>
+    <button onclick="window.print()" style="margin-bottom:16px;padding:8px 20px;background:#f0a500;border:none;border-radius:6px;font-weight:bold;cursor:pointer;">🖨 Print</button>
+    <div style="font-size:20px;font-weight:bold;margin-bottom:4px;">WML — Materials List</div>
+    <div style="color:#555;font-size:12px;margin-bottom:16px;">Total: ${mats.length} materials | ${new Date().toLocaleDateString('en-LK',{year:'numeric',month:'long',day:'numeric'})}</div>
+    <table><thead><tr><th>#</th><th>Name</th><th>Size</th><th>Unit</th><th>Rate (Rs.)</th><th>Stock</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table></body></html>`);
+  win.document.close();
 }
 function openAddMat(){
   document.getElementById('mat-modal-title').textContent='Add Material';
@@ -2014,20 +2690,39 @@ function openEditMat(id){
   document.getElementById('am-name').value=m.name;
   document.getElementById('am-size').value=m.size||'';
   document.getElementById('am-unit').value=m.unit;
-  document.getElementById('am-ul').value=m.ul||'';
+  document.getElementById('am-issue-unit').value=m.issueUnit||m.unit;
+  document.getElementById('am-ul').value=m.ul||1;
+  const _ulUnitLbl=document.getElementById('am-ul-unit-label'); if(_ulUnitLbl) _ulUnitLbl.textContent=m.issueUnit||m.unit;
   document.getElementById('am-rate').value=m.rate||'';
   document.getElementById('am-stock').value=m.stock||0;
   document.getElementById('am-min').value=m.min||0;
+  amUpdatePreview();
   openModal('modal-mat');
 }
 function saveMat(){
   const name=document.getElementById('am-name').value.trim(); if(!name){alert('Name!');return;}
   const editId=document.getElementById('edit-mat-id').value;
   const ms=DB.mats;
-  const obj={name,size:document.getElementById('am-size').value,unit:document.getElementById('am-unit').value,ul:parseFloat(document.getElementById('am-ul').value)||1,rate:parseFloat(document.getElementById('am-rate').value)||0,stock:parseFloat(document.getElementById('am-stock').value)||0,min:parseFloat(document.getElementById('am-min').value)||0};
+  const issueUnitVal=document.getElementById('am-issue-unit').value;
+  const unitVal=document.getElementById('am-unit').value;
+  const obj={
+    name,
+    size:document.getElementById('am-size').value,
+    unit:unitVal,
+    issueUnit:issueUnitVal==='same'?unitVal:issueUnitVal,
+    ul:parseFloat(document.getElementById('am-ul').value)||1,
+    rate:parseFloat(document.getElementById('am-rate').value)||0,
+    stock:parseFloat(document.getElementById('am-stock').value)||0,
+    min:parseFloat(document.getElementById('am-min').value)||0,
+  };
   if(editId){const idx=ms.findIndex(x=>x.id==editId);if(idx>=0) ms[idx]={...ms[idx],...obj};}
   else{obj.id=Date.now();ms.push(obj);}
-  DB.mats=ms; closeModal('modal-mat'); renderMats();
+  DB.mats=ms;
+  saveMatToSheet(ms.find(m=>m.id==(editId||obj.id)));
+  closeModal('modal-mat');
+  renderMats();
+  renderStock();
+  toast(`✓ ${name} saved!`);
 }
 function delMat(id){ if(!confirm('Delete?')) return; DB.mats=DB.mats.filter(m=>m.id!==id); renderMats(); }
 
@@ -2035,22 +2730,98 @@ function delMat(id){ if(!confirm('Delete?')) return; DB.mats=DB.mats.filter(m=>m
 // DASHBOARD
 // ══════════════════════════════════════════════════
 function renderDash(){
-  const ps=DB.projects,ms=DB.mats;
+  const ps=DB.projects, ms=DB.mats;
   const tot=ps.reduce((s,p)=>s+p.total,0);
   const low=ms.filter(m=>m.stock<m.min&&m.min>0);
+  const pending=ps.filter(p=>p.status!=='approved');
+  const pendingReqs=_stockRequests.filter(r=>r.status==='pending');
+  const gmReqs=_stockRequests.filter(r=>r.status==='gm_approved');
+
+  // Stats
   document.getElementById('d-proj').textContent=ps.length;
   document.getElementById('d-val').textContent='Rs.'+tot.toLocaleString();
   document.getElementById('d-low').textContent=low.length;
   document.getElementById('d-mats').textContent=ms.length;
+
+  // Pending count
+  const pendCountEl=document.getElementById('d-pending-count');
+  if(pendCountEl) pendCountEl.textContent=pending.length?`${pending.length} pending approval`:'All approved ✓';
+
+  // Greeting
+  const hr=new Date().getHours();
+  const greet=hr<12?'සුභ උදෑසනක්':hr<17?'සුභ දවසක්':'සුභ සන්ධ්‍යාවක්';
+  const greetEl=document.getElementById('d-greeting');
+  if(greetEl) greetEl.textContent=greet+' — WML Signage';
+
+  // Request badge
+  const reqBadge=document.getElementById('d-req-badge');
+  if(reqBadge){
+    const total=pendingReqs.length+gmReqs.length;
+    if(total>0){reqBadge.style.display='inline';reqBadge.textContent=total;}
+    else reqBadge.style.display='none';
+  }
+
+  // Recent Projects
   const pl=document.getElementById('d-proj-list');
-  pl.innerHTML=ps.length?ps.slice(0,5).map(p=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
-    <div><div style="font-weight:600;">${p.name}</div><div style="color:var(--muted);font-size:11px;">${p.date} | ${p.boards.length} boards</div></div>
-    <span style="font-family:var(--fh);font-weight:700;color:var(--accent);">Rs.${p.total.toLocaleString()}</span>
-  </div>`).join(''):'<p class="empty">No projects yet.</p>';
+  pl.innerHTML=ps.length?ps.slice(0,4).map(p=>`
+    <div onclick="showProjDetail(${p.id})" style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all .15s;" onmouseover="this.style.paddingLeft='6px'" onmouseout="this.style.paddingLeft='0'">
+      <div>
+        <div style="font-weight:600;font-size:13px;">${p.name}</div>
+        <div style="color:var(--muted);font-size:11px;margin-top:2px;">
+          ${p.date} &nbsp;·&nbsp; ${p.boards.length} board(s) &nbsp;·&nbsp;
+          <span style="color:${p.status==='approved'?'var(--green)':'var(--accent)'};">${p.status==='approved'?'✓ Approved':'⏳ Pending'}</span>
+        </div>
+      </div>
+      <span style="font-family:var(--fh);font-weight:700;color:var(--accent);font-size:15px;">Rs.${p.total.toLocaleString()}</span>
+    </div>`).join(''):'<p class="empty">No projects yet.</p>';
+
+  // Pending approval
+  const pendSec=document.getElementById('d-pending-sec');
+  const pendList=document.getElementById('d-pending-list');
+  if(pending.length>0){
+    pendSec.style.display='block';
+    pendList.innerHTML=pending.slice(0,3).map(p=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">
+        <div>
+          <div style="font-weight:600;">${p.name}</div>
+          <div style="color:var(--muted);font-size:11px;">${p.date}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-family:var(--fh);font-weight:700;color:var(--accent);">Rs.${p.total.toLocaleString()}</span>
+          <button class="btn btn-green btn-xs" onclick="approveProject(${p.id})">✓ Approve</button>
+        </div>
+      </div>`).join('');
+  } else {
+    pendSec.style.display='none';
+  }
+
+  // Low Stock
   const sl=document.getElementById('d-low-list');
-  sl.innerHTML=low.length?low.slice(0,7).map(m=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;">
-    <span>${m.name}</span><span class="badge ${m.stock===0?'b-out':'b-low'}">${m.stock} ${m.unit}</span>
-  </div>`).join(''):'<p class="empty">All stock OK.</p>';
+  sl.innerHTML=low.length?low.slice(0,6).map(m=>`
+    <div onclick="goNav('stock')" style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;">
+      <span>${m.name} <span style="color:var(--muted);font-size:10px;">${m.size||''}</span></span>
+      <span class="badge ${m.stock===0?'b-out':'b-low'}">${Math.floor(m.stock)} ${m.unit}</span>
+    </div>`).join(''):'<p class="empty">✅ All stock OK.</p>';
+
+  // Pending Requests card
+  const reqCard=document.getElementById('d-req-card');
+  const reqList=document.getElementById('d-req-list');
+  if(reqCard && reqList){
+    if(pendingReqs.length>0||gmReqs.length>0){
+      reqCard.style.display='block';
+      const allPend=[...gmReqs,...pendingReqs].slice(0,4);
+      reqList.innerHTML=allPend.map(r=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;">
+          <div>
+            <span>${r.name}</span>
+            <span style="color:var(--muted);margin-left:4px;">${r.qty} ${r.unit}</span>
+          </div>
+          <span class="badge ${r.status==='gm_approved'?'b-blue':'b-low'}">${r.status==='gm_approved'?'✅ GM Approved':'⏳ Pending'}</span>
+        </div>`).join('');
+    } else {
+      reqCard.style.display='none';
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════
@@ -2059,8 +2830,10 @@ function renderDash(){
 document.addEventListener('DOMContentLoaded',()=>{
   initDB();
   initExtraMats();
+  loadRequests();
   renderDirBoardList();
   autoSync();
+  loadRequestsFromDB();
   document.getElementById('p-date').value=new Date().toISOString().split('T')[0];
 
   // wire up mb-type change
@@ -2103,6 +2876,9 @@ document.addEventListener('DOMContentLoaded',()=>{
     </div>
     <div class="mob-tab" id="mob-stock" onclick="goNav('stock');setMobTab('stock')">
       <span class="icon">📦</span><span>Stock</span>
+    </div>
+    <div class="mob-tab" id="mob-requests" onclick="goNav('requests');setMobTab('requests')">
+      <span class="icon">📋</span><span>Requests</span>
     </div>
     <div class="mob-tab" id="mob-materials" onclick="goNav('materials');setMobTab('materials')">
       <span class="icon">⚙️</span><span>Materials</span>
