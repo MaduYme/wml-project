@@ -1,0 +1,2057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WML Project Costing</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--surface:#161b24;--card:#1c2333;--card2:#1a2030;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --accent:#f0a500;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--purple:#a78bfa;--teal:#2dd4bf;
+  --text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8;
+  --fh:'Barlow Condensed',sans-serif;--fb:'Barlow',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;}
+
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:52px;position:sticky;top:0;z-index:300;}
+.brand{font-family:var(--fh);font-size:22px;font-weight:900;color:var(--accent);letter-spacing:2px;margin-right:24px;white-space:nowrap;}
+.brand span{color:var(--text);}
+.ntabs{display:flex;height:100%;overflow-x:auto;}
+.ntab{padding:0 14px;height:100%;display:flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap;user-select:none;}
+.ntab:hover{color:var(--text);}
+.ntab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+.page{display:none;padding:22px 20px;max-width:1200px;margin:0 auto;}
+.page.active{display:block;}
+.pg-title{font-family:var(--fh);font-size:28px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.pg-sub{color:var(--muted);font-size:13px;margin-bottom:20px;}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:14px;}
+.card0{margin-bottom:0;}
+.ctitle{font-family:var(--fh);font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+
+label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:5px;}
+input,select,textarea{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--fb);font-size:13px;outline:none;transition:border .18s;}
+input:focus,select:focus{border-color:var(--blue);}
+select option{background:#1c2333;}
+input[type=number]{-moz-appearance:textfield;}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+input[type=checkbox]{width:auto;margin-right:6px;accent-color:var(--accent);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.fg{margin-bottom:12px;}
+.fg0{margin-bottom:0;}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;border:none;font-family:var(--fh);font-size:14px;font-weight:700;letter-spacing:.4px;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.btn-acc{background:var(--accent);color:#000;}
+.btn-acc:hover{background:#fbbf24;}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-blue:hover{background:#2563eb;}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2);}
+.btn-ghost:hover{background:var(--surface);}
+.btn-red{background:var(--red);color:#fff;}
+.btn-red:hover{background:#dc2626;}
+.btn-green{background:var(--green);color:#000;}
+.btn-green:hover{background:#16a34a;}
+.btn-sm{padding:5px 11px;font-size:12px;}
+.btn-xs{padding:3px 8px;font-size:11px;}
+.btn-w{width:100%;justify-content:center;}
+
+.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;}
+.stat-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:6px;}
+.stat-val{font-family:var(--fh);font-size:28px;font-weight:700;}
+.c-acc{color:var(--accent);}.c-blue{color:var(--blue);}.c-green{color:var(--green);}.c-red{color:var(--red);}.c-purple{color:var(--purple);}
+
+.tbl-wrap{border-radius:10px;border:1px solid var(--border);overflow:hidden;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead{background:var(--surface);}
+th{padding:10px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);white-space:nowrap;}
+td{padding:9px 12px;border-top:1px solid var(--border);vertical-align:middle;}
+tr:hover td{background:rgba(255,255,255,.015);}
+
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.b-ok{background:rgba(34,197,94,.15);color:var(--green);}
+.b-low{background:rgba(240,165,0,.15);color:var(--accent);}
+.b-out{background:rgba(239,68,68,.15);color:var(--red);}
+.b-blue{background:rgba(59,130,246,.15);color:var(--blue);}
+.b-purple{background:rgba(167,139,250,.15);color:var(--purple);}
+.b-teal{background:rgba(45,212,191,.15);color:var(--teal);}
+
+/* BOARD BLOCK */
+.board-block{background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:16px 18px;margin-bottom:12px;}
+.board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.board-type-badge{font-family:var(--fh);font-size:13px;font-weight:700;letter-spacing:.5px;padding:4px 14px;border-radius:20px;background:rgba(240,165,0,.15);color:var(--accent);}
+.board-subtotal{font-family:var(--fh);font-size:18px;font-weight:700;color:var(--green);}
+
+/* MAT ROWS */
+.mat-hdr{display:grid;grid-template-columns:2.2fr .8fr 90px 100px 110px 32px;gap:8px;padding:5px 0 8px;border-bottom:1px solid var(--border2);margin-bottom:4px;}
+.mat-hdr span{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);}
+.mat-row{display:grid;grid-template-columns:2.2fr .8fr 90px 100px 110px 32px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);}
+.mat-row:last-child{border:none;}
+.mat-note{font-size:10px;color:var(--muted);margin-top:2px;}
+.mat-cost{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--accent);text-align:right;}
+
+/* TOTAL */
+.total-bar{background:var(--accent);border-radius:10px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:14px;}
+.total-lbl{font-family:var(--fh);font-size:16px;font-weight:700;color:#000;}
+.total-amt{font-family:var(--fh);font-size:28px;font-weight:900;color:#000;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+.overlay.show{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:22px 24px;width:min(600px,100%);margin:auto;}
+.modal-title{font-family:var(--fh);font-size:22px;font-weight:700;margin-bottom:18px;}
+
+/* SECTION DIVIDER */
+.sec-div{font-family:var(--fh);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:8px 0 6px;border-top:1px solid var(--border);margin:12px 0 10px;}
+
+.proj-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;cursor:pointer;transition:all .2s;margin-bottom:12px;}
+.proj-card:hover{border-color:var(--accent);transform:translateY(-1px);}
+.proj-name{font-family:var(--fh);font-size:20px;font-weight:700;margin-bottom:3px;}
+.proj-meta{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.proj-total{font-family:var(--fh);font-size:24px;font-weight:900;color:var(--accent);}
+
+.empty{color:var(--muted);font-size:13px;padding:12px 0;}
+.flex{display:flex;}.items-center{align-items:center;}.justify-between{justify-content:space-between;}.gap-8{gap:8px;}.gap-12{gap:12px;}.mt-12{margin-top:12px;}.mt-16{margin-top:16px;}.flex-wrap{flex-wrap:wrap;}
+
+.alert-warn{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--accent);margin-bottom:10px;}
+.alert-info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--blue);margin-bottom:10px;}
+
+/* SECTION TOGGLE */
+.sec-toggle{display:none;}
+.sec-toggle.show{display:block;}
+
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#000;font-family:var(--fh);font-size:15px;font-weight:700;padding:12px 20px;border-radius:10px;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.warn{background:var(--accent);}
+.toast.err{background:var(--red);color:#fff;}
+
+
+@media print {
+  body { background: #fff !important; color: #000 !important; font-family: Arial, sans-serif; }
+  nav, .ntabs, .btn, button, .overlay, #grand-bar, .page:not(.print-active) { display: none !important; }
+  .print-area { display: block !important; }
+  .print-header { margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+  .print-board { border: 1px solid #ccc; border-radius: 4px; padding: 12px; margin-bottom: 16px; page-break-inside: avoid; }
+  .print-board-title { font-size: 14px; font-weight: bold; color: #000; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+  .print-row { display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr; gap: 4px; padding: 4px 0; border-bottom: 1px solid #f0f0f0; font-size: 12px; }
+  .print-row-hdr { font-weight: bold; font-size: 11px; text-transform: uppercase; color: #555; border-bottom: 2px solid #000 !important; }
+  .print-total { font-size: 16px; font-weight: bold; text-align: right; margin-top: 12px; padding: 8px; background: #f5f5f5; }
+  .print-grand { font-size: 20px; font-weight: bold; text-align: right; padding: 12px; background: #000; color: #fff; margin-top: 8px; }
+  .print-stock-row { display: grid; grid-template-columns: 0.3fr 2fr 1fr 1fr 0.8fr 0.8fr 0.8fr; gap: 4px; padding: 4px 0; border-bottom: 1px solid #f0f0f0; font-size: 11px; }
+  .no-print { display: none !important; }
+}
+
+@media(max-width:680px){
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+  .mat-hdr,.mat-row{grid-template-columns:1fr 60px 80px 100px 28px;}
+  .mat-hdr span:nth-child(2),.mat-row>span:nth-child(2){display:none;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">WML<span>project</span></div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+    <span id="sync-status" style="font-size:11px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+    <button class="btn btn-ghost btn-sm" onclick="saveAllToSheet()" style="white-space:nowrap;margin-right:4px;">⬆ Save to DB</button>
+    <button id="sync-btn" class="btn btn-ghost btn-sm" onclick="syncFromSheets()" style="white-space:nowrap;">↻ Sync DB</button>
+  </div>
+  <div class="ntabs">
+    <div class="ntab active" onclick="goNav('dashboard')">Dashboard</div>
+    <div class="ntab" onclick="goNav('new-project')">New Project</div>
+    <div class="ntab" onclick="goNav('projects')">Projects</div>
+    <div class="ntab" onclick="goNav('stock')">Stock</div>
+    <div class="ntab" onclick="goNav('materials')">Materials</div>
+  </div>
+</nav>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div class="page active" id="page-dashboard">
+  <div class="pg-title">Dashboard</div>
+  <div class="pg-sub">WML Signage Project Overview</div>
+  <div class="g4" style="margin-bottom:20px;">
+    <div class="stat"><div class="stat-lbl">Projects</div><div class="stat-val c-blue" id="d-proj">0</div></div>
+    <div class="stat"><div class="stat-lbl">Total Value</div><div class="stat-val c-acc" id="d-val">Rs.0</div></div>
+    <div class="stat"><div class="stat-lbl">Low Stock</div><div class="stat-val c-red" id="d-low">0</div></div>
+    <div class="stat"><div class="stat-lbl">Materials</div><div class="stat-val c-green" id="d-mats">0</div></div>
+  </div>
+  <div class="g2">
+    <div class="card card0"><div class="ctitle">Recent Projects</div><div id="d-proj-list"><p class="empty">No projects yet.</p></div></div>
+    <div class="card card0"><div class="ctitle">⚠ Low Stock</div><div id="d-low-list"><p class="empty">All OK.</p></div></div>
+  </div>
+</div>
+
+<!-- ══════════ NEW PROJECT ══════════ -->
+<div class="page" id="page-new-project">
+  <div class="flex justify-between items-center flex-wrap gap-8" style="margin-bottom:18px;">
+    <div><div class="pg-title">New Project</div><div class="pg-sub">Boards add කරලා cost estimate හදන්න</div></div>
+    <div class="flex gap-12">
+      <button class="btn btn-ghost" onclick="printCosting(null)">🖨 Print Estimate</button>
+      <button class="btn btn-acc" onclick="saveProject()">💾 Save Project</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle">Project Info</div>
+    <div class="g3">
+      <div class="fg"><label>Project Name</label><input type="text" id="p-name" placeholder="eg: Puttalam Hospital"></div>
+      <div class="fg"><label>Client</label><input type="text" id="p-client" placeholder="Client name"></div>
+      <div class="fg fg0"><label>Date</label><input type="date" id="p-date"></div>
+    </div>
+  </div>
+  <div id="boards-container"></div>
+  <button class="btn btn-blue btn-w" onclick="openAddBoard()" style="margin-bottom:14px;">＋ Add Board / Item</button>
+  <div id="grand-bar" style="display:none;">
+    <div class="total-bar"><div class="total-lbl">PROJECT TOTAL ESTIMATE</div><div class="total-amt" id="grand-amt">Rs. 0</div></div>
+  </div>
+</div>
+
+<!-- ══════════ PROJECTS ══════════ -->
+<div class="page" id="page-projects">
+  <div class="flex justify-between items-center" style="margin-bottom:20px;">
+    <div><div class="pg-title">All Projects</div><div class="pg-sub">Saved estimates</div></div>
+    <button class="btn btn-acc" onclick="goNav('new-project')">＋ New Project</button>
+  </div>
+  <div id="proj-list"><p class="empty">No projects yet.</p></div>
+</div>
+
+<!-- ══════════ STOCK ══════════ -->
+<div class="page" id="page-stock">
+  <div class="flex justify-between items-center flex-wrap gap-8" style="margin-bottom:16px;">
+    <div><div class="pg-title">Stock</div><div class="pg-sub">Material stock levels</div></div>
+    <div class="flex gap-12 items-center">
+      <input type="text" id="stock-search" placeholder="Search..." style="width:180px;" oninput="renderStock()">
+      <button class="btn btn-ghost" onclick="printStock()">🖨 Print Stock</button>
+    </div>
+  </div>
+  <div class="g4" style="margin-bottom:16px;">
+    <div class="stat"><div class="stat-lbl">Total</div><div class="stat-val c-blue" id="s-tot">0</div></div>
+    <div class="stat"><div class="stat-lbl">In Stock</div><div class="stat-val c-green" id="s-ok">0</div></div>
+    <div class="stat"><div class="stat-lbl">Low</div><div class="stat-val c-acc" id="s-low">0</div></div>
+    <div class="stat"><div class="stat-lbl">Out</div><div class="stat-val c-red" id="s-out">0</div></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Material</th><th>Size</th><th>Unit</th><th>Rate (Rs.)</th><th>Stock</th><th>Min</th><th>Status</th><th>Issue</th><th>Receive</th><th>Actions</th></tr></thead>
+      <tbody id="stock-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════ MATERIALS ══════════ -->
+<div class="page" id="page-materials">
+  <div class="flex justify-between items-center flex-wrap gap-8" style="margin-bottom:16px;">
+    <div><div class="pg-title">Materials</div><div class="pg-sub">Rates, units, stock settings</div></div>
+    <button class="btn btn-acc" onclick="openAddMat()">＋ Add Material</button>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Name</th><th>Size</th><th>Unit</th><th>Unit Len</th><th>Rate (Rs.)</th><th>Stock</th><th>Min</th><th>Edit</th><th>Del</th></tr></thead>
+      <tbody id="mat-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: ADD BOARD ══════════ -->
+<div class="overlay" id="modal-board" onclick="overlayClose(event,'modal-board')">
+<div class="modal">
+  <div class="modal-title">Add Board / Item</div>
+
+  <!-- Board Type -->
+  <div class="fg">
+    <label>Board Type</label>
+    <select id="ab-type" onchange="abTypeChange()">
+      <option value="top-side">01. Top Side Board</option>
+      <option value="main-board">02. Main Board</option>
+      <option value="vision-mission">03. Vision / Mission / Packages</option>
+      <option value="stand-board">04. Stand Board</option>
+      <option value="direction">05. Direction Sign Board</option>
+      <option value="glass-sticker">06. Glass Sticker</option>
+    </select>
+  </div>
+
+  <!-- Size -->
+  <div class="g2">
+    <div class="fg"><label>Width / දිග (ft)</label><input type="number" id="ab-w" placeholder="eg: 8" oninput="abCalc()"></div>
+    <div class="fg"><label>Height / උස (ft)</label><input type="number" id="ab-h" placeholder="eg: 6" oninput="abCalc()"></div>
+  </div>
+
+  <!-- ── TOP SIDE options ── -->
+  <div id="sec-topside" class="sec-toggle show">
+    <div class="sec-div">&#9312; Foundation Type</div>
+    <div class="fg">
+      <label>Foundation</label>
+      <select id="ts-foundation" onchange="tsFndChange()">
+        <option value="gipipe">GI Pipe (4" / 5" / 6" / 7" / 8")</option>
+        <option value="boxbar4">Box Bar 4"x4"</option>
+      </select>
+    </div>
+    <div id="ts-gipipe-sec">
+      <div class="g2">
+        <div class="fg">
+          <label>GI Pipe Size</label>
+          <select id="ts-pipe-size" onchange="abCalc()">
+            <option value="GI Pipe 4in">4" GI Pipe</option>
+            <option value="GI Pipe 5in">5" GI Pipe</option>
+            <option value="GI Pipe 6in">6" GI Pipe</option>
+            <option value="GI Pipe 7in">7" GI Pipe</option>
+            <option value="GI Pipe 8in">8" GI Pipe</option>
+          </select>
+        </div>
+        <div class="fg"><label>GI Pipe Qty (Nos)</label><input type="number" id="ts-pipe-qty" placeholder="eg: 2" oninput="abCalc()"></div>
+      </div>
+    </div>
+    <div id="ts-bb4-sec" style="display:none;">
+      <div class="fg"><label>Box Bar 4x4 Qty (Bars)</label><input type="number" id="ts-bb4-qty" placeholder="eg: 4" oninput="abCalc()"></div>
+    </div>
+    <div class="sec-div">&#9313; Frame</div>
+    <div class="g2">
+      <div class="fg"><label>Frame Box Bar (from stock)</label><select id="ts-boxbar" onchange="abCalc()"></select></div>
+      <div class="fg"><label>Frame Spacing (inches)</label><input type="number" id="ts-spacing" value="16" oninput="abCalc()"></div>
+    </div>
+    <div class="fg">
+      <label><input type="checkbox" id="ts-double" onchange="abCalc()"> Double Side Board (print x2)</label>
+    </div>
+    <div class="sec-div">&#9314; Print &amp; Surface</div>
+    <div class="g2">
+      <div class="fg">
+        <label>Print Type</label>
+        <select id="ts-print-type" onchange="abCalc()">
+          <option value="backlite">Backlite Print (Rs.330/sqft)</option>
+          <option value="flex">Normal Flex Print (Rs.220/sqft)</option>
+          <option value="sticker">Sticker Print (Rs.220/sqft)</option>
+          <option value="lamsticker">Laminated Sticker Print (Rs.310/sqft)</option>
+        </select>
+      </div>
+      <div class="fg"><label>Tube Lights (Nos)</label><input type="number" id="ts-tubes" placeholder="eg: 18" oninput="abCalc()"></div>
+    </div>
+    <div class="sec-div">&#9315; Manual Materials</div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px;">
+      <div class="g2" style="margin-bottom:8px;">
+        <div><label>Pop Rivet (Nos)</label><input type="number" id="ts-rivet" placeholder="eg: 400" oninput="abCalc()"></div>
+        <div><label>TT Wire (mtr)</label><input type="number" id="ts-ttwire" placeholder="eg: 30" oninput="abCalc()"></div>
+      </div>
+      <div class="g2" style="margin-bottom:8px;">
+        <div><label>2 Core Wire (mtr)</label><input type="number" id="ts-2core" placeholder="eg: 20" oninput="abCalc()"></div>
+        <div><label>Wiring Tape (Rolls)</label><input type="number" id="ts-wtape" placeholder="eg: 2" oninput="abCalc()"></div>
+      </div>
+      <div id="ts-extra-mats"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openAddMatPopup({type:'extra',prefix:'ts'})">+ Add Material from Stock</button>
+    </div>
+    <div class="sec-div">&#9316; Additional Costs</div>
+    <div class="g2">
+      <div class="fg"><label>Welding (Rs.)</label><input type="number" id="ts-weld" value="0" oninput="abCalc()"></div>
+      <div class="fg"><label>Transport (Rs.)</label><input type="number" id="ts-transport" value="0" oninput="abCalc()"></div>
+      <div class="fg"><label>Boom / Crane (Rs.)</label><input type="number" id="ts-boom" value="0" oninput="abCalc()"></div>
+      <div class="fg"><label>Concrete (Rs.)</label><input type="number" id="ts-concrete" value="0" oninput="abCalc()"></div>
+      <div class="fg"><label>Labour (Rs.)</label><input type="number" id="ts-labour" value="0" oninput="abCalc()"></div>
+      <div class="fg"><label>Fixing Cost (Rs.)</label><input type="number" id="ts-fixing" value="0" oninput="abCalc()"></div>
+    </div>
+  </div>
+
+  <!-- ── MAIN BOARD options ── -->
+  <div id="sec-mainboard" class="sec-toggle">
+    <div class="sec-div">① Board Type</div>
+    <div class="fg">
+      <select id="mb-type" onchange="mbTypeChange();abCalc()">
+        <option value="single">01. Single Frame</option>
+        <option value="light">02. Light Main Board</option>
+        <option value="cnc">03. CNC Board</option>
+      </select>
+    </div>
+
+    <div class="sec-div">② Box Bar</div>
+    <div class="fg"><label>Box Bar (from stock)</label><select id="mb-boxbar" onchange="abCalc()"></select></div>
+
+    <div id="mb-print-sec">
+      <div class="sec-div">③ Print Type</div>
+      <div class="fg">
+        <select id="mb-print-type" onchange="abCalc()">
+          <option value="backlite">Backlite Print (Rs.330/sqft)</option>
+          <option value="flex">Normal Flex Print (Rs.220/sqft)</option>
+          <option value="sticker">Sticker Print (Rs.220/sqft)</option>
+          <option value="lamsticker">Laminated Sticker Print (Rs.310/sqft)</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="mb-led-sec" class="sec-toggle">
+      <div class="sec-div">④ LED</div>
+      <div class="g2">
+        <div class="fg"><label>LED Type</label>
+          <select id="mb-led-type" onchange="abCalc()">
+            <option value="backlight">LED Backlight (Rs.550)</option>
+            <option value="tube">LED Tube Light (Rs.1200)</option>
+          </select>
+        </div>
+        <div class="fg"><label>LED Count (manual)</label><input type="number" id="mb-leds" placeholder="eg: 12" oninput="abCalc()"></div>
+      </div>
+    </div>
+
+    <div id="mb-cnc-sec" class="sec-toggle">
+      <div class="sec-div">④ CNC Details</div>
+      <div class="g2">
+        <div class="fg"><label>Plastic Cut (minutes)</label><input type="number" id="mb-plastic-min" placeholder="eg: 128" oninput="abCalc()"></div>
+        <div class="fg"><label>Aluminum Bar (ft)</label><input type="number" id="mb-alum-ft" placeholder="eg: 48" oninput="abCalc()"></div>
+      </div>
+    </div>
+
+    <div class="sec-div">⑤ Manual Materials</div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px;">
+      <div class="g2" style="margin-bottom:8px;">
+        <div><label>TT Wire (mtr)</label><input type="number" id="mb-ttwire" placeholder="eg: 20" oninput="abCalc()"></div>
+        <div><label>2 Core Wire (mtr)</label><input type="number" id="mb-2core" placeholder="eg: 15" oninput="abCalc()"></div>
+      </div>
+      <div class="g2" style="margin-bottom:8px;">
+        <div><label>Wiring Tape (Rolls)</label><input type="number" id="mb-wtape" placeholder="eg: 2" oninput="abCalc()"></div>
+        <div><label>Pop Rivet (Nos)</label><input type="number" id="mb-rivet" placeholder="eg: 300" oninput="abCalc()"></div>
+      </div>
+    </div>
+
+    <div class="sec-div">+ Add Materials from Stock</div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:12px;">
+      <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;">
+        <select id="mb-extra-sel" style="font-size:13px;">
+          <option value="">-- Select Material --</option>
+        </select>
+        <input type="number" id="mb-extra-qty" placeholder="Qty" style="padding:7px 10px;font-size:13px;" min="0">
+        <button class="btn btn-blue btn-sm" onclick="openAddMatPopup({type:'extra',prefix:'mb'})">Add</button>
+      </div>
+      <div id="mb-extra-rows"></div>
+    </div>
+
+    <div class="sec-div">⑥ Fixing Cost</div>
+    <div class="fg"><label>Fixing Cost (Rs.)</label><input type="number" id="mb-fixing" value="0" oninput="abCalc()"></div>
+  </div>
+
+  <!-- ── VISION/MISSION options ── -->
+  <div id="sec-vm" class="sec-toggle">
+    <div class="sec-div">① Board Name</div>
+    <div class="fg">
+      <label>Board Name <span style="color:var(--muted);font-size:11px;">(eg: Vision, Mission, Full Packages)</span></label>
+      <input type="text" id="ab-custom-name" placeholder="eg: Vision Board, Mission Board...">
+    </div>
+    <div class="sec-div">② Sub Type &amp; Style</div>
+    <div class="g2">
+      <div class="fg">
+        <label>Sub Type</label>
+        <select id="vm-subtype" onchange="abCalc()">
+          <option value="I">I. Vision</option>
+          <option value="II">II. Mission</option>
+          <option value="III">III. Full Packages</option>
+          <option value="IV">IV. Packages</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Board Style</label>
+        <select id="vm-style" onchange="vmStyleChange();abCalc()">
+          <option value="plastic">01. Plastic + Sticker Print</option>
+          <option value="light">02. Light Board (LED)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 01: Plastic + Sticker -->
+    <div id="vm-plastic-sec">
+      <div class="sec-div">② Plastic — Indian Clear Plastic (6×4)</div>
+      <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--muted2);">
+        Board area ÷ 24 sqft (6×4 sheet) = sheets needed. Rate stock ලෙ pull කරනවා.
+      </div>
+      <div class="fg">
+        <label>Plastic Type</label>
+        <select id="vm-plastic-type" onchange="abCalc()">
+          <option value="indian">Clear Plastic Indian (6×4) — default</option>
+          <option value="white8x4">Plaster Sheet White (8×4)</option>
+        </select>
+      </div>
+      <div class="sec-div">③ Print</div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;">
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:var(--muted);">Sticker Print</span>
+          <span style="color:var(--accent);font-family:var(--fh);font-weight:700;">Rs.310 / sq.ft → auto</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02: Light Board -->
+    <div id="vm-light-sec" style="display:none;">
+      <div class="sec-div">② LED &amp; Cover</div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;">
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:var(--muted);">Cover Cost</span>
+          <span style="color:var(--accent);font-family:var(--fh);font-weight:700;">Rs.180 / sq.ft → auto</span>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="fg">
+          <label>LED Type</label>
+          <select id="vm-led-type" onchange="abCalc()">
+            <option value="backlight">LED Backlight (Rs.550)</option>
+            <option value="tube">LED Tube Light (Rs.1200)</option>
+          </select>
+        </div>
+        <div class="fg"><label>LED Count (manual)</label><input type="number" id="vm-leds" placeholder="eg: 8" oninput="abCalc()"></div>
+      </div>
+      <div class="g2">
+        <div class="fg"><label>TT Wire (mtr)</label><input type="number" id="vm-ttwire" placeholder="eg: 15" oninput="abCalc()"></div>
+        <div class="fg"><label>2 Core Wire (mtr)</label><input type="number" id="vm-2core" placeholder="eg: 10" oninput="abCalc()"></div>
+      </div>
+      <div style="background:rgba(240,165,0,0.08);border:1px solid rgba(240,165,0,0.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--accent);">
+        ⚠ Light Board ලදී Box Bar use නොකරයි — frame නෑ
+      </div>
+    </div>
+    <div class="sec-div">+ Add Materials from Stock</div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:12px;"><div style="display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;"><select id="vm-extra-sel" style="font-size:13px;"><option value="">-- Select Material --</option></select><input type="number" id="vm-extra-qty" placeholder="Qty" style="padding:7px 10px;font-size:13px;" min="0"><button class="btn btn-blue btn-sm" onclick="openAddMatPopup({type:'extra',prefix:'vm'})">Add</button></div><div id="vm-extra-rows"></div></div>
+    <div class="fg"><label>Fixing Cost (Rs.)</label><input type="number" id="vm-fixing" value="0" oninput="abCalc()"></div>
+  </div>
+
+  <!-- ── STAND BOARD options ── -->
+  <div id="sec-standboard" class="sec-toggle">
+    <div class="sec-div">Stand Board Options</div>
+    <div class="g2">
+      <div class="fg">
+        <label>Box Bar (from stock)</label>
+        <select id="sb-boxbar" onchange="abCalc()"></select>
+      </div>
+      <div class="fg">
+        <label>Sticker Print Rate (Rs./sqft)</label>
+        <input type="number" id="sb-print-rate" value="220" oninput="abCalc()">
+      </div>
+    </div>
+    <div class="g2">
+      <div class="fg">
+        <label><input type="checkbox" id="sb-rim" onchange="abCalc()"> Vehicle Rim</label>
+        <small style="color:var(--muted);font-size:11px;">Add rim cost</small>
+      </div>
+      <div class="fg" id="sb-rim-cost-sec" style="display:none;">
+        <label>Rim Cost (Rs.)</label>
+        <input type="number" id="sb-rim-cost" value="0" oninput="abCalc()">
+      </div>
+    </div>
+    <div class="sec-div">+ Add Materials from Stock</div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:12px;"><div style="display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;"><select id="sb-extra-sel" style="font-size:13px;"><option value="">-- Select Material --</option></select><input type="number" id="sb-extra-qty" placeholder="Qty" style="padding:7px 10px;font-size:13px;" min="0"><button class="btn btn-blue btn-sm" onclick="openAddMatPopup({type:'extra',prefix:'sb'})">Add</button></div><div id="sb-extra-rows"></div></div>
+    <div class="fg"><label>Fixing Cost (Rs.)</label><input type="number" id="sb-fixing" value="0" oninput="abCalc()"></div>
+  </div>
+
+  <!-- ── DIRECTION options ── -->
+  <div id="sec-direction" class="sec-toggle">
+    <div class="sec-div">① Board Size (inches)</div>
+    <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--muted2);">
+      Direction boards size <strong>inches</strong> ලෙ enter කරන්න. Width × Height (main size input) inches ලෙ use කරන්න.
+    </div>
+
+    <div class="sec-div">② Board List — Multiple Boards Add කරන්න</div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin-bottom:10px;">
+        <div><label>Board Name / Location</label><input type="text" id="dir-board-name" placeholder="eg: Main Gate, Ward A"></div>
+        <div><label>Count (Nos)</label><input type="number" id="dir-board-count" placeholder="eg: 3" min="1" value="1"></div>
+        <button class="btn btn-blue btn-sm" onclick="dirAddBoard()" style="align-self:end;">+ Add Board</button>
+      </div>
+      <div id="dir-board-list" style="margin-bottom:8px;"></div>
+      <div id="dir-board-summary" style="font-size:12px;color:var(--muted);display:none;"></div>
+    </div>
+
+    <div class="sec-div">③ Print Type</div>
+    <div class="fg">
+      <select id="dir-print-type" onchange="abCalc()">
+        <option value="sticker">Sticker Print (Rs.220/sqft)</option>
+        <option value="sticker310">Sticker Print Laminated (Rs.310/sqft)</option>
+        <option value="flex">Flex Print (Rs.220/sqft)</option>
+        <option value="backlite">Backlite Print (Rs.330/sqft)</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label><input type="checkbox" id="dir-laminate" onchange="abCalc()" checked> Lamination</label>
+    </div>
+
+    <div class="sec-div">④ Base Material</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;text-transform:none;letter-spacing:0;">
+        <input type="radio" name="dir-base" value="plastic" id="dir-base-plastic" onchange="abCalc()" checked
+          style="width:auto;accent-color:var(--accent);">
+        <span>Indian Clear Plastic (6×4) — 24 sqft/sheet</span>
+        <span style="color:var(--accent);font-size:11px;margin-left:auto;" id="dir-plastic-rate-lbl"></span>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;text-transform:none;letter-spacing:0;">
+        <input type="radio" name="dir-base" value="formboard" id="dir-base-form" onchange="abCalc()"
+          style="width:auto;accent-color:var(--accent);">
+        <span>Form Board (8×4 2mm) — 32 sqft/sheet</span>
+        <span style="color:var(--accent);font-size:11px;margin-left:auto;" id="dir-form-rate-lbl"></span>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;text-transform:none;letter-spacing:0;">
+        <input type="radio" name="dir-base" value="cladding3" id="dir-base-cladding3" onchange="abCalc()"
+          style="width:auto;accent-color:var(--accent);">
+        <span>Cladding 3mm (8×4) — 32 sqft/sheet</span>
+        <span style="color:var(--accent);font-size:11px;margin-left:auto;" id="dir-cladding3-rate-lbl"></span>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;text-transform:none;letter-spacing:0;">
+        <input type="radio" name="dir-base" value="both" id="dir-base-both" onchange="abCalc()"
+          style="width:auto;accent-color:var(--accent);">
+        <span>Plastic + Form Board (දෙකම)</span>
+      </label>
+    </div>
+
+    <div class="g2" style="margin-bottom:12px;">
+      <div class="fg"><label>Double Tape (Rolls — manual)</label><input type="number" id="dir-dtape" placeholder="eg: 4" oninput="abCalc()"></div>
+      <div class="fg"><label>Fixing Cost (Rs.)</label><input type="number" id="dir-fixing" value="0" oninput="abCalc()"></div>
+    </div>
+
+    <div class="sec-div">+ Add Materials from Stock</div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:12px;">
+      <div id="dir-extra-rows"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openAddMatPopup({type:'extra',prefix:'dir'})">+ Add Material</button>
+    </div>
+  </div>
+
+  <!-- ── GLASS STICKER options ── -->
+  <div id="sec-glasssticker" class="sec-toggle">
+    <div class="sec-div">Glass Sticker Options</div>
+    <div class="fg">
+      <label>Sticker Type</label>
+      <select id="gs-type" onchange="abCalc()">
+        <option value="colour">Colour Sticker (Rs.310/sqft)</option>
+        <option value="white">White Sticker (Rs.170/sqft)</option>
+        <option value="custom">Custom Rate</option>
+      </select>
+    </div>
+    <div id="gs-custom-sec" style="display:none;">
+      <div class="fg"><label>Custom Rate (Rs./sqft)</label><input type="number" id="gs-custom-rate" value="310" oninput="abCalc()"></div>
+    </div>
+    <div class="sec-div">+ Add Materials from Stock</div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:12px;"><div style="display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;"><select id="gs-extra-sel" style="font-size:13px;"><option value="">-- Select Material --</option></select><input type="number" id="gs-extra-qty" placeholder="Qty" style="padding:7px 10px;font-size:13px;" min="0"><button class="btn btn-blue btn-sm" onclick="openAddMatPopup({type:'extra',prefix:'gs'})">Add</button></div><div id="gs-extra-rows"></div></div>
+    <div class="fg"><label>Fixing Cost (Rs.)</label><input type="number" id="gs-fixing" value="0" oninput="abCalc()"></div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div id="ab-preview" style="margin:14px 0;"></div>
+
+  <div class="flex gap-12">
+    <button class="btn btn-acc" onclick="addBoard()" style="flex:1;justify-content:center;">Add to Project</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-board')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ MODAL: ADD MATERIAL ══════════ -->
+<div class="overlay" id="modal-mat" onclick="overlayClose(event,'modal-mat')">
+<div class="modal">
+  <div class="modal-title" id="mat-modal-title">Add Material</div>
+  <input type="hidden" id="edit-mat-id">
+  <div class="fg"><label>Name</label><input type="text" id="am-name" placeholder="eg: Box Bar 1.5×1.5"></div>
+  <div class="g2">
+    <div class="fg"><label>Size / Spec</label><input type="text" id="am-size" placeholder="eg: 18ft/bar"></div>
+    <div class="fg"><label>Unit</label><input type="text" id="am-unit" placeholder="eg: Bar, Sheet, mtr, Nos"></div>
+  </div>
+  <div class="g2">
+    <div class="fg"><label>Unit Length (numeric)</label><input type="number" id="am-ul" placeholder="eg: 18"></div>
+    <div class="fg"><label>Rate per Unit (Rs.)</label><input type="number" id="am-rate" placeholder="eg: 3500"></div>
+  </div>
+  <div class="g2">
+    <div class="fg"><label>Current Stock</label><input type="number" id="am-stock" placeholder="0"></div>
+    <div class="fg fg0"><label>Min Stock (alert)</label><input type="number" id="am-min" placeholder="5"></div>
+  </div>
+  <div class="flex gap-12 mt-12">
+    <button class="btn btn-acc" onclick="saveMat()" style="flex:1;justify-content:center;">Save</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-mat')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ MODAL: PROJECT DETAIL ══════════ -->
+<div class="overlay" id="modal-proj" onclick="overlayClose(event,'modal-proj')">
+<div class="modal" style="width:min(800px,100%);">
+  <div class="modal-title" id="pd-title">Project</div>
+  <div id="pd-body"></div>
+  <div class="flex gap-12 mt-16">
+    <button class="btn btn-ghost" onclick="printCosting(_editProjId)" style="flex:1;justify-content:center;">🖨 Print Costing</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-proj')" style="flex:1;justify-content:center;">Close</button>
+  </div>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DB
+// ══════════════════════════════════════════════════
+// In-memory store (works in claude.ai preview + browser)
+const _store = { mats: [], projects: [] };
+function _save(key, val){ 
+  _store[key] = val; 
+  try { localStorage.setItem('wml3_'+key, JSON.stringify(val)); } catch(e){}
+}
+function _load(key, def){ 
+  try { const v=localStorage.getItem('wml3_'+key); return v?JSON.parse(v):_store[key].length?_store[key]:def; } 
+  catch(e){ return _store[key].length?_store[key]:def; }
+}
+const DB={
+  get mats(){ return _load('mats',[]); },
+  set mats(v){ _save('mats',v); },
+  get projects(){ return _load('projects',[]); },
+  set projects(v){ _save('projects',v); },
+};
+
+const DEFAULT_MATS=[{"id":1,"name":"Cladding Sheet Blue","size":"8x4 3mm","unit":"Sheet","ul":32,"rate":3840,"stock":0,"min":3,"isBoxBar":false},{"id":2,"name":"Cladding Sheet White","size":"8x4 3mm","unit":"Sheet","ul":32,"rate":3840,"stock":0,"min":3,"isBoxBar":false},{"id":3,"name":"Cladding 4mm 12.5×4","size":"12.5x4 4mm","unit":"Sheet","ul":50,"rate":6600,"stock":0,"min":2,"isBoxBar":false},{"id":4,"name":"Plaster Sheet White","size":"8x4 2mm","unit":"Sheet","ul":32,"rate":2200,"stock":0,"min":2,"isBoxBar":false},{"id":5,"name":"Plaster Sheet White","size":"6x4 2mm","unit":"Sheet","ul":24,"rate":2000,"stock":0,"min":2,"isBoxBar":false},{"id":6,"name":"Clear Plastic Sheet","size":"6x4 2mm","unit":"Sheet","ul":24,"rate":2500,"stock":0,"min":2,"isBoxBar":false},{"id":7,"name":"Clear Plastic Indian","size":"6x4 2mm","unit":"Sheet","ul":24,"rate":2000,"stock":1,"min":2,"isBoxBar":false},{"id":8,"name":"Form Board","size":"8x4 2mm","unit":"Sheet","ul":32,"rate":1800,"stock":2,"min":3,"isBoxBar":false},{"id":9,"name":"Form Board","size":"8x4 3mm","unit":"Sheet","ul":32,"rate":2200,"stock":4,"min":3,"isBoxBar":false},{"id":10,"name":"Form Board","size":"8x4 4mm","unit":"Sheet","ul":32,"rate":2800,"stock":2,"min":3,"isBoxBar":false},{"id":11,"name":"GI Pipe 1¾\"","size":"1¾\"","unit":"Length","ul":20,"rate":1200,"stock":0,"min":2,"isBoxBar":false},{"id":12,"name":"GI Pipe 1½\"","size":"1½\"","unit":"Length","ul":20,"rate":1200,"stock":3,"min":2,"isBoxBar":false},{"id":13,"name":"GI Pipe 2\"","size":"2\"","unit":"Length","ul":20,"rate":2000,"stock":0,"min":2,"isBoxBar":false},{"id":14,"name":"GI Pipe 3\"","size":"3\"","unit":"Length","ul":20,"rate":3500,"stock":0,"min":2,"isBoxBar":false},{"id":15,"name":"GI Pipe 4\"","size":"4\"","unit":"Length","ul":20,"rate":5000,"stock":0,"min":2,"isBoxBar":false},{"id":16,"name":"GI Pipe 5\"","size":"5\"","unit":"Length","ul":20,"rate":7000,"stock":0,"min":2,"isBoxBar":false},{"id":17,"name":"GI Pipe 6\"","size":"6\"","unit":"Length","ul":8,"rate":20400,"stock":0,"min":2,"isBoxBar":false},{"id":18,"name":"GI Pipe 8\"","size":"8\"","unit":"Length","ul":8,"rate":30000,"stock":0,"min":1,"isBoxBar":false},{"id":19,"name":"Box Bar ¾×¾","size":"¾x¾ pt9","unit":"Bar","ul":18,"rate":1200,"stock":3,"min":5,"isBoxBar":true},{"id":20,"name":"Box Bar 1\"×1\"","size":"1×1","unit":"Bar","ul":18,"rate":2000,"stock":5,"min":5,"isBoxBar":true},{"id":21,"name":"Box Bar 1.5\"×1.5\"","size":"1½×1½","unit":"Bar","ul":18,"rate":3500,"stock":3,"min":5,"isBoxBar":true},{"id":22,"name":"Box Bar 2\"×2\"","size":"2×2","unit":"Bar","ul":18,"rate":4500,"stock":5,"min":3,"isBoxBar":true},{"id":23,"name":"Box Bar 2\"×1\"","size":"2×1","unit":"Bar","ul":18,"rate":3000,"stock":7,"min":3,"isBoxBar":true},{"id":24,"name":"Box Bar 4\"×4\"","size":"4×4","unit":"Bar","ul":18,"rate":8000,"stock":5,"min":2,"isBoxBar":true},{"id":25,"name":"Box Bar 3\"×1.5\"","size":"3×1½","unit":"Bar","ul":18,"rate":5000,"stock":1,"min":3,"isBoxBar":true},{"id":26,"name":"Aluminum Bar 2\"×1\"","size":"2×1 20ft","unit":"Bar","ul":20,"rate":6560,"stock":0,"min":3,"isBoxBar":true},{"id":27,"name":"Aluminium Angle ¾ Black","size":"¾ Black 12'","unit":"Length","ul":12,"rate":900,"stock":6,"min":5,"isBoxBar":false},{"id":28,"name":"Aluminium Angle ¾ Natural","size":"¾ Natural 12'","unit":"Length","ul":12,"rate":800,"stock":0,"min":3,"isBoxBar":false},{"id":29,"name":"Aluminium Angle ½ Black","size":"½ Black 12'","unit":"Length","ul":12,"rate":750,"stock":5,"min":5,"isBoxBar":false},{"id":30,"name":"Aluminium Angle ½ Natural","size":"½ Natural 12'","unit":"Length","ul":12,"rate":650,"stock":0,"min":3,"isBoxBar":false},{"id":31,"name":"Aluminium Angle 1×1 Black","size":"1×1 Black","unit":"Length","ul":12,"rate":1200,"stock":3,"min":5,"isBoxBar":false},{"id":32,"name":"Aluminium Angle 1×1 Natural","size":"1×1 Natural","unit":"Length","ul":12,"rate":1000,"stock":0,"min":3,"isBoxBar":false},{"id":33,"name":"L Angle Iron","size":"1½×1½ 3mm","unit":"Length","ul":12,"rate":1500,"stock":0,"min":3,"isBoxBar":false},{"id":34,"name":"Flat Iron 1×1","size":"1×1","unit":"Length","ul":12,"rate":1200,"stock":2,"min":3,"isBoxBar":false},{"id":35,"name":"Flat Iron 0.75","size":"0.75","unit":"Length","ul":12,"rate":900,"stock":0,"min":3,"isBoxBar":false},{"id":36,"name":"Flat Iron ½ 0.25mm","size":"½ 0.25mm","unit":"Length","ul":12,"rate":700,"stock":0,"min":3,"isBoxBar":false},{"id":37,"name":"Iron Plate 0.25","size":"0.25","unit":"Sheet","ul":1,"rate":3667,"stock":9,"min":3,"isBoxBar":false},{"id":38,"name":"Pop Rivet Box 32×5/8","size":"32×5/8","unit":"Box","ul":300,"rate":600,"stock":1,"min":2,"isBoxBar":false},{"id":39,"name":"Pop Rivet Box 0.125","size":"0.125","unit":"Box","ul":300,"rate":500,"stock":1,"min":2,"isBoxBar":false},{"id":40,"name":"Pop Rivet Box 1/8-1\"","size":"1/8-1\"","unit":"Box","ul":300,"rate":550,"stock":2,"min":2,"isBoxBar":false},{"id":41,"name":"Flexible Conduit 0.5","size":"0.5×","unit":"mtr","ul":1,"rate":80,"stock":60,"min":10,"isBoxBar":false},{"id":42,"name":"Polycrom Conduit Pipe","size":"½ 16mm","unit":"Length","ul":12,"rate":350,"stock":0,"min":3,"isBoxBar":false},{"id":43,"name":"Anchor Bolt 10×75mm","size":"10×75mm 3/8×3","unit":"Nos","ul":1,"rate":50,"stock":6,"min":20,"isBoxBar":false},{"id":44,"name":"Silver Nob 25×25","size":"25×25","unit":"Nos","ul":1,"rate":150,"stock":72,"min":20,"isBoxBar":false},{"id":45,"name":"Grill Bit 32×5/8","size":"32×5/8","unit":"Nos","ul":1,"rate":350,"stock":1,"min":5,"isBoxBar":false},{"id":46,"name":"Grill Bit 0.125","size":"0.125","unit":"Nos","ul":1,"rate":300,"stock":7,"min":5,"isBoxBar":false},{"id":47,"name":"Grill Bit 0.25","size":"0.25","unit":"Nos","ul":1,"rate":280,"stock":3,"min":5,"isBoxBar":false},{"id":48,"name":"Grill Bit 8mm","size":"8mm","unit":"Nos","ul":1,"rate":400,"stock":2,"min":5,"isBoxBar":false},{"id":49,"name":"Black Screw Nails 1\"","size":"1\"","unit":"Box","ul":1,"rate":500,"stock":0,"min":2,"isBoxBar":false},{"id":50,"name":"Cutting Wheel 14\"","size":"14\"","unit":"Nos","ul":1,"rate":800,"stock":1,"min":2,"isBoxBar":false},{"id":51,"name":"Cutting Wheel 4.5\"","size":"4.5\"","unit":"Nos","ul":1,"rate":250,"stock":0,"min":5,"isBoxBar":false},{"id":52,"name":"Grinding Wheel 4.5\"","size":"4.5\"","unit":"Nos","ul":1,"rate":300,"stock":3,"min":5,"isBoxBar":false},{"id":53,"name":"Sanding Wheel 4.5\"","size":"4.5\"","unit":"Nos","ul":1,"rate":280,"stock":1,"min":3,"isBoxBar":false},{"id":54,"name":"Nut and Bolt 8.8","size":"8.8","unit":"Set","ul":1,"rate":120,"stock":0,"min":5,"isBoxBar":false},{"id":55,"name":"Nut and Bolt 10mm","size":"10mm","unit":"Set","ul":1,"rate":150,"stock":0,"min":5,"isBoxBar":false},{"id":56,"name":"Wire TT 16/0.20","size":"16/0.20","unit":"mtr","ul":1,"rate":69,"stock":50,"min":20,"isBoxBar":false},{"id":57,"name":"White Sticker","size":"White","unit":"Roll","ul":1,"rate":1500,"stock":0,"min":3,"isBoxBar":false},{"id":58,"name":"Laminating Roll 50m","size":"50m×4ft","unit":"Roll","ul":1,"rate":4500,"stock":35,"min":5,"isBoxBar":false},{"id":59,"name":"Vehicle Rim 12\"","size":"12\"","unit":"Nos","ul":1,"rate":0,"stock":4,"min":1,"isBoxBar":false},{"id":60,"name":"Thinner","size":"L","unit":"L","ul":1,"rate":500,"stock":0,"min":3,"isBoxBar":false},{"id":61,"name":"Causway QD","size":"L","unit":"L","ul":1,"rate":800,"stock":4,"min":3,"isBoxBar":false},{"id":62,"name":"Dry Wall Screws 1½\"","size":"1½\"","unit":"Box","ul":1,"rate":400,"stock":0,"min":2,"isBoxBar":false},{"id":63,"name":"Sand Paper 120","size":"120","unit":"Sheet","ul":1,"rate":50,"stock":0,"min":5,"isBoxBar":false},{"id":64,"name":"Sand Paper 320","size":"320","unit":"Sheet","ul":1,"rate":60,"stock":0,"min":5,"isBoxBar":false},{"id":65,"name":"Amano Screws 1\"","size":"1\"","unit":"Nos","ul":1,"rate":15,"stock":25,"min":50,"isBoxBar":false},{"id":66,"name":"Amano Screws 2\"","size":"2\"","unit":"Nos","ul":1,"rate":20,"stock":0,"min":50,"isBoxBar":false},{"id":67,"name":"LED Flasher Akro 30W","size":"30W","unit":"Nos","ul":1,"rate":2500,"stock":6,"min":3,"isBoxBar":false},{"id":68,"name":"Shampoo","size":"L","unit":"L","ul":1,"rate":600,"stock":2,"min":2,"isBoxBar":false},{"id":69,"name":"Grinder Wheel 4\"","size":"4\"","unit":"Nos","ul":1,"rate":300,"stock":5,"min":5,"isBoxBar":false},{"id":70,"name":"Cutting Wheel 4\"","size":"4\"","unit":"Nos","ul":1,"rate":250,"stock":5,"min":5,"isBoxBar":false},{"id":71,"name":"Iron L Angle 1×1×3mm","size":"1×1×3mm","unit":"Length","ul":12,"rate":1200,"stock":8,"min":3,"isBoxBar":false},{"id":72,"name":"Iron L Angle 2×2×5mm","size":"2×2×5mm","unit":"Length","ul":12,"rate":2500,"stock":1,"min":2,"isBoxBar":false},{"id":73,"name":"Iron L Angle 1×½","size":"1×½×1×½","unit":"Length","ul":12,"rate":900,"stock":13,"min":3,"isBoxBar":false},{"id":74,"name":"Paper Cutter Blade","size":"Box","unit":"Box","ul":1,"rate":800,"stock":0,"min":1,"isBoxBar":false},{"id":75,"name":"Silicon Black","size":"Black","unit":"Tube","ul":1,"rate":1050,"stock":0,"min":3,"isBoxBar":false},{"id":76,"name":"Silicon White","size":"White","unit":"Tube","ul":1,"rate":1050,"stock":1,"min":3,"isBoxBar":false},{"id":77,"name":"Silicon Clear","size":"Clear","unit":"Tube","ul":1,"rate":1050,"stock":2,"min":3,"isBoxBar":false},{"id":78,"name":"Multi Bond","size":"1L","unit":"Can","ul":1,"rate":1500,"stock":0,"min":2,"isBoxBar":false},{"id":79,"name":"Small Silver Chain","size":"Small","unit":"mtr","ul":1,"rate":500,"stock":0,"min":2,"isBoxBar":false},{"id":80,"name":"Angel Iron 1×1×5mm","size":"1×1×5mm","unit":"Length","ul":12,"rate":1500,"stock":0,"min":3,"isBoxBar":false},{"id":81,"name":"Wiring Tape","size":"-","unit":"Roll","ul":1,"rate":150,"stock":10,"min":5,"isBoxBar":false},{"id":82,"name":"Welding Rod 10\"","size":"10\" box","unit":"Box","ul":1,"rate":1500,"stock":7,"min":3,"isBoxBar":false},{"id":83,"name":"Welding Rod 12\"","size":"12\" box","unit":"Box","ul":1,"rate":1800,"stock":3,"min":3,"isBoxBar":false},{"id":84,"name":"Double Tape 1\"","size":"1\"","unit":"Roll","ul":1,"rate":200,"stock":12,"min":5,"isBoxBar":false},{"id":85,"name":"2 Core Wire","size":"-","unit":"mtr","ul":1,"rate":105,"stock":80,"min":20,"isBoxBar":false},{"id":86,"name":"Rubber Sheet","size":"0.5 inch","unit":"Sheet","ul":1,"rate":1200,"stock":0,"min":2,"isBoxBar":false},{"id":87,"name":"Roll Plug","size":"-","unit":"Nos","ul":1,"rate":15,"stock":150,"min":30,"isBoxBar":false},{"id":88,"name":"Screw Nails","size":"-","unit":"Nos","ul":1,"rate":5,"stock":200,"min":50,"isBoxBar":false},{"id":89,"name":"Cable Tie Black 12\"","size":"12\"","unit":"Nos","ul":1,"rate":5,"stock":150,"min":50,"isBoxBar":false},{"id":90,"name":"Cable Tie Black 8\"","size":"8\"","unit":"Nos","ul":1,"rate":4,"stock":0,"min":50,"isBoxBar":false},{"id":91,"name":"Masking Tape 2\"","size":"2\"","unit":"Roll","ul":1,"rate":300,"stock":2,"min":3,"isBoxBar":false},{"id":92,"name":"Silver Screw Hanger","size":"-","unit":"Nos","ul":1,"rate":100,"stock":0,"min":5,"isBoxBar":false},{"id":93,"name":"LED Tube Light","size":"-","unit":"Nos","ul":1,"rate":1200,"stock":84,"min":10,"isBoxBar":false},{"id":94,"name":"LED Strip S","size":"S","unit":"mtr","ul":1,"rate":800,"stock":0,"min":3,"isBoxBar":false},{"id":95,"name":"LED Strip L","size":"L","unit":"mtr","ul":1,"rate":1200,"stock":0,"min":3,"isBoxBar":false},{"id":96,"name":"LED Backlight","size":"-","unit":"Nos","ul":1,"rate":550,"stock":120,"min":20,"isBoxBar":false},{"id":97,"name":"Power Supply 10A","size":"10A","unit":"Nos","ul":1,"rate":3500,"stock":4,"min":2,"isBoxBar":false},{"id":98,"name":"Power Supply 20A","size":"20A","unit":"Nos","ul":1,"rate":5000,"stock":5,"min":2,"isBoxBar":false},{"id":99,"name":"Power Supply 30A","size":"30A","unit":"Nos","ul":1,"rate":7000,"stock":5,"min":2,"isBoxBar":false},{"id":100,"name":"Amano Sheet","size":"-","unit":"Sheet","ul":1,"rate":500,"stock":0,"min":2,"isBoxBar":false},{"id":101,"name":"Soft Glue","size":"-","unit":"Nos","ul":1,"rate":400,"stock":0,"min":3,"isBoxBar":false},{"id":102,"name":"Small Washer","size":"-","unit":"Nos","ul":1,"rate":10,"stock":0,"min":20,"isBoxBar":false},{"id":103,"name":"Backlite Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":330,"stock":999,"min":0,"isBoxBar":false},{"id":104,"name":"Flex Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":220,"stock":999,"min":0,"isBoxBar":false},{"id":105,"name":"Sticker Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":220,"stock":999,"min":0,"isBoxBar":false},{"id":106,"name":"Glass Sticker White","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":170,"stock":999,"min":0,"isBoxBar":false},{"id":107,"name":"Lamination","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":60,"stock":999,"min":0,"isBoxBar":false},{"id":108,"name":"Laminated Sticker Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":310,"stock":999,"min":0,"isBoxBar":false}];
+
+function initDB(){ 
+  const stored=DB.mats;
+  // if stored has fewer items than DEFAULT_MATS, refresh
+  if(stored.length < DEFAULT_MATS.length){ DB.mats=DEFAULT_MATS; }
+  else if(!stored.length){ DB.mats=DEFAULT_MATS; }
+}
+function getM(name){ return DB.mats.find(m=>m.name===name)||null; }
+function rateOf(name){ const m=getM(name); return m?m.rate:0; }
+function boxBars(){ return DB.mats.filter(m=>m.isBoxBar); }
+
+// current project boards
+let CBoards=[];
+
+
+// ── TOP SIDE foundation toggle ──
+function tsFndChange(){
+  const fnd=document.getElementById('ts-foundation').value;
+  document.getElementById('ts-gipipe-sec').style.display=fnd==='gipipe'?'block':'none';
+  document.getElementById('ts-bb4-sec').style.display=fnd==='boxbar4'?'block':'none';
+  abCalc();
+}
+
+// extra material rows for top side
+let tsExtraMats=[];
+// tsAddExtraMat replaced by addExtraMat system
+function tsExtraQtyChange(id,val){
+  const item=tsExtraMats.find(x=>x.id===id);
+  if(item){item.qty=parseFloat(val)||0;}
+  abCalc();
+}
+function tsRemoveExtra(id){
+  tsExtraMats=tsExtraMats.filter(x=>x.id!==id);
+  const el=document.getElementById(id);
+  if(el) el.remove();
+  abCalc();
+}
+
+
+
+function toast(msg, type='ok'){
+  const t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent=msg;
+  t.className='toast'+(type==='warn'?' warn':type==='err'?' err':'');
+  void t.offsetWidth;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ══════════════════════════════════════════════════
+// EXTRA MATERIALS SYSTEM (all board types)
+// ══════════════════════════════════════════════════
+const _extraMats = {}; // { prefix: [{id, mat, qty}] }
+const PREFIXES = ['ts','mb','vm','sb','dir','gs'];
+
+function initExtraMats(){
+  PREFIXES.forEach(p=>{ _extraMats[p]=[]; });
+}
+
+function fillExtraSelects(){
+  const mats=DB.mats;
+  const opts=['<option value="">-- Select Material --</option>',
+    ...mats.map(m=>`<option value="${m.id}">${m.name} (${m.unit}) — Rs.${m.rate.toLocaleString()}</option>`)
+  ].join('');
+  PREFIXES.forEach(p=>{
+    const el=document.getElementById(p+'-extra-sel');
+    if(el) el.innerHTML=opts;
+  });
+}
+
+function addExtraMat(prefix){
+  const sel=document.getElementById(prefix+'-extra-sel');
+  const qtyEl=document.getElementById(prefix+'-extra-qty');
+  if(!sel||!sel.value){toast('Material select කරන්න!','warn');return;}
+  const qty=parseFloat(qtyEl?.value)||0;
+  if(!qty){toast('Qty enter කරන්න!','warn');return;}
+  const mat=DB.mats.find(m=>m.id==sel.value);
+  if(!mat) return;
+  const id=prefix+'-'+Date.now();
+  if(!_extraMats[prefix]) _extraMats[prefix]=[];
+  _extraMats[prefix].push({id,mat,qty});
+  renderExtraRows(prefix);
+  qtyEl.value='';
+  sel.value='';
+  abCalc();
+  toast(`✓ ${mat.name} (${qty} ${mat.unit}) added — Rs.${(qty*mat.rate).toLocaleString()}`);
+}
+
+function removeExtraMat(prefix,id){
+  if(!_extraMats[prefix]) return;
+  _extraMats[prefix]=_extraMats[prefix].filter(x=>x.id!==id);
+  renderExtraRows(prefix);
+  abCalc();
+}
+
+function renderExtraRows(prefix){
+  const container=document.getElementById(prefix+'-extra-rows');
+  if(!container) return;
+  const items=_extraMats[prefix]||[];
+  if(!items.length){container.innerHTML='';return;}
+  container.innerHTML=items.map(item=>`
+    <div style="display:grid;grid-template-columns:2fr auto auto auto;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--border);">
+      <span style="font-size:12px;">${item.mat.name} <span style="color:var(--muted);">(Rs.${item.mat.rate.toLocaleString()}/${item.mat.unit})</span></span>
+      <input type="number" value="${item.qty}" style="width:70px;padding:4px 7px;font-size:12px;" onchange="updateExtraQty('${prefix}','${item.id}',this.value)">
+      <span style="font-size:12px;font-family:var(--fh);font-weight:700;color:var(--accent);">Rs.${(item.qty*item.mat.rate).toLocaleString()}</span>
+      <button class="btn btn-red btn-xs" onclick="removeExtraMat('${prefix}','${item.id}')">✕</button>
+    </div>`).join('');
+}
+
+function updateExtraQty(prefix,id,val){
+  const item=(_extraMats[prefix]||[]).find(x=>x.id===id);
+  if(item){item.qty=parseFloat(val)||0;}
+  renderExtraRows(prefix);
+  abCalc();
+}
+
+function getExtraItems(prefix){
+  return (_extraMats[prefix]||[])
+    .filter(x=>x.qty>0)
+    .map(x=>({n:x.mat.name,qty:x.qty,u:x.mat.unit,r:x.mat.rate,note:'Manual'}));
+}
+
+function resetAllExtras(){
+  PREFIXES.forEach(p=>{
+    _extraMats[p]=[];
+    const el=document.getElementById(p+'-extra-rows');
+    if(el) el.innerHTML='';
+    const sel=document.getElementById(p+'-extra-sel');
+    if(sel) sel.value='';
+    const qty=document.getElementById(p+'-extra-qty');
+    if(qty) qty.value='';
+  });
+}
+
+
+// ══════════════════════════════════════════════════
+// ADD MATERIAL POPUP SYSTEM
+// ══════════════════════════════════════════════════
+let _ampContext = null; // {type:'board'|'project', bi, projId}
+
+function openAddMatPopup(context){
+  _ampContext = context;
+  // fill dropdown
+  const mats = DB.mats;
+  const opts = ['<option value="">-- Select Material --</option>',
+    ...mats.map(m=>`<option value="${m.id}">${m.name} — Rs.${m.rate.toLocaleString()}/${m.unit}</option>`)
+  ].join('');
+  document.getElementById('amp-mat-sel').innerHTML = opts;
+  document.getElementById('amp-mat-sel').value = '';
+  document.getElementById('amp-qty').value = '';
+  document.getElementById('amp-unit').value = '';
+  document.getElementById('amp-mat-info').style.display = 'none';
+  document.getElementById('amp-cost-preview').style.display = 'none';
+  openModal('modal-addmat-popup');
+}
+
+function ampMatChange(){
+  const sel = document.getElementById('amp-mat-sel');
+  const mat = DB.mats.find(m=>m.id==sel.value);
+  if(!mat){ 
+    document.getElementById('amp-mat-info').style.display='none';
+    document.getElementById('amp-cost-preview').style.display='none';
+    return;
+  }
+  // show info
+  document.getElementById('amp-mat-info').style.display='block';
+  document.getElementById('amp-mat-detail').innerHTML = 
+    `<strong>${mat.name}</strong> &nbsp;|&nbsp; Size: ${mat.size||'-'} &nbsp;|&nbsp; Default Unit: <strong>${mat.unit}</strong> &nbsp;|&nbsp; Rate: <strong>Rs.${mat.rate.toLocaleString()}/${mat.unit}</strong> &nbsp;|&nbsp; Stock: <strong>${mat.stock} ${mat.unit}</strong>`;
+  // auto-set unit
+  document.getElementById('amp-unit').value = mat.unit;
+  ampCalcPreview();
+}
+
+function ampCalcPreview(){
+  const sel = document.getElementById('amp-mat-sel');
+  const mat = DB.mats.find(m=>m.id==sel.value);
+  const qty = parseFloat(document.getElementById('amp-qty').value)||0;
+  if(!mat||!qty){ document.getElementById('amp-cost-preview').style.display='none'; return; }
+  const cost = qty * mat.rate;
+  document.getElementById('amp-cost-preview').style.display='block';
+  document.getElementById('amp-cost-val').textContent = 'Rs. '+cost.toLocaleString();
+}
+
+function ampConfirm(){
+  const sel = document.getElementById('amp-mat-sel');
+  const mat = DB.mats.find(m=>m.id==sel.value);
+  if(!mat){ toast('Material select කරන්න!','warn'); return; }
+  const qty = parseFloat(document.getElementById('amp-qty').value)||0;
+  if(!qty){ toast('Quantity enter කරන්න!','warn'); return; }
+  const unit = document.getElementById('amp-unit').value || mat.unit;
+  const cost = qty * mat.rate;
+
+  if(_ampContext.type === 'board'){
+    // New Project boards
+    const bi = _ampContext.bi;
+    CBoards[bi].items.push({n:mat.name, qty, u:unit, r:mat.rate, cost, note:'Added'});
+    recalcSub(bi);
+    renderBoards();
+  } else if(_ampContext.type === 'project'){
+    // Saved project edit
+    const bi = _ampContext.bi;
+    const p = DB.projects.find(x=>x.id===_editProjId);
+    if(!p) return;
+    p.boards[bi].items.push({n:mat.name, qty, u:unit, r:mat.rate, cost, note:'Added'});
+    pdRecalc(bi,p);
+    DB.projects = DB.projects.map(x=>x.id===_editProjId?p:x);
+    renderProjDetail();
+  } else if(_ampContext.type === 'extra'){
+    // Board modal extra materials
+    const prefix = _ampContext.prefix;
+    const id = prefix+'-'+Date.now();
+    if(!_extraMats[prefix]) _extraMats[prefix]=[];
+    _extraMats[prefix].push({id, mat, qty});
+    renderExtraRows(prefix);
+    abCalc();
+  }
+
+  closeModal('modal-addmat-popup');
+  toast(`✓ ${mat.name} — ${qty} ${unit} — Rs.${cost.toLocaleString()} added`);
+}
+
+
+// ══════════════════════════════════════════════════
+// PRINT FUNCTIONS
+// ══════════════════════════════════════════════════
+function printCosting(projId){
+  const p = projId
+    ? DB.projects.find(x=>x.id===projId)
+    : {name: document.getElementById('p-name').value||'New Project',
+       client: document.getElementById('p-client').value||'',
+       date: document.getElementById('p-date').value||new Date().toISOString().split('T')[0],
+       boards: CBoards};
+
+  if(!p || !p.boards.length){ toast('No data to print!','warn'); return; }
+
+  const grand = p.boards.reduce((s,b)=>s+(b.sub||0),0);
+
+  let html = `
+    <div class="print-header">
+      <div style="font-size:22px;font-weight:bold;">${p.name}</div>
+      <div style="font-size:13px;color:#555;margin-top:4px;">${p.client?p.client+' &nbsp;|&nbsp; ':''} Date: ${p.date}</div>
+    </div>`;
+
+  p.boards.forEach(b=>{
+    html += `<div class="print-board">
+      <div class="print-board-title">${b.label} &nbsp; ${b.W}×${b.H} ft = ${b.W*b.H} sq.ft</div>
+      <div class="print-row print-row-hdr"><span>Material</span><span>Qty</span><span>Unit / Rate</span><span style="text-align:right;">Cost (Rs.)</span></div>`;
+    (b.items||[]).forEach(it=>{
+      html += `<div class="print-row">
+        <span>${it.n}${it.note?` <em style="color:#888;font-size:10px;">(${it.note})</em>`:''}</span>
+        <span>${it.qty}</span>
+        <span>${it.u} @ Rs.${(it.r||0).toLocaleString()}</span>
+        <span style="text-align:right;font-weight:600;">Rs.${(it.cost||0).toLocaleString()}</span>
+      </div>`;
+    });
+    html += `<div class="print-total">Sub-total: Rs.${(b.sub||0).toLocaleString()}</div></div>`;
+  });
+
+  html += `<div class="print-grand">TOTAL ESTIMATE: Rs.${grand.toLocaleString()}</div>`;
+
+  const win = window.open('','_blank','width=800,height=600');
+  win.document.write(`<!DOCTYPE html><html><head><title>${p.name} — Costing</title>
+    <style>
+      body{font-family:Arial,sans-serif;padding:24px;color:#000;max-width:800px;margin:0 auto;}
+      .print-header{margin-bottom:20px;border-bottom:2px solid #000;padding-bottom:10px;}
+      .print-board{border:1px solid #ccc;border-radius:4px;padding:12px;margin-bottom:16px;}
+      .print-board-title{font-size:14px;font-weight:bold;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:6px;}
+      .print-row{display:grid;grid-template-columns:2.5fr 0.7fr 1.3fr 1fr;gap:4px;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px;}
+      .print-row-hdr{font-weight:bold;font-size:11px;text-transform:uppercase;color:#555;border-bottom:2px solid #000!important;padding-bottom:6px;}
+      .print-total{font-size:14px;font-weight:bold;text-align:right;margin-top:10px;padding:8px;background:#f5f5f5;}
+      .print-grand{font-size:18px;font-weight:bold;text-align:right;padding:12px;background:#000;color:#fff;margin-top:8px;border-radius:6px;}
+      @media print{button{display:none!important;}}
+    </style></head><body>
+    <button onclick="window.print()" style="margin-bottom:20px;padding:8px 20px;font-size:14px;cursor:pointer;background:#f0a500;border:none;border-radius:6px;font-weight:bold;">🖨 Print / Save PDF</button>
+    ${html}
+    </body></html>`);
+  win.document.close();
+}
+
+function printStock(){
+  const mats = DB.mats;
+  let ok=0,low=0,out=0;
+  mats.forEach(m=>{if(m.stock===0)out++;else if(m.stock<m.min&&m.min>0)low++;else ok++;});
+
+  let rows = mats.map((m,i)=>`
+    <tr style="background:${m.stock===0?'#fee2e2':m.stock<m.min&&m.min>0?'#fef3c7':''};">
+      <td style="text-align:center;color:#888;">${i+1}</td>
+      <td><strong>${m.name}</strong>${m.isBoxBar?'<span style="font-size:10px;color:#0284c7;margin-left:6px;">[Bar]</span>':''}</td>
+      <td style="color:#555;">${m.size||'-'}</td>
+      <td>${m.unit}</td>
+      <td style="text-align:right;">Rs.${(m.rate||0).toLocaleString()}</td>
+      <td style="text-align:center;font-weight:bold;">${m.stock}</td>
+      <td style="text-align:center;">${m.min}</td>
+      <td style="text-align:center;">
+        <span style="padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold;
+          background:${m.stock===0?'#fee2e2':m.stock<m.min&&m.min>0?'#fef3c7':'#dcfce7'};
+          color:${m.stock===0?'#dc2626':m.stock<m.min&&m.min>0?'#d97706':'#16a34a'};">
+          ${m.stock===0?'Out':m.stock<m.min&&m.min>0?'Low':'OK'}
+        </span>
+      </td>
+    </tr>`).join('');
+
+  const win = window.open('','_blank','width=900,height=600');
+  win.document.write(`<!DOCTYPE html><html><head><title>WML Stock List</title>
+    <style>
+      body{font-family:Arial,sans-serif;padding:24px;color:#000;}
+      table{width:100%;border-collapse:collapse;font-size:12px;}
+      th{background:#1e2436;color:#fff;padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
+      td{padding:7px 10px;border-bottom:1px solid #f0f0f0;}
+      .summary{display:flex;gap:20px;margin-bottom:16px;font-size:13px;}
+      .sum-item{padding:8px 16px;border-radius:6px;font-weight:bold;}
+      @media print{button{display:none!important;}}
+    </style></head><body>
+    <button onclick="window.print()" style="margin-bottom:20px;padding:8px 20px;font-size:14px;cursor:pointer;background:#f0a500;border:none;border-radius:6px;font-weight:bold;">🖨 Print / Save PDF</button>
+    <div style="font-size:20px;font-weight:bold;margin-bottom:4px;">WML — Stock List</div>
+    <div style="color:#555;font-size:13px;margin-bottom:16px;">Printed: ${new Date().toLocaleDateString('en-LK',{year:'numeric',month:'long',day:'numeric'})}</div>
+    <div class="summary">
+      <div class="sum-item" style="background:#dcfce7;color:#16a34a;">In Stock: ${ok}</div>
+      <div class="sum-item" style="background:#fef3c7;color:#d97706;">Low: ${low}</div>
+      <div class="sum-item" style="background:#fee2e2;color:#dc2626;">Out: ${out}</div>
+      <div class="sum-item" style="background:#e0e7ff;color:#4338ca;">Total: ${mats.length}</div>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Material</th><th>Size</th><th>Unit</th><th>Rate (Rs.)</th><th>Stock</th><th>Min</th><th>Status</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    </body></html>`);
+  win.document.close();
+}
+
+
+// ══════════════════════════════════════════════════
+// DIRECTION BOARD LIST
+// ══════════════════════════════════════════════════
+let _dirBoards = []; // [{name, count}]
+
+function dirAddBoard(){
+  const name = document.getElementById('dir-board-name').value.trim() || 'Board';
+  const count = parseInt(document.getElementById('dir-board-count').value)||1;
+  _dirBoards.push({id:Date.now(), name, count});
+  document.getElementById('dir-board-name').value='';
+  document.getElementById('dir-board-count').value='1';
+  renderDirBoardList();
+  abCalc();
+}
+
+function dirRemoveBoard(id){
+  _dirBoards = _dirBoards.filter(b=>b.id!==id);
+  renderDirBoardList();
+  abCalc();
+}
+
+function renderDirBoardList(){
+  const el = document.getElementById('dir-board-list');
+  const sumEl = document.getElementById('dir-board-summary');
+  if(!el) return;
+  if(!_dirBoards.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--muted);padding:6px 0;">Board list empty — size (W×H) use කරලා auto calculate කරනවා</div>';
+    sumEl.style.display='none';
+    return;
+  }
+  const totalBoards = _dirBoards.reduce((s,b)=>s+b.count,0);
+  el.innerHTML = _dirBoards.map(b=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <span>${b.name}</span>
+      <span style="color:var(--muted);">× ${b.count} nos</span>
+      <button class="btn btn-red btn-xs" onclick="dirRemoveBoard(${b.id})">✕</button>
+    </div>`).join('');
+  sumEl.style.display='block';
+  sumEl.innerHTML=`<strong style="color:var(--accent);">Total: ${totalBoards} boards</strong>`;
+}
+
+function resetDirBoards(){
+  _dirBoards=[];
+  const el=document.getElementById('dir-board-list');
+  if(el) el.innerHTML='';
+}
+
+
+// ══════════════════════════════════════════════════
+// GOOGLE SHEETS SYNC
+// ══════════════════════════════════════════════════
+const SUPABASE_URL = "https://oeablxyqxbtliyqczdvp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Nx7amzKuesuY76i6C7dFDQ_2AAo4cEa";
+const SB_HEADERS = {
+  "apikey": SUPABASE_KEY,
+  "Authorization": "Bearer "+SUPABASE_KEY,
+  "Content-Type": "application/json",
+  "Prefer": "return=representation"
+};
+
+
+
+
+
+
+
+
+
+
+
+
+// Auto sync on load if last sync > 5 mins ago
+
+
+async function syncFromSheets(){
+  const btn=document.getElementById('sync-btn');
+  const status=document.getElementById('sync-status');
+  if(btn){btn.textContent='⏳ Syncing...';btn.disabled=true;}
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/materials?select=*&order=id',{headers:SB_HEADERS});
+    if(!res.ok) throw new Error('HTTP '+res.status+' — '+await res.text());
+    const data=await res.json();
+    if(!Array.isArray(data)||!data.length) throw new Error('No data. Insert materials first.');
+    const mats=data.map(row=>({
+      id:row.id, name:row.name||'', size:row.size||'',
+      unit:row.unit||'Nos', ul:parseFloat(row.ul)||1,
+      rate:parseFloat(row.rate)||0, stock:parseFloat(row.stock)||0,
+      min:parseFloat(row.min)||0, isBoxBar:row.isboxbar||false,
+    })).filter(m=>m.name);
+    DB.mats=mats; _store.mats=mats;
+    try{localStorage.setItem('wml_mats',JSON.stringify(mats));}catch(e){}
+    const now=new Date().toLocaleTimeString('en-LK');
+    if(status) status.textContent=`Synced: ${now} — ${mats.length} materials`;
+    if(btn){btn.textContent='✓ Synced!';btn.style.background='var(--green)';btn.style.color='#000';btn.disabled=false;
+      setTimeout(()=>{btn.textContent='↻ Sync';btn.style.background='';btn.style.color='';},2500);}
+    toast(`✓ ${mats.length} materials synced from database`);
+    const ap=document.querySelector('.page.active')?.id;
+    if(ap==='page-stock') renderStock();
+    if(ap==='page-materials') renderMats();
+    renderDash();
+  }catch(err){
+    if(btn){btn.textContent='✕ Failed';btn.style.background='var(--red)';btn.style.color='#fff';btn.disabled=false;
+      setTimeout(()=>{btn.textContent='↻ Sync';btn.style.background='';btn.style.color='';},3000);}
+    if(status) status.textContent='Error: '+err.message;
+    toast('Sync failed: '+err.message,'err');
+  }
+}
+
+async function autoSync(){
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/materials?select=*&order=id',{headers:SB_HEADERS});
+    if(!res.ok) return;
+    const data=await res.json();
+    if(!Array.isArray(data)||!data.length) return;
+    const mats=data.map(row=>({
+      id:row.id,name:row.name||'',size:row.size||'',unit:row.unit||'Nos',
+      ul:parseFloat(row.ul)||1,rate:parseFloat(row.rate)||0,
+      stock:parseFloat(row.stock)||0,min:parseFloat(row.min)||0,
+      isBoxBar:row.isboxbar||false,
+    })).filter(m=>m.name);
+    if(!mats.length) return;
+    DB.mats=mats; _store.mats=mats;
+    try{localStorage.setItem('wml_mats',JSON.stringify(mats));}catch(e){}
+    const status=document.getElementById('sync-status');
+    const now=new Date().toLocaleTimeString('en-LK');
+    if(status) status.textContent=`Auto synced: ${now} — ${mats.length} materials`;
+    renderDash();
+    toast(`✓ Database synced — ${mats.length} materials`);
+  }catch(e){console.log('Auto sync skipped:',e.message);}
+}
+
+async function saveMatToSheet(mat){
+  try{
+    // UPSERT to Supabase
+    await fetch(SUPABASE_URL+'/rest/v1/materials?on_conflict=id',{
+      method:'POST',
+      headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify({
+        id:mat.id, name:mat.name, size:mat.size||'',
+        unit:mat.unit, ul:mat.ul, rate:mat.rate,
+        stock:mat.stock, min:mat.min, isboxbar:mat.isBoxBar||false
+      })
+    });
+  }catch(e){console.log('DB save error:',e);}
+}
+
+async function saveAllToSheet(){
+  const btn=document.getElementById('sync-btn');
+  if(btn){btn.textContent='⬆ Saving...';btn.disabled=true;}
+  try{
+    const mats=DB.mats;
+    const payload=mats.map(m=>({
+      id:m.id,name:m.name,size:m.size||'',unit:m.unit,
+      ul:m.ul,rate:m.rate,stock:m.stock,min:m.min,isboxbar:m.isBoxBar||false
+    }));
+    const res=await fetch(SUPABASE_URL+'/rest/v1/materials?on_conflict=id',{
+      method:'POST',
+      headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error(await res.text());
+    toast(`✓ ${mats.length} materials saved to database`);
+    if(btn){btn.textContent='↻ Sync';btn.disabled=false;}
+  }catch(e){
+    toast('Save failed: '+e.message,'err');
+    if(btn){btn.textContent='↻ Sync';btn.disabled=false;}
+  }
+}
+// ══════════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════════
+function goNav(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  ['dashboard','new-project','projects','stock','materials'].forEach((p,i)=>{
+    if(p===id) document.querySelectorAll('.ntab')[i].classList.add('active');
+  });
+  if(id==='dashboard') renderDash();
+  if(id==='projects') renderProjects();
+  if(id==='stock') renderStock();
+  if(id==='materials') renderMats();
+}
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function overlayClose(e,id){ if(e.target===document.getElementById(id)) closeModal(id); }
+
+// ══════════════════════════════════════════════════
+// POPULATE BOX BAR DROPDOWNS
+// ══════════════════════════════════════════════════
+function fillBoxBarDropdowns(){
+  const bars=boxBars();
+  const opts=bars.map(b=>`<option value="${b.name}">${b.name} (Rs.${b.rate.toLocaleString()}/${b.unit}) — Stock:${b.stock}</option>`).join('');
+  ['ts-boxbar','mb-boxbar','vm-boxbar','sb-boxbar'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=opts;
+  });
+  const pipes=DB.mats.filter(m=>m.name.startsWith('GI Pipe'));
+  const pipeEl=document.getElementById('ts-pipe-size');
+  if(pipeEl && pipes.length){
+    pipeEl.innerHTML=pipes.map(p=>`<option value="${p.name}">${p.name} (Rs.${p.rate.toLocaleString()}) Stock:${p.stock}</option>`).join('');
+  }
+  // update direction rate labels
+  const lp=document.getElementById('dir-plastic-rate-lbl');
+  const lf=document.getElementById('dir-form-rate-lbl');
+  const lc=document.getElementById('dir-cladding3-rate-lbl');
+  const mPlastic=DB.mats.find(m=>m.name==='Clear Plastic Indian');
+  const mForm=DB.mats.find(m=>m.name.includes('Form Board'));
+  const mClad=DB.mats.find(m=>m.name==='Cladding Sheet Blue');
+  if(lp&&mPlastic) lp.textContent=`Rs.${mPlastic.rate.toLocaleString()}/sheet`;
+  if(lf&&mForm) lf.textContent=`Rs.${mForm.rate.toLocaleString()}/sheet`;
+  if(lc&&mClad) lc.textContent=`Rs.${mClad.rate.toLocaleString()}/sheet`;
+}
+
+// ══════════════════════════════════════════════════
+// BOARD MODAL LOGIC
+// ══════════════════════════════════════════════════
+const SECTIONS={
+  'top-side':'topside','main-board':'mainboard','vision-mission':'vm',
+  'stand-board':'standboard','direction':'direction','glass-sticker':'glasssticker'
+};
+
+function openAddBoard(){
+  resetAllExtras();
+  resetDirBoards();
+  renderDirBoardList();
+  fillBoxBarDropdowns();
+  fillExtraSelects();
+  tsFndChange();
+  abTypeChange();
+  abCalc();
+  const nameEl=document.getElementById('ab-custom-name');
+  if(nameEl) nameEl.value='';
+  openModal('modal-board');
+}
+
+function abTypeChange(){
+  const t=document.getElementById('ab-type').value;
+  ['topside','mainboard','vm','standboard','direction','glasssticker'].forEach(s=>{
+    const el=document.getElementById('sec-'+s);
+    if(el) el.classList.remove('show');
+  });
+  const sec=SECTIONS[t];
+  const el=document.getElementById('sec-'+sec);
+  if(el) el.classList.add('show');
+  // clear custom name when switching away from vm
+  const nameEl=document.getElementById('ab-custom-name');
+  if(nameEl && t!=='vision-mission') nameEl.value='';
+  if(t==='main-board') mbTypeChange();
+  if(t==='vision-mission') vmStyleChange();
+  if(t==='glass-sticker') gsTypeChange();
+  // update size labels
+  const wLbl=document.querySelector('label[for="ab-w"]')||document.querySelector('.fg label');
+  const isDir=t==='direction';
+  const wEl=document.getElementById('ab-w');
+  const hEl=document.getElementById('ab-h');
+  if(wEl) wEl.placeholder=isDir?'eg: 24 (inches)':'eg: 8 (ft)';
+  if(hEl) hEl.placeholder=isDir?'eg: 18 (inches)':'eg: 6 (ft)';
+  // update size labels via parent divs
+  const sizeGrid=document.querySelector('#modal-board .g2');
+  if(sizeGrid){
+    const labels=sizeGrid.querySelectorAll('label');
+    if(labels[0]) labels[0].textContent=isDir?'Width (inches)':'Width / දිග (ft)';
+    if(labels[1]) labels[1].textContent=isDir?'Height (inches)':'Height / උස (ft)';
+  }
+  abCalc();
+}
+
+function mbTypeChange(){
+  const mt=document.getElementById('mb-type').value;
+  const led=document.getElementById('mb-led-sec');
+  const cnc=document.getElementById('mb-cnc-sec');
+  if(led) led.classList.toggle('show', mt==='light'||mt==='cnc');
+  if(cnc) cnc.classList.toggle('show', mt==='cnc');
+  abCalc();
+}
+
+function vmStyleChange(){
+  const vs=document.getElementById('vm-style')?.value||'plastic';
+  document.getElementById('vm-plastic-sec').style.display=vs==='plastic'?'block':'none';
+  document.getElementById('vm-light-sec').style.display=vs==='light'?'block':'none';
+}
+
+function gsTypeChange(){
+  const gt=document.getElementById('gs-type').value;
+  document.getElementById('gs-custom-sec').style.display=gt==='custom'?'block':'none';
+  abCalc();
+}
+
+function v(id){ return parseFloat(document.getElementById(id)?.value)||0; }
+function s(id){ return document.getElementById(id)?.value||''; }
+function chk(id){ return document.getElementById(id)?.checked||false; }
+
+// ── BUILD ITEMS ──
+function buildItems(type,W,H){
+  const area=W*H;
+  const perim=2*(W+H);
+  let items=[];
+
+  if(type==='glass-sticker'){
+    const gt=s('gs-type');
+    const rate=gt==='white'?170:gt==='custom'?v('gs-custom-rate'):310;
+    items=[
+      {n:'Sticker Print',   qty:area,  u:'sq.ft', r:rate, note:`${W}×${H}=${area} sqft`},
+      {n:'Lamination',      qty:area,  u:'sq.ft', r:rateOf('Lamination')},
+    ];
+    const fix=v('gs-fixing');
+    getExtraItems('gs').forEach(i=>items.push(i));
+    if(fix) items.push({n:'Fixing Cost',qty:1,u:'Lump',r:fix});
+
+  } else if(type==='direction'){
+    // W,H in inches → sqft
+    const areaSqFt = (W*H)/144;
+    const totalBoards=_dirBoards.length?_dirBoards.reduce((s,b)=>s+b.count,0):1;
+    const totalArea=parseFloat((areaSqFt*totalBoards).toFixed(2));
+    const boardNote=_dirBoards.length
+      ?`${_dirBoards.map(b=>`${b.name}×${b.count}`).join(', ')} = ${totalBoards} boards`
+      :`${totalBoards} board`;
+
+    // print type
+    const ptMap={'sticker':'Sticker Print','sticker310':'Laminated Sticker Print','flex':'Flex Print','backlite':'Backlite Print'};
+    const priceMap={'sticker':220,'sticker310':310,'flex':220,'backlite':330};
+    const ptype=s('dir-print-type')||'sticker';
+    const printName=ptMap[ptype]||'Sticker Print';
+    const printRate=priceMap[ptype]||220;
+
+    // base material
+    const baseMat=document.querySelector('input[name="dir-base"]:checked')?.value||'plastic';
+    if(baseMat==='plastic'||baseMat==='both'){
+      const sheets=Math.ceil(totalArea/24);
+      const r=rateOf('Clear Plastic Indian')||2000;
+      items.push({n:'Clear Plastic Indian (6×4)',qty:sheets,u:'Sheet',r,note:`${totalArea}sqft÷24 | ${boardNote}`});
+    }
+    if(baseMat==='formboard'||baseMat==='both'){
+      const sheets=Math.ceil(totalArea/32);
+      const r=rateOf('Form Board')||1800;
+      items.push({n:'Form Board (8×4 2mm)',qty:sheets,u:'Sheet',r,note:`${totalArea}sqft÷32`});
+    }
+    if(baseMat==='cladding3'){
+      const sheets=Math.ceil(totalArea/32);
+      const r=rateOf('Cladding Sheet Blue')||3840;
+      items.push({n:'Cladding 3mm (8×4)',qty:sheets,u:'Sheet',r,note:`${totalArea}sqft÷32`});
+    }
+
+    items.push({n:printName,qty:totalArea,u:'sq.ft',r:printRate,note:`Rs.${printRate}/sqft | ${totalBoards} board(s)`});
+    const doLam=document.getElementById('dir-laminate')?.checked!==false;
+    if(doLam) items.push({n:'Lamination',qty:totalArea,u:'sq.ft',r:rateOf('Lamination')});
+
+    const dtape=v('dir-dtape'),fix=v('dir-fixing');
+    if(dtape>0) items.push({n:'Double Tape',qty:dtape,u:'Roll',r:rateOf('Double Tape 1"')||200,note:'Manual'});
+    getExtraItems('dir').forEach(i=>items.push(i));
+    if(fix) items.push({n:'Fixing Cost',qty:1,u:'Lump',r:fix});
+
+  } else if(type==='top-side'){
+    const bbName=s('ts-boxbar');
+    const bbM=getM(bbName)||{ul:18,rate:3500};
+    const spacing=v('ts-spacing')||16;
+    const H_in=H*12;
+    const crossCount=Math.ceil(H_in/spacing)+1;
+    const totalFt=(crossCount*W)+(H*2);
+    const claddingSqft=perim*1;
+    const claddingSheets=Math.ceil(claddingSqft/32);
+    const bbBars=Math.ceil(totalFt/bbM.ul);
+    const tubes=v('ts-tubes');
+    const isDouble=chk('ts-double');
+    const printMult=isDouble?2:1;
+    const _ptMap={'backlite':'Backlite Print','flex':'Flex Print','sticker':'Sticker Print','lamsticker':'Laminated Sticker Print'};
+    const printName=_ptMap[s('ts-print-type')]||'Backlite Print';
+    const weld=v('ts-weld'),trans=v('ts-transport'),boom=v('ts-boom'),conc=v('ts-concrete'),lab=v('ts-labour'),fix=v('ts-fixing');
+    const fnd=s('ts-foundation');
+    if(fnd==='gipipe'){
+      const pipeName=s('ts-pipe-size');
+      const pipeQty=v('ts-pipe-qty');
+      const pipeM=DB.mats.find(m=>m.name===pipeName)||{rate:20400};
+      if(pipeQty>0) items.push({n:pipeName,qty:pipeQty,u:'Length',r:pipeM.rate,note:'Foundation'});
+    } else {
+      const bb4Qty=v('ts-bb4-qty');
+      if(bb4Qty>0) items.push({n:'Box Bar 4x4',qty:bb4Qty,u:'Bar',r:8000,note:'Foundation'});
+    }
+    items.push({n:bbName,qty:bbBars,u:'Bar',r:bbM.rate,note:`${totalFt.toFixed(0)}ft÷${bbM.ul}ft=${bbBars}bars(${crossCount}cross)`});
+    items.push({n:'Cladding 3mm',qty:claddingSheets,u:'Sheet',r:rateOf('Cladding Sheet Blue'),note:`Frame ${claddingSqft.toFixed(0)}sqft`});
+    items.push({n:printName,qty:area*printMult,u:'sq.ft',r:rateOf(printName)||330,note:isDouble?`Double:${area}x2`:`${area}sqft`});
+    items.push({n:'Lamination',qty:area*printMult,u:'sq.ft',r:rateOf('Lamination')});
+    const beadingBars=isDouble?Math.ceil(perim*4/12):Math.ceil(perim*2/12);
+    items.push({n:'Aluminium Beading 1"',qty:beadingBars,u:'Bar',r:rateOf('Aluminium Angle 1x1 Black'),note:isDouble?'Double side ×2':'Single side'});
+    items.push({n:'Flat Iron',qty:Math.ceil(perim/12),u:'Length',r:rateOf('Flat Iron 1x1')});
+    if(tubes>0) items.push({n:'LED Tube Light',qty:tubes,u:'Nos',r:rateOf('LED Tube Light')});
+    const rivet=v('ts-rivet'),ttwire=v('ts-ttwire'),core2=v('ts-2core'),wtape=v('ts-wtape');
+    if(rivet>0) items.push({n:'Pop Rivet',qty:rivet,u:'Nos',r:2,note:'Manual'});
+    if(ttwire>0) items.push({n:'Wire TT',qty:ttwire,u:'mtr',r:rateOf('Wire TT 16/0.20'),note:'Manual'});
+    if(core2>0) items.push({n:'2 Core Wire',qty:core2,u:'mtr',r:rateOf('2 Core Wire'),note:'Manual'});
+    if(wtape>0) items.push({n:'Wiring Tape',qty:wtape,u:'Roll',r:rateOf('Wiring Tape'),note:'Manual'});
+    getExtraItems('ts').forEach(i=>items.push(i));
+    if(weld)  items.push({n:'Welding',    qty:1,u:'Lump',r:weld});
+    if(trans) items.push({n:'Transport',  qty:1,u:'Lump',r:trans});
+    if(boom)  items.push({n:'Boom/Crane', qty:1,u:'Lump',r:boom});
+    if(conc)  items.push({n:'Concrete',   qty:1,u:'Lump',r:conc});
+    if(lab)   items.push({n:'Labour',     qty:1,u:'Lump',r:lab});
+    if(fix)   items.push({n:'Fixing Cost',qty:1,u:'Lump',r:fix});
+
+  } else if(type==='main-board'){
+    const mt=s('mb-type');
+    const bbName=s('mb-boxbar');
+    const bbM=getM(bbName)||{ul:18,rate:3500};
+    const spacing=16;
+    const H_in=H*12;
+    const crossCount=Math.ceil(H_in/spacing)+1;
+    const totalFt=(crossCount*W)+(H*2);
+    const bbBars=Math.ceil(totalFt/bbM.ul);
+    const fix=v('mb-fixing');
+    const ttwire=v('mb-ttwire'), core2=v('mb-2core'), wtape=v('mb-wtape'), rivet=v('mb-rivet');
+    const _ptMap={'backlite':'Backlite Print','flex':'Flex Print','sticker':'Sticker Print','lamsticker':'Laminated Sticker Print'};
+    const printName=_ptMap[s('mb-print-type')]||'Backlite Print';
+    const printRate=rateOf(printName)||330;
+
+    items.push({n:bbName,qty:bbBars,u:'Bar',r:bbM.rate,note:`${totalFt.toFixed(0)}ft÷${bbM.ul}ft=${bbBars}bars`});
+
+    if(mt==='single'){
+      items.push({n:printName,qty:area,u:'sq.ft',r:printRate});
+      items.push({n:'Lamination',qty:area,u:'sq.ft',r:rateOf('Lamination')});
+      items.push({n:'Aluminium Beading 1"',qty:Math.ceil(perim*2/12),u:'Bar',r:rateOf('Aluminium Angle 1x1 Black')});
+    } else if(mt==='light'){
+      const ledType=s('mb-led-type');
+      const ledName=ledType==='tube'?'LED Tube Light':'LED Backlight';
+      const leds=v('mb-leds');
+      items.push({n:printName,qty:area,u:'sq.ft',r:printRate});
+      items.push({n:'Lamination',qty:area,u:'sq.ft',r:rateOf('Lamination')});
+      items.push({n:ledName,qty:leds,u:'Nos',r:rateOf(ledName)});
+      items.push({n:'Aluminium Beading 1"',qty:Math.ceil(perim*2/12),u:'Bar',r:rateOf('Aluminium Angle 1x1 Black')});
+    } else if(mt==='cnc'){
+      const ledType=s('mb-led-type');
+      const ledName=ledType==='tube'?'LED Tube Light':'LED Backlight';
+      const leds=v('mb-leds');
+      const plasticMin=v('mb-plastic-min');
+      const alumFt=v('mb-alum-ft');
+      const alumBars=alumFt?Math.ceil(alumFt/20):0;
+      items.push({n:'Cladding 4mm 12.5x4',qty:Math.ceil(area/50),u:'Sheet',r:rateOf('Cladding 4mm 12.5×4'),note:`${area}sqft÷50`});
+      items.push({n:'CNC Cut',qty:area,u:'sq.ft',r:350,note:'Rs.350/sqft'});
+      items.push({n:'Cladding 3mm (back)',qty:Math.ceil(area/32),u:'Sheet',r:rateOf('Cladding Sheet Blue')});
+      if(alumBars>0) items.push({n:'Aluminum Bar 2"x1"',qty:alumBars,u:'Bar',r:rateOf('Aluminum Bar 2”×1”'),note:`${alumFt}ft÷20ft`});
+      items.push({n:'Plastic Sheet Clear',qty:Math.ceil(area/24),u:'Sheet',r:rateOf('Clear Plastic Sheet')});
+      if(plasticMin>0) items.push({n:'Plastic Cut',qty:plasticMin,u:'min',r:75,note:`${plasticMin}min×Rs.75`});
+      if(leds>0) items.push({n:ledName,qty:leds,u:'Nos',r:rateOf(ledName)});
+    }
+
+    if(ttwire>0) items.push({n:'Wire TT',qty:ttwire,u:'mtr',r:rateOf('Wire TT 16/0.20'),note:'Manual'});
+    if(core2>0)  items.push({n:'2 Core Wire',qty:core2,u:'mtr',r:rateOf('2 Core Wire'),note:'Manual'});
+    if(wtape>0)  items.push({n:'Wiring Tape',qty:wtape,u:'Roll',r:rateOf('Wiring Tape'),note:'Manual'});
+    if(rivet>0)  items.push({n:'Pop Rivet',qty:rivet,u:'Nos',r:2,note:'Manual'});
+    getExtraItems('mb').forEach(i=>items.push(i));
+    if(fix) items.push({n:'Fixing Cost',qty:1,u:'Lump',r:fix});
+
+  } else if(type==='vision-mission'){
+    const vs=s('vm-style');
+    const subtype=s('vm-subtype');
+    const fix=v('vm-fixing');
+
+    if(vs==='plastic'){
+      // 01. Plastic + Sticker — NO box bar
+      const ptype=s('vm-plastic-type')||'indian';
+      // Indian Clear Plastic 6x4 = 24 sqft per sheet
+      // White Plaster Sheet 8x4 = 32 sqft per sheet
+      const pSqft=ptype==='white8x4'?32:24;
+      const pName=ptype==='white8x4'?'Plaster Sheet White':'Clear Plastic Indian';
+      const pRate=ptype==='white8x4'?rateOf('Plaster Sheet White'):rateOf('Clear Plastic Indian');
+      const sheets=Math.ceil(area/pSqft);
+      items=[
+        {n:pName,               qty:sheets,              u:'Sheet', r:pRate,  note:`${pSqft}sqft/sheet → ${sheets} sheets for ${area}sqft`},
+        {n:'Sticker Print',     qty:area,                u:'sq.ft', r:310,    note:`Rs.310/sqft`},
+        {n:'Silver Nob 25×25', qty:Math.ceil(area*1.5), u:'Nos',   r:rateOf('Silver Nob 25×25'), note:`~1.5/sqft`},
+        {n:'Aluminium Beading 1"',qty:Math.ceil(perim*2/12),u:'Bar',r:rateOf('Aluminium Angle 1x1 Black'), note:`Frame perimeter`},
+      ];
+    } else {
+      // 02. Light Board — NO box bar, cover Rs.180/sqft
+      const ledType=s('vm-led-type');
+      const ledName=ledType==='tube'?'LED Tube Light':'LED Backlight';
+      const ledRate=ledType==='tube'?rateOf('LED Tube Light'):rateOf('LED Backlight');
+      const leds=v('vm-leds');
+      const ttwire=v('vm-ttwire'), core2=v('vm-2core');
+      items=[
+        {n:'Light Board Cover',  qty:area,   u:'sq.ft', r:180,     note:`Rs.180/sqft`},
+        {n:ledName,              qty:leds,   u:'Nos',   r:ledRate},
+      ];
+      if(ttwire>0) items.push({n:'Wire TT',    qty:ttwire, u:'mtr', r:rateOf('Wire TT 16/0.20'), note:'Manual'});
+      if(core2>0)  items.push({n:'2 Core Wire',qty:core2,  u:'mtr', r:rateOf('2 Core Wire'),     note:'Manual'});
+    }
+    getExtraItems('vm').forEach(i=>items.push(i));
+    if(fix) items.push({n:'Fixing Cost',qty:1,u:'Lump',r:fix});
+
+  } else if(type==='stand-board'){
+    const bbName=s('sb-boxbar');
+    const bbM=getM(bbName)||{ul:18,rate:3500};
+    const spacing=16;
+    const H_in=H*12;
+    const crossCount=Math.ceil(H_in/spacing)+1;
+    const totalFt=(crossCount*W)+(H*2);
+    const bbBars=Math.ceil(totalFt/bbM.ul);
+    const printRate=v('sb-print-rate')||220;
+    const hasRim=chk('sb-rim');
+    const rimCost=v('sb-rim-cost');
+    const fix=v('sb-fixing');
+    // double side: print × 2, cladding × 2, box bar single
+    items=[
+      {n:bbName,           qty:bbBars,              u:'Bar',  r:bbM.rate, note:`Frame (single)`},
+      {n:'Cladding 3mm',   qty:Math.ceil(area/32)*2,u:'Sheet',r:rateOf('Cladding 3mm'),note:`Double side ×2`},
+      {n:'Sticker Print',  qty:area*2,              u:'sq.ft',r:printRate,note:`Double side ×2 | Rs.${printRate}/sqft`},
+      {n:'Lamination',     qty:area*2,              u:'sq.ft',r:rateOf('Lamination'),note:`Double side ×2`},
+      {n:'Aluminium Beading 1"',qty:Math.ceil(perim*2/12),u:'Bar',r:rateOf('Aluminium Beading 1"')},
+      {n:'Pop Rivet Box',  qty:Math.ceil(area*5/300)||1,u:'Box',r:rateOf('Pop Rivet Box')},
+    ];
+    if(hasRim && rimCost) items.push({n:'Vehicle Rim',qty:1,u:'Nos',r:rimCost});
+    if(fix) items.push({n:'Fixing Cost',qty:1,u:'Lump',r:fix});
+  }
+
+  return items.filter(i=>i.qty>0).map(i=>({...i, cost:i.qty*i.r}));
+}
+
+function abCalc(){
+  const type=document.getElementById('ab-type').value;
+  const W=v('ab-w'), H=v('ab-h');
+  const prev=document.getElementById('ab-preview');
+
+  // vehicle rim toggle
+  const rimChk=document.getElementById('sb-rim');
+  const rimSec=document.getElementById('sb-rim-cost-sec');
+  if(rimChk&&rimSec) rimSec.style.display=rimChk.checked?'block':'none';
+
+  if(!W||!H){prev.innerHTML='<p class="empty">Width සහ Height enter කරන්න...</p>';return;}
+
+  const items=buildItems(type,W,H);
+  const sub=items.reduce((s,i)=>s+i.cost,0);
+
+  const isDir = type==='direction';
+  const sizeLabel = isDir
+    ? `${W}"×${H}" inches — ${(W*H/144).toFixed(2)} sq.ft per board`
+    : `${W}×${H} ft — ${W*H} sq.ft`;
+  let html=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:8px;">${sizeLabel}</div>`;
+  items.forEach(it=>{
+    const mStock=DB.mats.find(m=>m.name===it.n);
+    const low=mStock&&it.u!=='sq.ft'&&it.u!=='Lump'&&mStock.stock<it.qty;
+    html+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;gap:8px;">
+      <div style="flex:1;"><span>${it.n}</span>${it.note?`<div style="font-size:10px;color:var(--muted);">${it.note}</div>`:''}</div>
+      <span style="color:var(--muted);white-space:nowrap;">${it.qty} ${it.u}</span>
+      <span style="font-family:var(--fh);font-weight:700;color:var(--accent);white-space:nowrap;">Rs.${it.cost.toLocaleString()}</span>
+      ${low?`<span class="badge b-low" style="font-size:9px;">Low</span>`:''}
+    </div>`;
+  });
+  html+=`<div style="text-align:right;margin-top:10px;"><span style="font-family:var(--fh);font-size:18px;font-weight:700;color:var(--green);">Sub-total: Rs.${sub.toLocaleString()}</span></div>`;
+  prev.innerHTML=html;
+  window._abTemp={type,W,H,items,sub};
+}
+
+const BLABEL={
+  'top-side':'Top Side Board','main-board':'Main Board',
+  'vision-mission':'Vision/Mission/Packages','stand-board':'Stand Board',
+  'direction':'Direction Sign','glass-sticker':'Glass Sticker'
+};
+
+function addBoard(){
+  if(!window._abTemp||!window._abTemp.W){alert('Size enter කරන්න!');return;}
+  const t=window._abTemp;
+  // sub-label
+  let sub='';
+  if(t.type==='main-board'){ const mbMap={'single':'Single','light':'Light','cnc':'CNC'}; sub=' — '+(mbMap[s('mb-type')]||s('mb-type')); }
+  if(t.type==='vision-mission') sub=' '+s('vm-subtype');
+
+  const customName=document.getElementById('ab-custom-name').value.trim();
+  const finalLabel=customName||(BLABEL[t.type]+sub);
+  CBoards.push({id:Date.now(),label:finalLabel,type:t.type,W:t.W,H:t.H,items:t.items.map(i=>({...i})),sub:t.sub});
+  closeModal('modal-board');
+  renderBoards();
+  document.getElementById('ab-w').value='';
+  document.getElementById('ab-h').value='';
+  window._abTemp=null;
+}
+
+// ══════════════════════════════════════════════════
+// RENDER BOARDS
+// ══════════════════════════════════════════════════
+function renderBoards(){
+  const con=document.getElementById('boards-container');
+  if(!CBoards.length){con.innerHTML='';updGrand();return;}
+  con.innerHTML=CBoards.map((b,bi)=>{
+    const rows=b.items.map((it,ii)=>{
+      return `<div class="mat-row">
+        <div><div>${it.n}</div>${it.note?`<div class="mat-note">${it.note}</div>`:''}</div>
+        <span style="color:var(--muted);font-size:12px;text-align:center;">${it.u}</span>
+        <input type="number" value="${it.qty}" style="padding:5px 8px;font-size:12px;" onchange="updQty(${bi},${ii},this.value)">
+        <span style="font-size:12px;color:var(--muted);text-align:right;">Rs.${it.r.toLocaleString()}</span>
+        <span class="mat-cost" id="mc-${bi}-${ii}">Rs.${it.cost.toLocaleString()}</span>
+        <button class="btn btn-red btn-xs" onclick="rmMat(${bi},${ii})">✕</button>
+      </div>`;
+    }).join('');
+    return `<div class="board-block">
+      <div class="board-header">
+        <div>
+          <span class="board-type-badge">${b.label}</span>
+          <span style="font-size:12px;color:var(--muted);margin-left:10px;">${b.W}×${b.H}ft = ${b.W*b.H}sqft</span>
+        </div>
+        <div class="flex items-center gap-8">
+          <span class="board-subtotal" id="bst-${bi}">Rs.${b.sub.toLocaleString()}</span>
+          <button class="btn btn-red btn-sm" onclick="rmBoard(${bi})">Remove</button>
+        </div>
+      </div>
+      <div class="mat-hdr"><span>Material</span><span>Unit</span><span>Qty</span><span>Rate</span><span>Cost</span><span></span></div>
+      ${rows}
+      <div style="margin-top:10px;">
+        <button class="btn btn-ghost btn-sm" onclick="openAddMatPopup({type:'board',bi:${bi}})">＋ Add Material</button>
+      </div>
+    </div>`;
+  }).join('');
+  updGrand();
+}
+
+function updQty(bi,ii,val){
+  const q=parseFloat(val)||0;
+  CBoards[bi].items[ii].qty=q;
+  CBoards[bi].items[ii].cost=q*CBoards[bi].items[ii].r;
+  const el=document.getElementById(`mc-${bi}-${ii}`);
+  if(el) el.textContent='Rs.'+CBoards[bi].items[ii].cost.toLocaleString();
+  recalcSub(bi);
+}
+function recalcSub(bi){
+  CBoards[bi].sub=CBoards[bi].items.reduce((s,i)=>s+i.cost,0);
+  const el=document.getElementById(`bst-${bi}`);
+  if(el) el.textContent='Rs.'+CBoards[bi].sub.toLocaleString();
+  updGrand();
+}
+function rmMat(bi,ii){ CBoards[bi].items.splice(ii,1); recalcSub(bi); renderBoards(); }
+function rmBoard(bi){ if(!confirm('Remove board?')) return; CBoards.splice(bi,1); renderBoards(); }
+function updGrand(){
+  const g=CBoards.reduce((s,b)=>s+b.sub,0);
+  document.getElementById('grand-bar').style.display=CBoards.length?'block':'none';
+  document.getElementById('grand-amt').textContent='Rs. '+g.toLocaleString();
+}
+
+function addMatToBoard(bi){
+  // Use inline dropdown instead of prompt
+  const rowId='add-row-'+bi;
+  const existing=document.getElementById(rowId);
+  if(existing){ existing.remove(); return; }
+  const mats=DB.mats;
+  const opts=['<option value="">-- Select Material --</option>',
+    ...mats.map(m=>`<option value="${m.id}">${m.name} (${m.unit}) Rs.${m.rate.toLocaleString()}</option>`)
+  ].join('');
+  const div=document.createElement('div');
+  div.id=rowId;
+  div.style.cssText='display:grid;grid-template-columns:2fr 80px auto;gap:8px;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);';
+  div.innerHTML=`
+    <select id="amb-sel-${bi}" style="font-size:13px;padding:7px 10px;">${opts}</select>
+    <input type="number" id="amb-qty-${bi}" placeholder="Qty" style="padding:7px 8px;font-size:13px;">
+    <button class="btn btn-blue btn-sm" onclick="confirmAddMatToBoard(${bi})">Add</button>`;
+  // append to board block
+  const boardBlock=document.querySelectorAll('.board-block')[bi];
+  if(boardBlock) boardBlock.appendChild(div);
+}
+
+function confirmAddMatToBoard(bi){
+  const sel=document.getElementById('amb-sel-'+bi);
+  const qtyEl=document.getElementById('amb-qty-'+bi);
+  if(!sel||!sel.value){toast('Material select කරන්න!','warn');return;}
+  const qty=parseFloat(qtyEl?.value)||0;
+  if(!qty){toast('Qty enter කරන්න!','warn');return;}
+  const mat=DB.mats.find(m=>m.id==sel.value); if(!mat) return;
+  const cost=qty*mat.rate;
+  CBoards[bi].items.push({n:mat.name,qty,u:mat.unit,r:mat.rate,cost,note:'Added'});
+  recalcSub(bi);
+  renderBoards();
+  toast(`✓ ${mat.name} (${qty} ${mat.unit}) — Rs.${cost.toLocaleString()} added`);
+}
+
+// ══════════════════════════════════════════════════
+// SAVE PROJECT
+// ══════════════════════════════════════════════════
+function saveProject(){
+  const name=document.getElementById('p-name').value.trim();
+  if(!name){alert('Project name enter කරන්න!');return;}
+  if(!CBoards.length){alert('Board add කරන්න!');return;}
+  const grand=CBoards.reduce((s,b)=>s+b.sub,0);
+  const proj={id:Date.now(),name,client:document.getElementById('p-client').value,date:document.getElementById('p-date').value||new Date().toISOString().split('T')[0],boards:JSON.parse(JSON.stringify(CBoards)),total:grand};
+  const ps=DB.projects; ps.unshift(proj); DB.projects=ps;
+  // deduct stock
+  const mats=DB.mats;
+  CBoards.forEach(b=>b.items.forEach(it=>{
+    const m=mats.find(x=>x.name===it.n);
+    if(m&&it.u!=='sq.ft'&&it.u!=='Lump') m.stock=Math.max(0,m.stock-it.qty);
+  }));
+  DB.mats=mats;
+  CBoards=[];
+  document.getElementById('p-name').value='';
+  document.getElementById('p-client').value='';
+  renderBoards();
+  alert(`✅ Project "${name}" saved!\nTotal: Rs.${grand.toLocaleString()}`);
+  goNav('projects');
+}
+
+// ══════════════════════════════════════════════════
+// PROJECTS
+// ══════════════════════════════════════════════════
+function renderProjects(){
+  const ps=DB.projects;
+  const el=document.getElementById('proj-list');
+  if(!ps.length){el.innerHTML='<p class="empty">No projects saved.</p>';return;}
+  el.innerHTML=ps.map(p=>`<div class="proj-card" onclick="showProjDetail(${p.id})">
+    <div class="flex justify-between items-center flex-wrap gap-8">
+      <div class="proj-name">${p.name}</div>
+      <button class="btn btn-red btn-sm" onclick="event.stopPropagation();delProj(${p.id})">Delete</button>
+    </div>
+    <div class="proj-meta">${p.client?p.client+' | ':''}${p.date} | ${p.boards.length} board(s)</div>
+    <div class="proj-total">Rs. ${p.total.toLocaleString()}</div>
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+      ${p.boards.map(b=>`<span class="badge b-blue">${b.label}</span>`).join('')}
+    </div>
+  </div>`).join('');
+}
+
+let _editProjId=null;
+
+function showProjDetail(id){
+  _editProjId=id;
+  renderProjDetail();
+  openModal('modal-proj');
+}
+
+function renderProjDetail(){
+  const p=DB.projects.find(x=>x.id===_editProjId);
+  if(!p) return;
+  document.getElementById('pd-title').textContent=p.name;
+
+  let html=`<div style="color:var(--muted);font-size:12px;margin-bottom:16px;">${p.client||''} ${p.client?'|':''} ${p.date}</div>`;
+
+  p.boards.forEach((b,bi)=>{
+    html+=`<div style="margin-bottom:16px;background:var(--card2);border-radius:10px;padding:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <span style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--accent);">${b.label} — ${b.W}×${b.H}ft</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span style="font-family:var(--fh);font-size:15px;font-weight:700;color:var(--green);" id="pd-bst-${bi}">Rs.${b.sub.toLocaleString()}</span>
+          <button class="btn btn-red btn-xs" onclick="pdRemoveBoard(${bi})">Remove Board</button>
+        </div>
+      </div>`;
+
+    // item rows
+    b.items.forEach((it,ii)=>{
+      html+=`<div style="display:grid;grid-template-columns:2fr 80px 90px 100px 28px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;">
+        <span>${it.n} ${it.note?`<span style='color:var(--muted);font-size:10px;'>(${it.note})</span>`:''}</span>
+        <input type="number" value="${it.qty}" style="padding:4px 6px;font-size:12px;border-radius:6px;border:1px solid var(--border2);background:rgba(255,255,255,0.04);color:var(--text);width:100%;" onchange="pdUpdQty(${bi},${ii},this.value)">
+        <span style="color:var(--muted);font-size:11px;">${it.u} × Rs.${it.r.toLocaleString()}</span>
+        <span style="font-family:var(--fh);font-weight:700;color:var(--accent);text-align:right;" id="pd-ic-${bi}-${ii}">Rs.${it.cost.toLocaleString()}</span>
+        <button class="btn btn-red btn-xs" onclick="pdRemoveItem(${bi},${ii})">✕</button>
+      </div>`;
+    });
+
+    // add material row for this board
+    html+=`<div style="display:grid;grid-template-columns:2fr 80px auto;gap:8px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--border2);">
+      <button class="btn btn-blue btn-sm" onclick="openAddMatPopup({type:'project',bi:${bi}})">+ Add Material</button>
+    </div>
+
+    </div>`;
+  });
+
+  // grand total
+  const grand=p.boards.reduce((s,b)=>s+b.sub,0);
+  html+=`<div class="total-bar" style="margin-top:8px;"><div class="total-lbl">TOTAL</div><div class="total-amt" id="pd-grand">Rs.${grand.toLocaleString()}</div></div>`;
+
+  document.getElementById('pd-body').innerHTML=html;
+}
+
+function pdUpdQty(bi,ii,val){
+  const p=DB.projects.find(x=>x.id===_editProjId); if(!p) return;
+  const q=parseFloat(val)||0;
+  p.boards[bi].items[ii].qty=q;
+  p.boards[bi].items[ii].cost=q*p.boards[bi].items[ii].r;
+  const costEl=document.getElementById(`pd-ic-${bi}-${ii}`);
+  if(costEl) costEl.textContent='Rs.'+p.boards[bi].items[ii].cost.toLocaleString();
+  pdRecalc(bi,p);
+  DB.projects=DB.projects.map(x=>x.id===_editProjId?p:x);
+}
+
+function pdRecalc(bi,p){
+  p.boards[bi].sub=p.boards[bi].items.reduce((s,i)=>s+i.cost,0);
+  const bst=document.getElementById(`pd-bst-${bi}`);
+  if(bst) bst.textContent='Rs.'+p.boards[bi].sub.toLocaleString();
+  const grand=p.boards.reduce((s,b)=>s+b.sub,0);
+  p.total=grand;
+  const gel=document.getElementById('pd-grand');
+  if(gel) gel.textContent='Rs.'+grand.toLocaleString();
+}
+
+function pdRemoveItem(bi,ii){
+  const p=DB.projects.find(x=>x.id===_editProjId); if(!p) return;
+  p.boards[bi].items.splice(ii,1);
+  pdRecalc(bi,p);
+  DB.projects=DB.projects.map(x=>x.id===_editProjId?p:x);
+  renderProjDetail();
+  toast('Item removed','warn');
+}
+
+function pdRemoveBoard(bi){
+  if(!confirm('Remove this board?')) return;
+  const p=DB.projects.find(x=>x.id===_editProjId); if(!p) return;
+  p.boards.splice(bi,1);
+  p.total=p.boards.reduce((s,b)=>s+b.sub,0);
+  DB.projects=DB.projects.map(x=>x.id===_editProjId?p:x);
+  renderProjDetail();
+  toast('Board removed','warn');
+}
+
+function pdAddItem(bi){
+  const sel=document.getElementById(`pd-sel-${bi}`);
+  const qtyEl=document.getElementById(`pd-qty-${bi}`);
+  if(!sel||!sel.value){toast('Material select කරන්න!','warn');return;}
+  const qty=parseFloat(qtyEl?.value)||0;
+  if(!qty){toast('Qty enter කරන්න!','warn');return;}
+  const mat=DB.mats.find(m=>m.id==sel.value); if(!mat) return;
+  const p=DB.projects.find(x=>x.id===_editProjId); if(!p) return;
+  const cost=qty*mat.rate;
+  p.boards[bi].items.push({n:mat.name,qty,u:mat.unit,r:mat.rate,cost,note:'Added'});
+  pdRecalc(bi,p);
+  DB.projects=DB.projects.map(x=>x.id===_editProjId?p:x);
+  renderProjDetail();
+  toast(`✓ ${mat.name} (${qty} ${mat.unit}) — Rs.${cost.toLocaleString()} added`);
+}
+
+function delProj(id){ if(!confirm('Delete project?')) return; DB.projects=DB.projects.filter(p=>p.id!==id); renderProjects(); closeModal('modal-proj'); }
+
+// ══════════════════════════════════════════════════
+// STOCK
+// ══════════════════════════════════════════════════
+function renderStock(){
+  const mats=DB.mats;
+  const q=(document.getElementById('stock-search')?.value||'').toLowerCase();
+  const fil=mats.filter(m=>m.name.toLowerCase().includes(q)||(m.size||'').toLowerCase().includes(q));
+  let ok=0,low=0,out=0;
+  mats.forEach(m=>{if(m.stock===0)out++;else if(m.stock<m.min&&m.min>0)low++;else ok++;});
+  document.getElementById('s-tot').textContent=mats.length;
+  document.getElementById('s-ok').textContent=ok;
+  document.getElementById('s-low').textContent=low;
+  document.getElementById('s-out').textContent=out;
+  document.getElementById('stock-tbody').innerHTML=fil.map((m,i)=>{
+    const st=m.stock===0?'out':(m.stock<m.min&&m.min>0?'low':'ok');
+    const badge=`<span class="badge b-${st}">${st==='ok'?'OK':st==='low'?'Low':'Out'}</span>`;
+    return `<tr id="srow-${m.id}">
+      <td style="color:var(--muted)">${i+1}</td>
+      <td><strong>${m.name}</strong>${m.isBoxBar?'<span class="badge b-teal" style="margin-left:5px;font-size:9px;">Bar</span>':''}</td>
+      <td style="color:var(--muted);font-size:12px;">${m.size||'-'}</td>
+      <td style="font-size:12px;">${m.unit}</td>
+      <td style="white-space:nowrap;">
+        <input type="number" value="${m.rate||0}" style="width:76px;padding:4px 7px;font-size:12px;border:1px solid var(--border2);border-radius:6px;background:rgba(240,165,0,0.07);color:var(--accent);font-weight:600;" id="rate-${m.id}">
+        <button class="btn btn-xs" id="rate-save-${m.id}" onclick="updateRate(${m.id})" style="margin-left:3px;background:rgba(240,165,0,0.15);color:var(--accent);border:1px solid rgba(240,165,0,0.3);">Save</button>
+      </td>
+      <td><strong>${m.stock}</strong></td>
+      <td>${m.min}</td>
+      <td>${badge}</td>
+      <td style="white-space:nowrap;">
+        <input type="number" min="0" placeholder="qty" style="width:58px;padding:4px 6px;font-size:12px;" id="iss-${m.id}">
+        <button class="btn btn-red btn-xs" style="margin-left:2px;" onclick="issueS(${m.id})">Issue</button>
+      </td>
+      <td style="white-space:nowrap;">
+        <input type="number" min="0" placeholder="qty" style="width:58px;padding:4px 6px;font-size:12px;" id="rcv-${m.id}">
+        <button class="btn btn-green btn-xs" style="margin-left:2px;" onclick="receiveS(${m.id})">Receive</button>
+      </td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-ghost btn-xs" onclick="openEditMat(${m.id})" style="margin-right:3px;">✏</button>
+        <button class="btn btn-red btn-xs" onclick="delMatFromStock(${m.id})">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function updateRate(id){
+  const el=document.getElementById('rate-'+id);
+  const rate=parseFloat(el?.value)||0;
+  const ms=DB.mats; const m=ms.find(x=>x.id===id);
+  if(m){ m.rate=rate; DB.mats=ms; saveMatToSheet(m); }
+  const btn=document.getElementById('rate-save-'+id);
+  if(btn){
+    btn.textContent='✓ Saved';
+    btn.style.background='var(--green)';
+    btn.style.color='#000';
+    setTimeout(()=>{btn.textContent='Save';btn.style.background='';btn.style.color='';},1500);
+  }
+  toast(`✓ ${m?m.name:''} rate updated — Rs.${rate.toLocaleString()} | Saving to Sheet...`);
+}
+function issueS(id){ const q=parseFloat(document.getElementById('iss-'+id)?.value)||0; if(!q) return; const ms=DB.mats,m=ms.find(x=>x.id===id); if(m){m.stock=Math.max(0,m.stock-q);DB.mats=ms;renderStock();saveMatToSheet(m);toast(`Issued ${q} ${m.unit} — ${m.name}. Balance: ${m.stock}`,'warn');} }
+function receiveS(id){ const q=parseFloat(document.getElementById('rcv-'+id)?.value)||0; if(!q) return; const ms=DB.mats,m=ms.find(x=>x.id===id); if(m){m.stock+=q;DB.mats=ms;renderStock();saveMatToSheet(m);toast(`✓ Received ${q} ${m.unit} — ${m.name}. Stock: ${m.stock}`);} }
+function delMatFromStock(id){
+  if(!confirm('Delete this material?')) return;
+  DB.mats=DB.mats.filter(m=>m.id!==id);
+  renderStock();
+}
+
+// ══════════════════════════════════════════════════
+// MATERIALS
+// ══════════════════════════════════════════════════
+function renderMats(){
+  document.getElementById('mat-tbody').innerHTML=DB.mats.map((m,i)=>`<tr>
+    <td style="color:var(--muted)">${i+1}</td><td><strong>${m.name}</strong>${m.isBoxBar?'<span class="badge b-teal" style="margin-left:6px;font-size:9px;">Box Bar</span>':''}</td>
+    <td style="color:var(--muted)">${m.size||'-'}</td><td>${m.unit}</td><td>${m.ul||'-'}</td>
+    <td>Rs.${(m.rate||0).toLocaleString()}</td><td>${m.stock}</td><td>${m.min||0}</td>
+    <td><button class="btn btn-ghost btn-xs" onclick="openEditMat(${m.id})">Edit</button></td>
+    <td><button class="btn btn-red btn-xs" onclick="delMat(${m.id})">Del</button></td>
+  </tr>`).join('');
+}
+function openAddMat(){
+  document.getElementById('mat-modal-title').textContent='Add Material';
+  document.getElementById('edit-mat-id').value='';
+  ['am-name','am-size','am-unit','am-ul','am-rate','am-stock','am-min'].forEach(id=>document.getElementById(id).value='');
+  openModal('modal-mat');
+}
+function openEditMat(id){
+  const m=DB.mats.find(x=>x.id===id); if(!m) return;
+  document.getElementById('mat-modal-title').textContent='Edit Material';
+  document.getElementById('edit-mat-id').value=id;
+  document.getElementById('am-name').value=m.name;
+  document.getElementById('am-size').value=m.size||'';
+  document.getElementById('am-unit').value=m.unit;
+  document.getElementById('am-ul').value=m.ul||'';
+  document.getElementById('am-rate').value=m.rate||'';
+  document.getElementById('am-stock').value=m.stock||0;
+  document.getElementById('am-min').value=m.min||0;
+  openModal('modal-mat');
+}
+function saveMat(){
+  const name=document.getElementById('am-name').value.trim(); if(!name){alert('Name!');return;}
+  const editId=document.getElementById('edit-mat-id').value;
+  const ms=DB.mats;
+  const obj={name,size:document.getElementById('am-size').value,unit:document.getElementById('am-unit').value,ul:parseFloat(document.getElementById('am-ul').value)||1,rate:parseFloat(document.getElementById('am-rate').value)||0,stock:parseFloat(document.getElementById('am-stock').value)||0,min:parseFloat(document.getElementById('am-min').value)||0};
+  if(editId){const idx=ms.findIndex(x=>x.id==editId);if(idx>=0) ms[idx]={...ms[idx],...obj};}
+  else{obj.id=Date.now();ms.push(obj);}
+  DB.mats=ms; closeModal('modal-mat'); renderMats();
+}
+function delMat(id){ if(!confirm('Delete?')) return; DB.mats=DB.mats.filter(m=>m.id!==id); renderMats(); }
+
+// ══════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════
+function renderDash(){
+  const ps=DB.projects,ms=DB.mats;
+  const tot=ps.reduce((s,p)=>s+p.total,0);
+  const low=ms.filter(m=>m.stock<m.min&&m.min>0);
+  document.getElementById('d-proj').textContent=ps.length;
+  document.getElementById('d-val').textContent='Rs.'+tot.toLocaleString();
+  document.getElementById('d-low').textContent=low.length;
+  document.getElementById('d-mats').textContent=ms.length;
+  const pl=document.getElementById('d-proj-list');
+  pl.innerHTML=ps.length?ps.slice(0,5).map(p=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+    <div><div style="font-weight:600;">${p.name}</div><div style="color:var(--muted);font-size:11px;">${p.date} | ${p.boards.length} boards</div></div>
+    <span style="font-family:var(--fh);font-weight:700;color:var(--accent);">Rs.${p.total.toLocaleString()}</span>
+  </div>`).join(''):'<p class="empty">No projects yet.</p>';
+  const sl=document.getElementById('d-low-list');
+  sl.innerHTML=low.length?low.slice(0,7).map(m=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;">
+    <span>${m.name}</span><span class="badge ${m.stock===0?'b-out':'b-low'}">${m.stock} ${m.unit}</span>
+  </div>`).join(''):'<p class="empty">All stock OK.</p>';
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  initDB();
+  initExtraMats();
+  renderDirBoardList();
+  autoSync();
+  document.getElementById('p-date').value=new Date().toISOString().split('T')[0];
+
+  // wire up mb-type change
+  document.getElementById('mb-type').addEventListener('change',()=>{mbTypeChange();abCalc();});
+  document.getElementById('vm-style').addEventListener('change',()=>{vmStyleChange();abCalc();});
+  document.getElementById('gs-type').addEventListener('change',()=>{gsTypeChange();abCalc();});
+
+  renderDash();
+});
+</script>
+
+<div id="print-area" style="display:none;"></div>
+<div class="toast" id="toast"></div>
+
+<!-- ══════════ MODAL: ADD MATERIAL POPUP ══════════ -->
+<div class="overlay" id="modal-addmat-popup" onclick="overlayClose(event,'modal-addmat-popup')">
+<div class="modal" style="width:min(480px,100%);">
+  <div class="modal-title">Add Material</div>
+  <div class="fg">
+    <label>Material</label>
+    <select id="amp-mat-sel" onchange="ampMatChange()" style="font-size:13px;">
+      <option value="">-- Select Material --</option>
+    </select>
+  </div>
+  <div id="amp-mat-info" style="display:none;background:rgba(240,165,0,0.08);border:1px solid rgba(240,165,0,0.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--muted);">
+    <span id="amp-mat-detail"></span>
+  </div>
+  <div class="fg">
+    <label>Quantity</label>
+    <input type="number" id="amp-qty" placeholder="eg: 10" min="0" style="font-size:14px;" oninput="ampCalcPreview()">
+  </div>
+  <div class="fg">
+    <label>Unit</label>
+    <select id="amp-unit" style="font-size:13px;" onchange="ampCalcPreview()">
+      <option value="">-- Auto (from material) --</option>
+      <option value="sq.ft">sq.ft (Square Feet)</option>
+      <option value="ft">ft (Feet)</option>
+      <option value="mtr">mtr (Meter)</option>
+      <option value="inch">inch (Inches)</option>
+      <option value="Nos">Nos (Numbers)</option>
+      <option value="Bar">Bar</option>
+      <option value="Sheet">Sheet</option>
+      <option value="Roll">Roll</option>
+      <option value="Box">Box</option>
+      <option value="Length">Length</option>
+      <option value="Lump">Lump Sum</option>
+    </select>
+  </div>
+  <div id="amp-cost-preview" style="display:none;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Cost Preview</div>
+    <div style="font-family:var(--fh);font-size:22px;font-weight:700;color:var(--green);" id="amp-cost-val">Rs. 0</div>
+  </div>
+  <div class="flex gap-12">
+    <button class="btn btn-acc" onclick="ampConfirm()" style="flex:1;justify-content:center;">Add to Board</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-addmat-popup')">Cancel</button>
+  </div>
+</div>
+</div>
+
+</body>
+</html>
