@@ -775,7 +775,7 @@ tr:hover td{background:rgba(255,255,255,.015);}
 
   <div class="flex gap-12">
     <button class="btn btn-acc" onclick="addBoard()" style="flex:1;justify-content:center;">Add to Project</button>
-    <button class="btn btn-ghost" onclick="closeModal('modal-board')">Cancel</button>
+    <button class="btn btn-ghost" onclick="cancelAddBoard()">Cancel</button>
   </div>
 </div>
 </div>
@@ -880,9 +880,10 @@ tr:hover td{background:rgba(255,255,255,.015);}
 <div class="modal" style="width:min(800px,100%);">
   <div class="modal-title" id="pd-title">Project</div>
   <div id="pd-body"></div>
-  <div class="flex gap-12 mt-16">
-    <button class="btn btn-ghost" onclick="printCosting(_editProjId)" style="flex:1;justify-content:center;">🖨 Print Costing</button>
-    <button class="btn btn-ghost" onclick="closeModal('modal-proj')" style="flex:1;justify-content:center;">Close</button>
+  <div class="flex gap-12 mt-16" style="flex-wrap:wrap;">
+    <button class="btn btn-ghost btn-sm" onclick="printCosting(_editProjId)" style="flex:1;justify-content:center;min-width:120px;">🖨 Print</button>
+    <button class="btn btn-blue btn-sm" onclick="pdAddBoardFromModal()" style="flex:1;justify-content:center;min-width:120px;">＋ Add Item</button>
+    <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-proj')" style="flex:1;justify-content:center;min-width:80px;">Close</button>
   </div>
 </div>
 </div>
@@ -1392,6 +1393,7 @@ async function syncFromSheets(){
       setTimeout(()=>{btn.textContent='↻ Sync';btn.style.background='';btn.style.color='';},2500);}
     toast(`✓ ${mats.length} materials synced from database`);
     loadRequestsFromDB();
+    loadProjectsFromDB();
     const ap=document.querySelector('.page.active')?.id;
     if(ap==='page-stock') renderStock();
     if(ap==='page-materials') renderMats();
@@ -1782,20 +1784,49 @@ function openAddMatStock(){
 // ══════════════════════════════════════════════════
 // PROJECT → DATABASE SAVE + APPROVAL
 // ══════════════════════════════════════════════════
+async function loadProjectsFromDB(){
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/projects?select=*&order=created_at.desc',{headers:SB_HEADERS});
+    if(!res.ok) return;
+    const data=await res.json();
+    if(!Array.isArray(data)||!data.length) return;
+    const projects=data.map(p=>({
+      id:p.id, name:p.name, client:p.client||'',
+      date:p.date, boards:p.boards||[],
+      total:p.total||0, status:p.status||'pending',
+    }));
+    // DB is source of truth
+    DB.projects=projects;
+    _store.projects=projects;
+    try{localStorage.setItem('wml3_projects',JSON.stringify(projects));}catch(e){}
+    renderDash();
+    // Only re-render projects page if active
+    if(document.getElementById('page-projects')?.classList.contains('active')) renderProjects();
+    // Update project detail if open
+    if(document.getElementById('modal-proj')?.classList.contains('show') && _editProjId){
+      renderProjDetail();
+    }
+  }catch(e){ console.log('Load projects error:',e); }
+}
+
 async function saveProjectToDB(proj){
   try{
+    // Always use current status from proj, not hardcode 'pending'
     const payload={
       id:proj.id, name:proj.name, client:proj.client||'',
-      date:proj.date, boards:proj.boards, total:proj.total,
-      status:'pending'
+      date:proj.date,
+      boards:JSON.parse(JSON.stringify(proj.boards||[])), // deep copy for jsonb
+      total:proj.total||0,
+      status:proj.status||'pending'
     };
     const res=await fetch(SUPABASE_URL+'/rest/v1/projects?on_conflict=id',{
       method:'POST',
       headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
       body:JSON.stringify(payload)
     });
-    if(res.ok) toast('✓ Project saved to database');
-    else throw new Error(await res.text());
+    if(res.ok){
+      toast('✓ Project saved to database — GM approval pending');
+    } else throw new Error(await res.text());
   }catch(e){ toast('DB save failed: '+e.message,'warn'); }
 }
 
@@ -2225,19 +2256,42 @@ const BLABEL={
 function addBoard(){
   if(!window._abTemp||!window._abTemp.W){alert('Size enter කරන්න!');return;}
   const t=window._abTemp;
-  // sub-label
   let sub='';
   if(t.type==='main-board'){ const mbMap={'single':'Single','light':'Light','cnc':'CNC'}; sub=' — '+(mbMap[s('mb-type')]||s('mb-type')); }
   if(t.type==='vision-mission') sub=' '+s('vm-subtype');
-
   const customName=document.getElementById('ab-custom-name').value.trim();
   const finalLabel=customName||(BLABEL[t.type]+sub);
-  CBoards.push({id:Date.now(),label:finalLabel,type:t.type,W:t.W,H:t.H,items:t.items.map(i=>({...i})),sub:t.sub});
-  closeModal('modal-board');
-  renderBoards();
+  const newBoard={id:Date.now(),label:finalLabel,type:t.type,W:t.W,H:t.H,items:t.items.map(i=>({...i})),sub:t.sub};
+
+  if(_pdAddingBoard && _editProjId){
+    // Adding to saved project
+    _pdAddingBoard = false;
+    const p=DB.projects.find(x=>x.id===_editProjId);
+    if(p){
+      p.boards.push(newBoard);
+      p.total=p.boards.reduce((s,b)=>s+b.sub,0);
+      DB.projects=DB.projects.map(x=>x.id===_editProjId?p:x);
+      saveProjectToDB(p);
+      toast(`✓ "${finalLabel}" added to project & saved to database`);
+    }
+    closeModal('modal-board');
+    // Re-open project detail
+    setTimeout(()=>{
+      renderProjDetail();
+      openModal('modal-proj');
+    },300);
+  } else {
+    // Adding to new project (current flow)
+    CBoards.push(newBoard);
+    closeModal('modal-board');
+    renderBoards();
+  }
   document.getElementById('ab-w').value='';
   document.getElementById('ab-h').value='';
   window._abTemp=null;
+  // Reset button label
+  const addBtn=document.querySelector('#modal-board .btn-acc');
+  if(addBtn) addBtn.textContent='Add to Project';
 }
 
 // ══════════════════════════════════════════════════
@@ -2476,6 +2530,7 @@ function pdRemoveBoard(bi){
   p.boards.splice(bi,1);
   p.total=p.boards.reduce((s,b)=>s+b.sub,0);
   DB.projects=DB.projects.map(x=>x.id===_editProjId?p:x);
+  saveProjectToDB(p);
   renderProjDetail();
   toast('Board removed','warn');
 }
@@ -2496,7 +2551,43 @@ function pdAddItem(bi){
   toast(`✓ ${mat.name} (${qty} ${mat.unit}) — Rs.${cost.toLocaleString()} added`);
 }
 
-function delProj(id){ if(!confirm('Delete project?')) return; DB.projects=DB.projects.filter(p=>p.id!==id); renderProjects(); closeModal('modal-proj'); }
+function delProj(id){ if(!confirm('Delete project?')) return; DB.projects=DB.projects.filter(p=>p.id!==id); renderProjects(); closeModal('modal-proj');
+  // Also delete from DB
+  fetch(SUPABASE_URL+'/rest/v1/projects?id=eq.'+id,{method:'DELETE',headers:SB_HEADERS}).catch(()=>{});
+}
+
+function pdAddBoardFromModal(){
+  // Close project detail modal temporarily, open Add Board modal
+  // When board is added, it goes to the saved project instead of CBoards
+  _pdAddingBoard = true;
+  closeModal('modal-proj');
+  resetAllExtras();
+  resetDirBoards();
+  renderDirBoardList();
+  fillBoxBarDropdowns();
+  fillExtraSelects();
+  tsFndChange();
+  abTypeChange();
+  abCalc();
+  const nameEl=document.getElementById('ab-custom-name');
+  if(nameEl) nameEl.value='';
+  // Change Add Board button label
+  const addBtn=document.querySelector('#modal-board .btn-acc');
+  if(addBtn) addBtn.textContent='Add to Project';
+  openModal('modal-board');
+}
+
+// Flag to know if adding board to saved project
+let _pdAddingBoard = false;
+
+function cancelAddBoard(){
+  closeModal('modal-board');
+  if(_pdAddingBoard && _editProjId){
+    _pdAddingBoard=false;
+    setTimeout(()=>{ renderProjDetail(); openModal('modal-proj'); },200);
+  }
+}
+
 
 // ══════════════════════════════════════════════════
 // STOCK
@@ -2834,6 +2925,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderDirBoardList();
   autoSync();
   loadRequestsFromDB();
+  loadProjectsFromDB();
   document.getElementById('p-date').value=new Date().toISOString().split('T')[0];
 
   // wire up mb-type change
