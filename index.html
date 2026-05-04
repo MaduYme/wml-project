@@ -226,7 +226,12 @@ tr:hover td{background:rgba(255,255,255,.015);}
 <!-- ══════════ STOCK ══════════ -->
 <div class="page" id="page-stock">
   <div class="flex justify-between items-center flex-wrap gap-8" style="margin-bottom:16px;">
-    <div><div class="pg-title">Stock</div><div class="pg-sub">Material stock levels</div></div>
+    <div>
+      <div class="pg-title">Stock 
+        <span id="lock-indicator" style="font-size:14px;color:var(--red);">🔐 Locked</span>
+      </div>
+      <div class="pg-sub">Material stock levels — Edit ලදී PIN ඕනා</div>
+    </div>
     <div class="flex gap-12 items-center">
       <input type="text" id="stock-search" placeholder="Search..." style="width:180px;" oninput="renderStock()">
       <button class="btn btn-ghost" onclick="printStock()">🖨 Print Stock</button>
@@ -922,6 +927,47 @@ function ampConfirm(){
   toast(`✓ ${mat.name} — ${qty} ${unit} — Rs.${cost.toLocaleString()} added`);
 }
 
+
+
+// ══════════════════════════════════════════════════
+// PIN LOCK SYSTEM
+// ══════════════════════════════════════════════════
+const STOCK_PIN = "Kurunegala@123";
+let _pinUnlocked = false;
+let _pinCallback = null;
+
+function requirePin(callback){
+  if(_pinUnlocked){ callback(); return; }
+  _pinCallback = callback;
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').textContent = '';
+  openModal('modal-pin');
+  setTimeout(()=>document.getElementById('pin-input').focus(), 100);
+}
+
+function pinSubmit(){
+  const entered = document.getElementById('pin-input').value;
+  if(entered === STOCK_PIN){
+    _pinUnlocked = true;
+    closeModal('modal-pin');
+    toast('✓ Unlocked — Stock edit enabled', 'ok');
+    const li=document.getElementById('lock-indicator');
+    if(li){li.textContent='🔓 Unlocked';li.style.color='var(--green)';}
+    if(_pinCallback){ _pinCallback(); _pinCallback=null; }
+    // Auto lock after 10 minutes
+    clearTimeout(window._pinTimer);
+    window._pinTimer = setTimeout(()=>{
+      _pinUnlocked = false;
+      toast('🔐 Stock edit locked again', 'warn');
+      const li2=document.getElementById('lock-indicator');
+      if(li2){li2.textContent='🔐 Locked';li2.style.color='var(--red)';}
+    }, 10*60*1000);
+  } else {
+    document.getElementById('pin-error').textContent = '❌ Wrong PIN!';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
 
 // ══════════════════════════════════════════════════
 // PRINT FUNCTIONS
@@ -1901,6 +1947,7 @@ function renderStock(){
   }).join('');
 }
 function updateRate(id){
+  requirePin(()=>{
   const el=document.getElementById('rate-'+id);
   const rate=parseFloat(el?.value)||0;
   const ms=DB.mats; const m=ms.find(x=>x.id===id);
@@ -1912,15 +1959,12 @@ function updateRate(id){
     btn.style.color='#000';
     setTimeout(()=>{btn.textContent='Save';btn.style.background='';btn.style.color='';},1500);
   }
-  toast(`✓ ${m?m.name:''} rate updated — Rs.${rate.toLocaleString()} | Saving to Sheet...`);
+  toast(`✓ ${m?m.name:''} rate updated — Rs.${rate.toLocaleString()}`);
+  });
 }
-function issueS(id){ const q=parseFloat(document.getElementById('iss-'+id)?.value)||0; if(!q) return; const ms=DB.mats,m=ms.find(x=>x.id===id); if(m){m.stock=Math.max(0,m.stock-q);DB.mats=ms;renderStock();saveMatToSheet(m);toast(`Issued ${q} ${m.unit} — ${m.name}. Balance: ${m.stock}`,'warn');} }
-function receiveS(id){ const q=parseFloat(document.getElementById('rcv-'+id)?.value)||0; if(!q) return; const ms=DB.mats,m=ms.find(x=>x.id===id); if(m){m.stock+=q;DB.mats=ms;renderStock();saveMatToSheet(m);toast(`✓ Received ${q} ${m.unit} — ${m.name}. Stock: ${m.stock}`);} }
-function delMatFromStock(id){
-  if(!confirm('Delete this material?')) return;
-  DB.mats=DB.mats.filter(m=>m.id!==id);
-  renderStock();
-}
+function issueS(id){ requirePin(()=>{ const q=parseFloat(document.getElementById('iss-'+id)?.value)||0; if(!q) return; const ms=DB.mats,m=ms.find(x=>x.id===id); if(m){m.stock=Math.max(0,m.stock-q);DB.mats=ms;renderStock();saveMatToSheet(m);toast(`Issued ${q} ${m.unit} — ${m.name}. Balance: ${m.stock}`,'warn');} }); }
+function receiveS(id){ requirePin(()=>{ const q=parseFloat(document.getElementById('rcv-'+id)?.value)||0; if(!q) return; const ms=DB.mats,m=ms.find(x=>x.id===id); if(m){m.stock+=q;DB.mats=ms;renderStock();saveMatToSheet(m);toast(`✓ Received ${q} ${m.unit} — ${m.name}. Stock: ${m.stock}`);} }); }
+function delMatFromStock(id){ requirePin(()=>{ if(!confirm('Delete this material?')) return; DB.mats=DB.mats.filter(m=>m.id!==id); renderStock(); }); }
 
 // ══════════════════════════════════════════════════
 // MATERIALS
@@ -2006,6 +2050,22 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 
 <div id="print-area" style="display:none;"></div>
+
+<!-- ══════════ MODAL: PIN ══════════ -->
+<div class="overlay" id="modal-pin" onclick="">
+<div class="modal" style="width:min(340px,100%);text-align:center;">
+  <div style="font-size:40px;margin-bottom:12px;">🔐</div>
+  <div class="modal-title" style="text-align:center;">Stock Edit Access</div>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">PIN enter කරන්න</p>
+  <input type="password" id="pin-input" placeholder="PIN" style="text-align:center;font-size:18px;letter-spacing:4px;margin-bottom:12px;" onkeydown="if(event.key==='Enter') pinSubmit()">
+  <div id="pin-error" style="color:var(--red);font-size:12px;min-height:18px;margin-bottom:10px;"></div>
+  <div class="flex gap-12">
+    <button class="btn btn-acc btn-w" onclick="pinSubmit()">Unlock</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-pin')">Cancel</button>
+  </div>
+</div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- ══════════ MODAL: ADD MATERIAL POPUP ══════════ -->
