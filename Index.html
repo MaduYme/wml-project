@@ -1777,33 +1777,32 @@ function calcCostForUnit(mat, qty, selUnit){
   const ul = mat.ul||1;
   const issUnit = mat.issueUnit||mat.unit;
   const stockUnit = mat.unit;
+  const isSame = issUnit===stockUnit || ul<=1;
 
-  // Case 1: Selected = Stock Unit (Sheet, Bar, Nos etc)
+  // Case 1: Selected = Stock Unit (Sheet, Bar, Box etc) → full rate
   if(selUnit===stockUnit){
     return {rate:mat.rate, cost:parseFloat((qty*mat.rate).toFixed(2))};
   }
 
-  // Case 2: Selected = Issue Unit or convertible to Issue Unit
-  // First convert selUnit qty to issueUnit qty
-  const inIssueUnits = convertToIssueUnit(qty, selUnit, mat);
+  // Case 2: Issue unit or any sub-unit → use q/ul logic
+  // ratePerIssue = rate per stock unit ÷ ul
+  const ratePerIssue = isSame ? mat.rate : mat.rate/ul;
 
-  // Rate per issue unit = rate / ul
-  const ratePerIssue = mat.rate / ul;
-
-  // Cost = qty_in_issue_units × rate_per_issue_unit
-  const cost = parseFloat((inIssueUnits * ratePerIssue).toFixed(2));
-
-  // Display rate is per selUnit
-  let ratePerSel = ratePerIssue;
-  if(selUnit!==issUnit && LENGTH_TO_FT[selUnit]&&LENGTH_TO_FT[issUnit]){
-    ratePerSel = ratePerIssue * LENGTH_TO_FT[issUnit] / LENGTH_TO_FT[selUnit];
-  } else if(selUnit!==issUnit && AREA_TO_SQFT[selUnit]&&AREA_TO_SQFT[issUnit]){
-    ratePerSel = ratePerIssue * AREA_TO_SQFT[issUnit] / AREA_TO_SQFT[selUnit];
-  } else if(selUnit!==issUnit && VOL_TO_ML[selUnit]&&VOL_TO_ML[issUnit]){
-    ratePerSel = ratePerIssue * VOL_TO_ML[issUnit] / VOL_TO_ML[selUnit];
+  // Handle cross-unit conversions (inch→ft, ml→L etc)
+  let qtyInIssueUnit = qty;
+  if(!isSame && selUnit!==issUnit){
+    // Convert selUnit to issUnit
+    if(LENGTH_TO_FT[selUnit]&&LENGTH_TO_FT[issUnit])
+      qtyInIssueUnit = qty * LENGTH_TO_FT[selUnit]/LENGTH_TO_FT[issUnit];
+    else if(AREA_TO_SQFT[selUnit]&&AREA_TO_SQFT[issUnit])
+      qtyInIssueUnit = qty * AREA_TO_SQFT[selUnit]/AREA_TO_SQFT[issUnit];
+    else if(VOL_TO_ML[selUnit]&&VOL_TO_ML[issUnit])
+      qtyInIssueUnit = qty * VOL_TO_ML[selUnit]/VOL_TO_ML[issUnit];
   }
 
-  return {rate:parseFloat(ratePerSel.toFixed(6)), cost};
+  const cost = parseFloat((qtyInIssueUnit * ratePerIssue).toFixed(2));
+  const ratePerSel = qty>0 ? cost/qty : ratePerIssue;
+  return {rate:parseFloat(ratePerSel.toFixed(4)), cost};
 }
 
 
