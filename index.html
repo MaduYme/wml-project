@@ -829,84 +829,91 @@ tr:hover td{background:rgba(255,255,255,.015);}
 
 <!-- ══════════ MODAL: ADD/EDIT MATERIAL ══════════ -->
 <div class="overlay" id="modal-mat" onclick="overlayClose(event,'modal-mat')">
-<div class="modal" style="width:min(560px,100%);">
+<div class="modal" style="width:min(580px,100%);max-height:90vh;overflow-y:auto;">
   <div class="modal-title" id="mat-modal-title">Material</div>
   <input type="hidden" id="edit-mat-id">
 
-  <!-- Step 1: Basic Info -->
-  <div style="margin-bottom:16px;">
+  <!-- ① Basic Info -->
+  <div style="margin-bottom:14px;">
     <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">① Basic Info</div>
-    <div class="fg"><label>Name</label><input type="text" id="am-name" placeholder="eg: Cladding Sheet Blue, Box Bar 1.5×1.5"></div>
+    <div class="fg"><label>Name</label><input type="text" id="am-name" placeholder="eg: Cladding Sheet Blue, QD Paint, Box Bar 1.5×1.5"></div>
     <div class="g2">
-      <div class="fg"><label>Size / Spec</label><input type="text" id="am-size" placeholder="eg: 8×4 3mm, 18ft/bar"></div>
-      <div class="fg fg0"><label>Rate (Rs. per stock unit)</label><input type="number" id="am-rate" placeholder="eg: 3840"></div>
+      <div class="fg fg0"><label>Size / Spec</label><input type="text" id="am-size" placeholder="eg: 8×4 3mm, 750ml/bottle, 18ft/bar"></div>
+      <div class="fg fg0"><label>Rate (Rs.) — per Stock Unit</label><input type="number" id="am-rate" placeholder="eg: 800" oninput="amUpdatePreview()"></div>
     </div>
   </div>
 
-  <!-- Step 2: How do you BUY it? -->
-  <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:14px;margin-bottom:14px;">
-    <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--green);margin-bottom:10px;">② ගන්නේ (Receive) කොහොමද?</div>
+  <!-- ② Receive (Stock Unit) -->
+  <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:14px;margin-bottom:12px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--green);margin-bottom:10px;">📥 Receive — ගන්නේ කොහොමද?</div>
     <div class="g2">
       <div class="fg fg0">
-        <label>Stock Unit</label>
+        <label>Stock Unit <span style="color:var(--muted);font-size:10px;">(ගන්නා ඒකකය)</span></label>
         <select id="am-unit" onchange="amUnitChange()" style="border-color:rgba(34,197,94,0.3);">
-          <option value="Sheet">Sheet</option>
-          <option value="Bar">Bar</option>
-          <option value="Length">Length</option>
-          <option value="Roll">Roll</option>
-          <option value="Box">Box</option>
-          <option value="Nos">Nos</option>
-          <option value="mtr">mtr</option>
-          <option value="L">L (Liter)</option>
-          <option value="kg">kg</option>
-          <option value="Can">Can</option>
-          <option value="Tube">Tube</option>
-          <option value="sq.ft">sq.ft</option>
+          <option value="Sheet">Sheet (Cladding, Plastic, Form Board)</option>
+          <option value="Bar">Bar (Box Bar, GI Pipe)</option>
+          <option value="Length">Length (Angle Iron, Flat Iron)</option>
+          <option value="Roll">Roll (Wire Roll, Tape Roll)</option>
+          <option value="Box">Box (Nails, Blades, Rivets)</option>
+          <option value="Pack">Pack (Cable Ties, Screws)</option>
+          <option value="Bundle">Bundle</option>
+          <option value="Bottle">Bottle (Paint, QD, Shampoo)</option>
+          <option value="Can">Can (Multi Bond, Paint Can)</option>
+          <option value="Tube">Tube (Silicon)</option>
+          <option value="Nos">Nos (LED, Wheels, Items)</option>
+          <option value="mtr">mtr (Wire direct by meter)</option>
+          <option value="L">L (Liquid direct by liter)</option>
+          <option value="kg">kg (Metal by weight)</option>
+          <option value="sq.ft">sq.ft (Print, Lamination)</option>
         </select>
         <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="am-unit-eg"></div>
       </div>
       <div class="fg fg0">
-        <label>1 unit ලදී ඇතුළත්</label>
+        <label>1 <span id="am-stock-unit-in-label" style="color:var(--green);">Stock Unit</span> ලදී ඇතුළත්</label>
         <div style="display:flex;align-items:center;gap:6px;">
           <input type="number" id="am-ul" placeholder="eg: 32" style="border-color:rgba(34,197,94,0.3);" oninput="amUpdatePreview()">
-          <span style="color:var(--muted);font-size:13px;" id="am-ul-unit-label">sq.ft</span>
+          <span style="color:var(--green);font-size:13px;font-weight:600;" id="am-ul-unit-label">sq.ft</span>
         </div>
         <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="am-ul-eg"></div>
       </div>
     </div>
   </div>
 
-  <!-- Step 3: How do you USE it? -->
-  <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:14px;margin-bottom:14px;">
-    <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red);margin-bottom:10px;">③ Use (Issue) කරන්නේ කොහොමද?</div>
+  <!-- ③ Issue (Use Unit) -->
+  <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:14px;margin-bottom:12px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--red);margin-bottom:10px;">📤 Issue — Use කරන්නේ කොහොමද?</div>
     <div class="fg fg0">
-      <label>Issue Unit</label>
+      <label>Issue Unit <span style="color:var(--muted);font-size:10px;">(use කරන ඒකකය)</span></label>
       <select id="am-issue-unit" onchange="amUpdatePreview()" style="border-color:rgba(239,68,68,0.3);">
-        <option value="sq.ft">sq.ft — Square Feet</option>
-        <option value="ft">ft — Feet</option>
-        <option value="inch">inch — Inches</option>
-        <option value="mtr">mtr — Meters</option>
-        <option value="Nos">Nos — Numbers</option>
-        <option value="L">L — Liters</option>
+        <option value="sq.ft">sq.ft — Square Feet (වර්ග අඩි)</option>
+        <option value="sq.inch">sq.inch — Square Inches (වර්ග අඟල්)</option>
+        <option value="ft">ft — Feet (අඩි)</option>
+        <option value="inch">inch — Inches (අඟල්)</option>
+        <option value="mtr">mtr — Meters (මීටර්)</option>
+        <option value="ml">ml — Milliliters (මිලිලීටර්)</option>
+        <option value="L">L — Liters (ලීටර්)</option>
         <option value="kg">kg — Kilograms</option>
+        <option value="g">g — Grams</option>
+        <option value="Nos">Nos — Numbers (ගණන)</option>
         <option value="same">Same as Stock Unit</option>
       </select>
     </div>
-    <!-- Live conversion preview -->
-    <div id="am-conversion-preview" style="display:none;margin-top:10px;background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 12px;">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">📊 Conversion</div>
-      <div id="am-conv-text" style="font-size:13px;font-weight:600;color:var(--text);line-height:1.8;"></div>
+
+    <!-- Live conversion preview box -->
+    <div id="am-conversion-preview" style="display:none;margin-top:10px;background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">📊 Conversion Preview</div>
+      <div id="am-conv-text" style="font-size:13px;font-weight:600;color:var(--text);line-height:2;"></div>
     </div>
   </div>
 
-  <!-- Step 4: Current Stock -->
-  <div style="margin-bottom:16px;">
+  <!-- ④ Current Stock -->
+  <div style="margin-bottom:14px;">
     <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">④ Current Stock</div>
     <div class="g2">
       <div class="fg fg0">
-        <label>Stock Qty <span id="am-stock-unit-lbl" style="color:var(--green);font-weight:600;"></span></label>
+        <label>Stock Qty <span id="am-stock-unit-lbl" style="color:var(--green);font-weight:600;font-size:11px;"></span></label>
         <input type="number" id="am-stock" placeholder="0" oninput="amUpdatePreview()">
-        <div style="font-size:11px;color:var(--green);margin-top:4px;" id="am-stock-preview"></div>
+        <div style="font-size:12px;color:var(--green);margin-top:5px;font-weight:600;" id="am-stock-preview"></div>
       </div>
       <div class="fg fg0">
         <label>Min Stock Alert <span id="am-min-unit-lbl" style="color:var(--muted);font-size:10px;"></span></label>
@@ -916,7 +923,7 @@ tr:hover td{background:rgba(255,255,255,.015);}
   </div>
 
   <div class="flex gap-12">
-    <button class="btn btn-acc" onclick="saveMat()" style="flex:1;justify-content:center;">💾 Save</button>
+    <button class="btn btn-acc" onclick="saveMat()" style="flex:1;justify-content:center;">💾 Save Material</button>
     <button class="btn btn-ghost" onclick="closeModal('modal-mat')">Cancel</button>
   </div>
 </div>
@@ -962,26 +969,26 @@ const DB={
   set projects(v){ _save('projects',v); },
 };
 
-const DEFAULT_MATS=[{"id":1,"name":"Cladding Sheet Blue","size":"8x4 3mm","unit":"Sheet","ul":32,"rate":3840,"stock":0,"min":3,"isBoxBar":false},{"id":2,"name":"Cladding Sheet White","size":"8x4 3mm","unit":"Sheet","ul":32,"rate":3840,"stock":0,"min":3,"isBoxBar":false},{"id":3,"name":"Cladding 4mm 12.5×4","size":"12.5x4 4mm","unit":"Sheet","ul":50,"rate":6600,"stock":0,"min":2,"isBoxBar":false},{"id":4,"name":"Plaster Sheet White","size":"8x4 2mm","unit":"Sheet","ul":32,"rate":2200,"stock":0,"min":2,"isBoxBar":false},{"id":5,"name":"Plaster Sheet White","size":"6x4 2mm","unit":"Sheet","ul":24,"rate":2000,"stock":0,"min":2,"isBoxBar":false},{"id":6,"name":"Clear Plastic Sheet","size":"6x4 2mm","unit":"Sheet","ul":24,"rate":2500,"stock":0,"min":2,"isBoxBar":false},{"id":7,"name":"Clear Plastic Indian","size":"6x4 2mm","unit":"Sheet","ul":24,"rate":2000,"stock":1,"min":2,"isBoxBar":false},{"id":8,"name":"Form Board","size":"8x4 2mm","unit":"Sheet","ul":32,"rate":1800,"stock":2,"min":3,"isBoxBar":false},{"id":9,"name":"Form Board","size":"8x4 3mm","unit":"Sheet","ul":32,"rate":2200,"stock":4,"min":3,"isBoxBar":false},{"id":10,"name":"Form Board","size":"8x4 4mm","unit":"Sheet","ul":32,"rate":2800,"stock":2,"min":3,"isBoxBar":false},{"id":11,"name":"GI Pipe 1¾\"","size":"1¾\"","unit":"Length","ul":20,"rate":1200,"stock":0,"min":2,"isBoxBar":false},{"id":12,"name":"GI Pipe 1½\"","size":"1½\"","unit":"Length","ul":20,"rate":1200,"stock":3,"min":2,"isBoxBar":false},{"id":13,"name":"GI Pipe 2\"","size":"2\"","unit":"Length","ul":20,"rate":2000,"stock":0,"min":2,"isBoxBar":false},{"id":14,"name":"GI Pipe 3\"","size":"3\"","unit":"Length","ul":20,"rate":3500,"stock":0,"min":2,"isBoxBar":false},{"id":15,"name":"GI Pipe 4\"","size":"4\"","unit":"Length","ul":20,"rate":5000,"stock":0,"min":2,"isBoxBar":false},{"id":16,"name":"GI Pipe 5\"","size":"5\"","unit":"Length","ul":20,"rate":7000,"stock":0,"min":2,"isBoxBar":false},{"id":17,"name":"GI Pipe 6\"","size":"6\"","unit":"Length","ul":8,"rate":20400,"stock":0,"min":2,"isBoxBar":false},{"id":18,"name":"GI Pipe 8\"","size":"8\"","unit":"Length","ul":8,"rate":30000,"stock":0,"min":1,"isBoxBar":false},{"id":19,"name":"Box Bar ¾×¾","size":"¾x¾ pt9","unit":"Bar","ul":18,"rate":1200,"stock":3,"min":5,"isBoxBar":true},{"id":20,"name":"Box Bar 1\"×1\"","size":"1×1","unit":"Bar","ul":18,"rate":2000,"stock":5,"min":5,"isBoxBar":true},{"id":21,"name":"Box Bar 1.5\"×1.5\"","size":"1½×1½","unit":"Bar","ul":18,"rate":3500,"stock":3,"min":5,"isBoxBar":true},{"id":22,"name":"Box Bar 2\"×2\"","size":"2×2","unit":"Bar","ul":18,"rate":4500,"stock":5,"min":3,"isBoxBar":true},{"id":23,"name":"Box Bar 2\"×1\"","size":"2×1","unit":"Bar","ul":18,"rate":3000,"stock":7,"min":3,"isBoxBar":true},{"id":24,"name":"Box Bar 4\"×4\"","size":"4×4","unit":"Bar","ul":18,"rate":8000,"stock":5,"min":2,"isBoxBar":true},{"id":25,"name":"Box Bar 3\"×1.5\"","size":"3×1½","unit":"Bar","ul":18,"rate":5000,"stock":1,"min":3,"isBoxBar":true},{"id":26,"name":"Aluminum Bar 2\"×1\"","size":"2×1 20ft","unit":"Bar","ul":20,"rate":6560,"stock":0,"min":3,"isBoxBar":true},{"id":27,"name":"Aluminium Angle ¾ Black","size":"¾ Black 12'","unit":"Length","ul":12,"rate":900,"stock":6,"min":5,"isBoxBar":false},{"id":28,"name":"Aluminium Angle ¾ Natural","size":"¾ Natural 12'","unit":"Length","ul":12,"rate":800,"stock":0,"min":3,"isBoxBar":false},{"id":29,"name":"Aluminium Angle ½ Black","size":"½ Black 12'","unit":"Length","ul":12,"rate":750,"stock":5,"min":5,"isBoxBar":false},{"id":30,"name":"Aluminium Angle ½ Natural","size":"½ Natural 12'","unit":"Length","ul":12,"rate":650,"stock":0,"min":3,"isBoxBar":false},{"id":31,"name":"Aluminium Angle 1×1 Black","size":"1×1 Black","unit":"Length","ul":12,"rate":1200,"stock":3,"min":5,"isBoxBar":false},{"id":32,"name":"Aluminium Angle 1×1 Natural","size":"1×1 Natural","unit":"Length","ul":12,"rate":1000,"stock":0,"min":3,"isBoxBar":false},{"id":33,"name":"L Angle Iron","size":"1½×1½ 3mm","unit":"Length","ul":12,"rate":1500,"stock":0,"min":3,"isBoxBar":false},{"id":34,"name":"Flat Iron 1×1","size":"1×1","unit":"Length","ul":12,"rate":1200,"stock":2,"min":3,"isBoxBar":false},{"id":35,"name":"Flat Iron 0.75","size":"0.75","unit":"Length","ul":12,"rate":900,"stock":0,"min":3,"isBoxBar":false},{"id":36,"name":"Flat Iron ½ 0.25mm","size":"½ 0.25mm","unit":"Length","ul":12,"rate":700,"stock":0,"min":3,"isBoxBar":false},{"id":37,"name":"Iron Plate 0.25","size":"0.25","unit":"Sheet","ul":1,"rate":3667,"stock":9,"min":3,"isBoxBar":false},{"id":38,"name":"Pop Rivet Box 32×5/8","size":"32×5/8","unit":"Box","ul":300,"rate":600,"stock":1,"min":2,"isBoxBar":false},{"id":39,"name":"Pop Rivet Box 0.125","size":"0.125","unit":"Box","ul":300,"rate":500,"stock":1,"min":2,"isBoxBar":false},{"id":40,"name":"Pop Rivet Box 1/8-1\"","size":"1/8-1\"","unit":"Box","ul":300,"rate":550,"stock":2,"min":2,"isBoxBar":false},{"id":41,"name":"Flexible Conduit 0.5","size":"0.5×","unit":"mtr","ul":1,"rate":80,"stock":60,"min":10,"isBoxBar":false},{"id":42,"name":"Polycrom Conduit Pipe","size":"½ 16mm","unit":"Length","ul":12,"rate":350,"stock":0,"min":3,"isBoxBar":false},{"id":43,"name":"Anchor Bolt 10×75mm","size":"10×75mm 3/8×3","unit":"Nos","ul":1,"rate":50,"stock":6,"min":20,"isBoxBar":false},{"id":44,"name":"Silver Nob 25×25","size":"25×25","unit":"Nos","ul":1,"rate":150,"stock":72,"min":20,"isBoxBar":false},{"id":45,"name":"Grill Bit 32×5/8","size":"32×5/8","unit":"Nos","ul":1,"rate":350,"stock":1,"min":5,"isBoxBar":false},{"id":46,"name":"Grill Bit 0.125","size":"0.125","unit":"Nos","ul":1,"rate":300,"stock":7,"min":5,"isBoxBar":false},{"id":47,"name":"Grill Bit 0.25","size":"0.25","unit":"Nos","ul":1,"rate":280,"stock":3,"min":5,"isBoxBar":false},{"id":48,"name":"Grill Bit 8mm","size":"8mm","unit":"Nos","ul":1,"rate":400,"stock":2,"min":5,"isBoxBar":false},{"id":49,"name":"Black Screw Nails 1\"","size":"1\"","unit":"Box","ul":1,"rate":500,"stock":0,"min":2,"isBoxBar":false},{"id":50,"name":"Cutting Wheel 14\"","size":"14\"","unit":"Nos","ul":1,"rate":800,"stock":1,"min":2,"isBoxBar":false},{"id":51,"name":"Cutting Wheel 4.5\"","size":"4.5\"","unit":"Nos","ul":1,"rate":250,"stock":0,"min":5,"isBoxBar":false},{"id":52,"name":"Grinding Wheel 4.5\"","size":"4.5\"","unit":"Nos","ul":1,"rate":300,"stock":3,"min":5,"isBoxBar":false},{"id":53,"name":"Sanding Wheel 4.5\"","size":"4.5\"","unit":"Nos","ul":1,"rate":280,"stock":1,"min":3,"isBoxBar":false},{"id":54,"name":"Nut and Bolt 8.8","size":"8.8","unit":"Set","ul":1,"rate":120,"stock":0,"min":5,"isBoxBar":false},{"id":55,"name":"Nut and Bolt 10mm","size":"10mm","unit":"Set","ul":1,"rate":150,"stock":0,"min":5,"isBoxBar":false},{"id":56,"name":"Wire TT 16/0.20","size":"16/0.20","unit":"mtr","ul":1,"rate":69,"stock":50,"min":20,"isBoxBar":false},{"id":57,"name":"White Sticker","size":"White","unit":"Roll","ul":1,"rate":1500,"stock":0,"min":3,"isBoxBar":false},{"id":58,"name":"Laminating Roll 50m","size":"50m×4ft","unit":"Roll","ul":1,"rate":4500,"stock":35,"min":5,"isBoxBar":false},{"id":59,"name":"Vehicle Rim 12\"","size":"12\"","unit":"Nos","ul":1,"rate":0,"stock":4,"min":1,"isBoxBar":false},{"id":60,"name":"Thinner","size":"L","unit":"L","ul":1,"rate":500,"stock":0,"min":3,"isBoxBar":false},{"id":61,"name":"Causway QD","size":"L","unit":"L","ul":1,"rate":800,"stock":4,"min":3,"isBoxBar":false},{"id":62,"name":"Dry Wall Screws 1½\"","size":"1½\"","unit":"Box","ul":1,"rate":400,"stock":0,"min":2,"isBoxBar":false},{"id":63,"name":"Sand Paper 120","size":"120","unit":"Sheet","ul":1,"rate":50,"stock":0,"min":5,"isBoxBar":false},{"id":64,"name":"Sand Paper 320","size":"320","unit":"Sheet","ul":1,"rate":60,"stock":0,"min":5,"isBoxBar":false},{"id":65,"name":"Amano Screws 1\"","size":"1\"","unit":"Nos","ul":1,"rate":15,"stock":25,"min":50,"isBoxBar":false},{"id":66,"name":"Amano Screws 2\"","size":"2\"","unit":"Nos","ul":1,"rate":20,"stock":0,"min":50,"isBoxBar":false},{"id":67,"name":"LED Flasher Akro 30W","size":"30W","unit":"Nos","ul":1,"rate":2500,"stock":6,"min":3,"isBoxBar":false},{"id":68,"name":"Shampoo","size":"L","unit":"L","ul":1,"rate":600,"stock":2,"min":2,"isBoxBar":false},{"id":69,"name":"Grinder Wheel 4\"","size":"4\"","unit":"Nos","ul":1,"rate":300,"stock":5,"min":5,"isBoxBar":false},{"id":70,"name":"Cutting Wheel 4\"","size":"4\"","unit":"Nos","ul":1,"rate":250,"stock":5,"min":5,"isBoxBar":false},{"id":71,"name":"Iron L Angle 1×1×3mm","size":"1×1×3mm","unit":"Length","ul":12,"rate":1200,"stock":8,"min":3,"isBoxBar":false},{"id":72,"name":"Iron L Angle 2×2×5mm","size":"2×2×5mm","unit":"Length","ul":12,"rate":2500,"stock":1,"min":2,"isBoxBar":false},{"id":73,"name":"Iron L Angle 1×½","size":"1×½×1×½","unit":"Length","ul":12,"rate":900,"stock":13,"min":3,"isBoxBar":false},{"id":74,"name":"Paper Cutter Blade","size":"Box","unit":"Box","ul":1,"rate":800,"stock":0,"min":1,"isBoxBar":false},{"id":75,"name":"Silicon Black","size":"Black","unit":"Tube","ul":1,"rate":1050,"stock":0,"min":3,"isBoxBar":false},{"id":76,"name":"Silicon White","size":"White","unit":"Tube","ul":1,"rate":1050,"stock":1,"min":3,"isBoxBar":false},{"id":77,"name":"Silicon Clear","size":"Clear","unit":"Tube","ul":1,"rate":1050,"stock":2,"min":3,"isBoxBar":false},{"id":78,"name":"Multi Bond","size":"1L","unit":"Can","ul":1,"rate":1500,"stock":0,"min":2,"isBoxBar":false},{"id":79,"name":"Small Silver Chain","size":"Small","unit":"mtr","ul":1,"rate":500,"stock":0,"min":2,"isBoxBar":false},{"id":80,"name":"Angel Iron 1×1×5mm","size":"1×1×5mm","unit":"Length","ul":12,"rate":1500,"stock":0,"min":3,"isBoxBar":false},{"id":81,"name":"Wiring Tape","size":"-","unit":"Roll","ul":1,"rate":150,"stock":10,"min":5,"isBoxBar":false},{"id":82,"name":"Welding Rod 10\"","size":"10\" box","unit":"Box","ul":1,"rate":1500,"stock":7,"min":3,"isBoxBar":false},{"id":83,"name":"Welding Rod 12\"","size":"12\" box","unit":"Box","ul":1,"rate":1800,"stock":3,"min":3,"isBoxBar":false},{"id":84,"name":"Double Tape 1\"","size":"1\"","unit":"Roll","ul":1,"rate":200,"stock":12,"min":5,"isBoxBar":false},{"id":85,"name":"2 Core Wire","size":"-","unit":"mtr","ul":1,"rate":105,"stock":80,"min":20,"isBoxBar":false},{"id":86,"name":"Rubber Sheet","size":"0.5 inch","unit":"Sheet","ul":1,"rate":1200,"stock":0,"min":2,"isBoxBar":false},{"id":87,"name":"Roll Plug","size":"-","unit":"Nos","ul":1,"rate":15,"stock":150,"min":30,"isBoxBar":false},{"id":88,"name":"Screw Nails","size":"-","unit":"Nos","ul":1,"rate":5,"stock":200,"min":50,"isBoxBar":false},{"id":89,"name":"Cable Tie Black 12\"","size":"12\"","unit":"Nos","ul":1,"rate":5,"stock":150,"min":50,"isBoxBar":false},{"id":90,"name":"Cable Tie Black 8\"","size":"8\"","unit":"Nos","ul":1,"rate":4,"stock":0,"min":50,"isBoxBar":false},{"id":91,"name":"Masking Tape 2\"","size":"2\"","unit":"Roll","ul":1,"rate":300,"stock":2,"min":3,"isBoxBar":false},{"id":92,"name":"Silver Screw Hanger","size":"-","unit":"Nos","ul":1,"rate":100,"stock":0,"min":5,"isBoxBar":false},{"id":93,"name":"LED Tube Light","size":"-","unit":"Nos","ul":1,"rate":1200,"stock":84,"min":10,"isBoxBar":false},{"id":94,"name":"LED Strip S","size":"S","unit":"mtr","ul":1,"rate":800,"stock":0,"min":3,"isBoxBar":false},{"id":95,"name":"LED Strip L","size":"L","unit":"mtr","ul":1,"rate":1200,"stock":0,"min":3,"isBoxBar":false},{"id":96,"name":"LED Backlight","size":"-","unit":"Nos","ul":1,"rate":550,"stock":120,"min":20,"isBoxBar":false},{"id":97,"name":"Power Supply 10A","size":"10A","unit":"Nos","ul":1,"rate":3500,"stock":4,"min":2,"isBoxBar":false},{"id":98,"name":"Power Supply 20A","size":"20A","unit":"Nos","ul":1,"rate":5000,"stock":5,"min":2,"isBoxBar":false},{"id":99,"name":"Power Supply 30A","size":"30A","unit":"Nos","ul":1,"rate":7000,"stock":5,"min":2,"isBoxBar":false},{"id":100,"name":"Amano Sheet","size":"-","unit":"Sheet","ul":1,"rate":500,"stock":0,"min":2,"isBoxBar":false},{"id":101,"name":"Soft Glue","size":"-","unit":"Nos","ul":1,"rate":400,"stock":0,"min":3,"isBoxBar":false},{"id":102,"name":"Small Washer","size":"-","unit":"Nos","ul":1,"rate":10,"stock":0,"min":20,"isBoxBar":false},{"id":103,"name":"Backlite Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":330,"stock":999,"min":0,"isBoxBar":false},{"id":104,"name":"Flex Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":220,"stock":999,"min":0,"isBoxBar":false},{"id":105,"name":"Sticker Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":220,"stock":999,"min":0,"isBoxBar":false},{"id":106,"name":"Glass Sticker White","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":170,"stock":999,"min":0,"isBoxBar":false},{"id":107,"name":"Lamination","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":60,"stock":999,"min":0,"isBoxBar":false},{"id":108,"name":"Laminated Sticker Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":310,"stock":999,"min":0,"isBoxBar":false}];
+const DEFAULT_MATS=[{"id":1,"name":"Cladding Sheet Blue","size":"8x4 3mm","unit":"Sheet","ul":32,"rate":3840,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":2,"name":"Cladding Sheet White","size":"8x4 3mm","unit":"Sheet","ul":32,"rate":3840,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":3,"name":"Cladding 4mm 12.5×4","size":"12.5x4 4mm","unit":"Sheet","ul":50,"rate":6600,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":4,"name":"Plaster Sheet White","size":"8x4 2mm","unit":"Sheet","ul":32,"rate":2200,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":5,"name":"Plaster Sheet White","size":"6x4 2mm","unit":"Sheet","ul":32,"rate":2000,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":6,"name":"Clear Plastic Sheet","size":"6x4 2mm","unit":"Sheet","ul":24,"rate":2500,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":7,"name":"Clear Plastic Indian","size":"6x4 2mm","unit":"Sheet","ul":24,"rate":2000,"stock":1,"min":2,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":8,"name":"Form Board","size":"8x4 2mm","unit":"Sheet","ul":32,"rate":1800,"stock":2,"min":3,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":9,"name":"Form Board","size":"8x4 3mm","unit":"Sheet","ul":32,"rate":2200,"stock":4,"min":3,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":10,"name":"Form Board","size":"8x4 4mm","unit":"Sheet","ul":32,"rate":2800,"stock":2,"min":3,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":11,"name":"GI Pipe 1¾\"","size":"1¾\"","unit":"Bar","ul":18,"rate":1200,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"ft"},{"id":12,"name":"GI Pipe 1½\"","size":"1½\"","unit":"Bar","ul":18,"rate":1200,"stock":3,"min":2,"isBoxBar":false,"issueUnit":"ft"},{"id":13,"name":"GI Pipe 2\"","size":"2\"","unit":"Bar","ul":18,"rate":2000,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"ft"},{"id":14,"name":"GI Pipe 3\"","size":"3\"","unit":"Bar","ul":18,"rate":3500,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"ft"},{"id":15,"name":"GI Pipe 4\"","size":"4\"","unit":"Bar","ul":18,"rate":5000,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"ft"},{"id":16,"name":"GI Pipe 5\"","size":"5\"","unit":"Bar","ul":18,"rate":7000,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"ft"},{"id":17,"name":"GI Pipe 6\"","size":"6\"","unit":"Bar","ul":8,"rate":20400,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"ft"},{"id":18,"name":"GI Pipe 8\"","size":"8\"","unit":"Bar","ul":8,"rate":30000,"stock":0,"min":1,"isBoxBar":false,"issueUnit":"ft"},{"id":19,"name":"Box Bar ¾×¾","size":"¾x¾ pt9","unit":"Bar","ul":18,"rate":1200,"stock":3,"min":5,"isBoxBar":true,"issueUnit":"ft"},{"id":20,"name":"Box Bar 1\"×1\"","size":"1×1","unit":"Bar","ul":18,"rate":2000,"stock":5,"min":5,"isBoxBar":true,"issueUnit":"ft"},{"id":21,"name":"Box Bar 1.5\"×1.5\"","size":"1½×1½","unit":"Bar","ul":18,"rate":3500,"stock":3,"min":5,"isBoxBar":true,"issueUnit":"ft"},{"id":22,"name":"Box Bar 2\"×2\"","size":"2×2","unit":"Bar","ul":18,"rate":4500,"stock":5,"min":3,"isBoxBar":true,"issueUnit":"ft"},{"id":23,"name":"Box Bar 2\"×1\"","size":"2×1","unit":"Bar","ul":18,"rate":3000,"stock":7,"min":3,"isBoxBar":true,"issueUnit":"ft"},{"id":24,"name":"Box Bar 4\"×4\"","size":"4×4","unit":"Bar","ul":18,"rate":8000,"stock":5,"min":2,"isBoxBar":true,"issueUnit":"ft"},{"id":25,"name":"Box Bar 3\"×1.5\"","size":"3×1½","unit":"Bar","ul":18,"rate":5000,"stock":1,"min":3,"isBoxBar":true,"issueUnit":"ft"},{"id":26,"name":"Aluminum Bar 2\"×1\"","size":"2×1 20ft","unit":"Bar","ul":20,"rate":6560,"stock":0,"min":3,"isBoxBar":true,"issueUnit":"ft"},{"id":27,"name":"Aluminium Angle ¾ Black","size":"¾ Black 12'","unit":"Length","ul":12,"rate":900,"stock":6,"min":5,"isBoxBar":false,"issueUnit":"ft"},{"id":28,"name":"Aluminium Angle ¾ Natural","size":"¾ Natural 12'","unit":"Length","ul":12,"rate":800,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"ft"},{"id":29,"name":"Aluminium Angle ½ Black","size":"½ Black 12'","unit":"Length","ul":12,"rate":750,"stock":5,"min":5,"isBoxBar":false,"issueUnit":"ft"},{"id":30,"name":"Aluminium Angle ½ Natural","size":"½ Natural 12'","unit":"Length","ul":12,"rate":650,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"ft"},{"id":31,"name":"Aluminium Angle 1×1 Black","size":"1×1 Black","unit":"Length","ul":12,"rate":1200,"stock":3,"min":5,"isBoxBar":false,"issueUnit":"ft"},{"id":32,"name":"Aluminium Angle 1×1 Natural","size":"1×1 Natural","unit":"Length","ul":12,"rate":1000,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"ft"},{"id":33,"name":"L Angle Iron","size":"1½×1½ 3mm","unit":"Length","ul":18,"rate":1500,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"ft"},{"id":34,"name":"Flat Iron 1×1","size":"1×1","unit":"Length","ul":18,"rate":1200,"stock":2,"min":3,"isBoxBar":false,"issueUnit":"ft"},{"id":35,"name":"Flat Iron 0.75","size":"0.75","unit":"Length","ul":18,"rate":900,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"ft"},{"id":36,"name":"Flat Iron ½ 0.25mm","size":"½ 0.25mm","unit":"Length","ul":18,"rate":700,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"ft"},{"id":37,"name":"Iron Plate 0.25","size":"0.25","unit":"Sheet","ul":24,"rate":3667,"stock":9,"min":3,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":38,"name":"Pop Rivet Box 32×5/8","size":"32×5/8","unit":"Box","ul":1000,"rate":600,"stock":1,"min":2,"isBoxBar":false,"issueUnit":"Nos"},{"id":39,"name":"Pop Rivet Box 0.125","size":"0.125","unit":"Box","ul":1000,"rate":500,"stock":1,"min":2,"isBoxBar":false,"issueUnit":"Nos"},{"id":40,"name":"Pop Rivet Box 1/8-1\"","size":"1/8-1\"","unit":"Box","ul":1000,"rate":550,"stock":2,"min":2,"isBoxBar":false,"issueUnit":"Nos"},{"id":41,"name":"Flexible Conduit 0.5","size":"0.5×","unit":"mtr","ul":1,"rate":80,"stock":60,"min":10,"isBoxBar":false,"issueUnit":"mtr"},{"id":42,"name":"Polycrom Conduit Pipe","size":"½ 16mm","unit":"Length","ul":12,"rate":350,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"ft"},{"id":43,"name":"Anchor Bolt 10×75mm","size":"10×75mm 3/8×3","unit":"Nos","ul":1,"rate":50,"stock":6,"min":20,"isBoxBar":false,"issueUnit":"Nos"},{"id":44,"name":"Silver Nob 25×25","size":"25×25","unit":"Nos","ul":1,"rate":150,"stock":72,"min":20,"isBoxBar":false,"issueUnit":"Nos"},{"id":45,"name":"Grill Bit 32×5/8","size":"32×5/8","unit":"Nos","ul":1,"rate":350,"stock":1,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":46,"name":"Grill Bit 0.125","size":"0.125","unit":"Nos","ul":1,"rate":300,"stock":7,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":47,"name":"Grill Bit 0.25","size":"0.25","unit":"Nos","ul":1,"rate":280,"stock":3,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":48,"name":"Grill Bit 8mm","size":"8mm","unit":"Nos","ul":1,"rate":400,"stock":2,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":49,"name":"Black Screw Nails 1\"","size":"1\"","unit":"Nos","ul":1,"rate":500,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"Nos"},{"id":50,"name":"Cutting Wheel 14\"","size":"14\"","unit":"Nos","ul":1,"rate":800,"stock":1,"min":2,"isBoxBar":false,"issueUnit":"Nos"},{"id":51,"name":"Cutting Wheel 4.5\"","size":"4.5\"","unit":"Nos","ul":1,"rate":250,"stock":0,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":52,"name":"Grinding Wheel 4.5\"","size":"4.5\"","unit":"Nos","ul":1,"rate":300,"stock":3,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":53,"name":"Sanding Wheel 4.5\"","size":"4.5\"","unit":"Nos","ul":1,"rate":280,"stock":1,"min":3,"isBoxBar":false,"issueUnit":"Nos"},{"id":54,"name":"Nut and Bolt 8.8","size":"8.8","unit":"Nos","ul":1,"rate":120,"stock":0,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":55,"name":"Nut and Bolt 10mm","size":"10mm","unit":"Nos","ul":1,"rate":150,"stock":0,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":56,"name":"Wire TT 16/0.20","size":"16/0.20","unit":"Roll","ul":100,"rate":69,"stock":50,"min":20,"isBoxBar":false,"issueUnit":"mtr"},{"id":57,"name":"White Sticker","size":"White","unit":"Roll","ul":50,"rate":1500,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":58,"name":"Laminating Roll 50m","size":"50m×4ft","unit":"Roll","ul":50,"rate":4500,"stock":35,"min":5,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":59,"name":"Vehicle Rim 12\"","size":"12\"","unit":"Nos","ul":1,"rate":0,"stock":4,"min":1,"isBoxBar":false,"issueUnit":"Nos"},{"id":60,"name":"Thinner","size":"L","unit":"L","ul":1000,"rate":500,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"ml"},{"id":61,"name":"Causway QD","size":"L","unit":"L","ul":1000,"rate":800,"stock":4,"min":3,"isBoxBar":false,"issueUnit":"ml"},{"id":62,"name":"Dry Wall Screws 1½\"","size":"1½\"","unit":"Box","ul":500,"rate":400,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"Nos"},{"id":63,"name":"Sand Paper 120","size":"120","unit":"Nos","ul":1,"rate":50,"stock":0,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":64,"name":"Sand Paper 320","size":"320","unit":"Nos","ul":1,"rate":60,"stock":0,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":65,"name":"Amano Screws 1\"","size":"1\"","unit":"Nos","ul":1,"rate":15,"stock":25,"min":50,"isBoxBar":false,"issueUnit":"Nos"},{"id":66,"name":"Amano Screws 2\"","size":"2\"","unit":"Nos","ul":1,"rate":20,"stock":0,"min":50,"isBoxBar":false,"issueUnit":"Nos"},{"id":67,"name":"LED Flasher Akro 30W","size":"30W","unit":"Nos","ul":1,"rate":2500,"stock":6,"min":3,"isBoxBar":false,"issueUnit":"Nos"},{"id":68,"name":"Shampoo","size":"L","unit":"Bottle","ul":1000,"rate":600,"stock":2,"min":2,"isBoxBar":false,"issueUnit":"ml"},{"id":69,"name":"Grinder Wheel 4\"","size":"4\"","unit":"Nos","ul":1,"rate":300,"stock":5,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":70,"name":"Cutting Wheel 4\"","size":"4\"","unit":"Nos","ul":1,"rate":250,"stock":5,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":71,"name":"Iron L Angle 1×1×3mm","size":"1×1×3mm","unit":"Length","ul":18,"rate":1200,"stock":8,"min":3,"isBoxBar":false,"issueUnit":"ft"},{"id":72,"name":"Iron L Angle 2×2×5mm","size":"2×2×5mm","unit":"Length","ul":18,"rate":2500,"stock":1,"min":2,"isBoxBar":false,"issueUnit":"ft"},{"id":73,"name":"Iron L Angle 1×½","size":"1×½×1×½","unit":"Length","ul":18,"rate":900,"stock":13,"min":3,"isBoxBar":false,"issueUnit":"ft"},{"id":74,"name":"Paper Cutter Blade","size":"Box","unit":"Box","ul":10,"rate":800,"stock":0,"min":1,"isBoxBar":false,"issueUnit":"Nos"},{"id":75,"name":"Silicon Black","size":"Black","unit":"Tube","ul":1,"rate":1050,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"Tube"},{"id":76,"name":"Silicon White","size":"White","unit":"Tube","ul":1,"rate":1050,"stock":1,"min":3,"isBoxBar":false,"issueUnit":"Tube"},{"id":77,"name":"Silicon Clear","size":"Clear","unit":"Tube","ul":1,"rate":1050,"stock":2,"min":3,"isBoxBar":false,"issueUnit":"Tube"},{"id":78,"name":"Multi Bond","size":"1L","unit":"Can","ul":1000,"rate":1500,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"ml"},{"id":79,"name":"Small Silver Chain","size":"Small","unit":"mtr","ul":1,"rate":500,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"mtr"},{"id":80,"name":"Angel Iron 1×1×5mm","size":"1×1×5mm","unit":"Length","ul":18,"rate":1500,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"ft"},{"id":81,"name":"Wiring Tape","size":"-","unit":"Roll","ul":1,"rate":150,"stock":10,"min":5,"isBoxBar":false,"issueUnit":"Roll"},{"id":82,"name":"Welding Rod 10\"","size":"10\" box","unit":"Box","ul":1000,"rate":1500,"stock":7,"min":3,"isBoxBar":false,"issueUnit":"Nos"},{"id":83,"name":"Welding Rod 12\"","size":"12\" box","unit":"Box","ul":1000,"rate":1800,"stock":3,"min":3,"isBoxBar":false,"issueUnit":"Nos"},{"id":84,"name":"Double Tape 1\"","size":"1\"","unit":"Roll","ul":1,"rate":200,"stock":12,"min":5,"isBoxBar":false,"issueUnit":"Roll"},{"id":85,"name":"2 Core Wire","size":"-","unit":"mtr","ul":1,"rate":105,"stock":80,"min":20,"isBoxBar":false,"issueUnit":"mtr"},{"id":86,"name":"Rubber Sheet","size":"0.5 inch","unit":"Sheet","ul":32,"rate":1200,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":87,"name":"Roll Plug","size":"-","unit":"Nos","ul":1,"rate":15,"stock":150,"min":30,"isBoxBar":false,"issueUnit":"Nos"},{"id":88,"name":"Screw Nails","size":"-","unit":"Nos","ul":1,"rate":5,"stock":200,"min":50,"isBoxBar":false,"issueUnit":"Nos"},{"id":89,"name":"Cable Tie Black 12\"","size":"12\"","unit":"Pack","ul":100,"rate":5,"stock":150,"min":50,"isBoxBar":false,"issueUnit":"Nos"},{"id":90,"name":"Cable Tie Black 8\"","size":"8\"","unit":"Pack","ul":100,"rate":4,"stock":0,"min":50,"isBoxBar":false,"issueUnit":"Nos"},{"id":91,"name":"Masking Tape 2\"","size":"2\"","unit":"Roll","ul":1,"rate":300,"stock":2,"min":3,"isBoxBar":false,"issueUnit":"Roll"},{"id":92,"name":"Silver Screw Hanger","size":"-","unit":"Nos","ul":1,"rate":100,"stock":0,"min":5,"isBoxBar":false,"issueUnit":"Nos"},{"id":93,"name":"LED Tube Light","size":"-","unit":"Nos","ul":1,"rate":1200,"stock":84,"min":10,"isBoxBar":false,"issueUnit":"Nos"},{"id":94,"name":"LED Strip S","size":"S","unit":"Nos","ul":1,"rate":800,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"Nos"},{"id":95,"name":"LED Strip L","size":"L","unit":"Nos","ul":1,"rate":1200,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"Nos"},{"id":96,"name":"LED Backlight","size":"-","unit":"Nos","ul":1,"rate":550,"stock":120,"min":20,"isBoxBar":false,"issueUnit":"Nos"},{"id":97,"name":"Power Supply 10A","size":"10A","unit":"Nos","ul":1,"rate":3500,"stock":4,"min":2,"isBoxBar":false,"issueUnit":"Nos"},{"id":98,"name":"Power Supply 20A","size":"20A","unit":"Nos","ul":1,"rate":5000,"stock":5,"min":2,"isBoxBar":false,"issueUnit":"Nos"},{"id":99,"name":"Power Supply 30A","size":"30A","unit":"Nos","ul":1,"rate":7000,"stock":5,"min":2,"isBoxBar":false,"issueUnit":"Nos"},{"id":100,"name":"Amano Sheet","size":"-","unit":"Sheet","ul":32,"rate":500,"stock":0,"min":2,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":101,"name":"Soft Glue","size":"-","unit":"Nos","ul":1,"rate":400,"stock":0,"min":3,"isBoxBar":false,"issueUnit":"Nos"},{"id":102,"name":"Small Washer","size":"-","unit":"Nos","ul":1,"rate":10,"stock":0,"min":20,"isBoxBar":false,"issueUnit":"Nos"},{"id":103,"name":"Backlite Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":330,"stock":999,"min":0,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":104,"name":"Flex Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":220,"stock":999,"min":0,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":105,"name":"Sticker Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":220,"stock":999,"min":0,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":106,"name":"Glass Sticker White","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":170,"stock":999,"min":0,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":107,"name":"Lamination","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":60,"stock":999,"min":0,"isBoxBar":false,"issueUnit":"sq.ft"},{"id":108,"name":"Laminated Sticker Print","size":"per sq.ft","unit":"sq.ft","ul":1,"rate":310,"stock":999,"min":0,"isBoxBar":false,"issueUnit":"sq.ft"}];
 
 function initDB(){ 
   const stored=DB.mats;
   if(stored.length < DEFAULT_MATS.length){ DB.mats=DEFAULT_MATS; }
   else if(!stored.length){ DB.mats=DEFAULT_MATS; }
-  // Apply default issueUnit if missing
+  // Ensure issueUnit set for all
   const ms=DB.mats;
   let changed=false;
   ms.forEach(m=>{
-    if(!m.issueUnit){
-      const def=UNIT_DEFAULTS[m.unit];
-      if(def){ m.issueUnit=def.issueUnit; m.ul=m.ul||def.ul; changed=true; }
-      else { m.issueUnit=m.unit; }
+    if(!m.issueUnit||m.issueUnit===''||m.issueUnit==='same'){
+      m.issueUnit=m.unit; changed=true;
     }
+    if(!m.ul||m.ul<=0){ m.ul=1; changed=true; }
   });
   if(changed) DB.mats=ms;
 }
 function getM(name){ return DB.mats.find(m=>m.name===name)||null; }
 function rateOf(name){ const m=getM(name); return m?m.rate:0; }
+function effectiveRateOf(name){ const m=getM(name); return m?effectiveRate(m):0; }
 function boxBars(){ return DB.mats.filter(m=>m.isBoxBar); }
 
 // current project boards
@@ -1075,13 +1082,20 @@ function renderExtraRows(prefix){
   if(!container) return;
   const items=_extraMats[prefix]||[];
   if(!items.length){container.innerHTML='';return;}
-  container.innerHTML=items.map(item=>`
-    <div style="display:grid;grid-template-columns:2fr auto auto auto;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--border);">
-      <span style="font-size:12px;">${item.mat.name} <span style="color:var(--muted);">(Rs.${item.mat.rate.toLocaleString()}/${item.mat.unit})</span></span>
+  container.innerHTML=items.map(item=>{
+    const mat=item.mat;
+    const selU=item._selUnit||item.issueUnit||mat.issueUnit||mat.unit;
+    const {rate, cost}=calcCostForUnit(mat, item.qty, selU);
+    return `<div style="display:grid;grid-template-columns:2fr auto auto auto;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--border);">
+      <div>
+        <div style="font-size:12px;">${mat.name}</div>
+        <div style="font-size:10px;color:var(--muted);">Rs.${rate.toFixed(4)}/${selU}</div>
+      </div>
       <input type="number" value="${item.qty}" style="width:70px;padding:4px 7px;font-size:12px;" onchange="updateExtraQty('${prefix}','${item.id}',this.value)">
-      <span style="font-size:12px;font-family:var(--fh);font-weight:700;color:var(--accent);">Rs.${(item.qty*item.mat.rate).toLocaleString()}</span>
+      <span style="font-size:12px;font-family:var(--fh);font-weight:700;color:var(--accent);">Rs.${cost.toLocaleString()}</span>
       <button class="btn btn-red btn-xs" onclick="removeExtraMat('${prefix}','${item.id}')">✕</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function updateExtraQty(prefix,id,val){
@@ -1094,7 +1108,12 @@ function updateExtraQty(prefix,id,val){
 function getExtraItems(prefix){
   return (_extraMats[prefix]||[])
     .filter(x=>x.qty>0)
-    .map(x=>({n:x.mat.name,qty:x.qty,u:x.mat.unit,r:x.mat.rate,note:'Manual'}));
+    .map(x=>{
+      const mat=x.mat;
+      const selU = x._selUnit||x.issueUnit||mat.issueUnit||mat.unit;
+      const {rate, cost} = calcCostForUnit(mat, x.qty, selU);
+      return {n:mat.name, qty:x.qty, u:selU, r:rate, cost, note:'Manual'};
+    });
 }
 
 function resetAllExtras(){
@@ -1139,12 +1158,31 @@ function ampMatChange(){
     document.getElementById('amp-cost-preview').style.display='none';
     return;
   }
+  const issUnit = mat.issueUnit||mat.unit;
+  const ul = mat.ul||1;
+  const hasConv = mat.issueUnit && mat.issueUnit!==mat.unit && ul>1;
+  const effRate = hasConv ? mat.rate/ul : mat.rate;
+  const remaining = getRemaining(mat);
+
   // show info
   document.getElementById('amp-mat-info').style.display='block';
   document.getElementById('amp-mat-detail').innerHTML = 
-    `<strong>${mat.name}</strong> &nbsp;|&nbsp; Size: ${mat.size||'-'} &nbsp;|&nbsp; Default Unit: <strong>${mat.unit}</strong> &nbsp;|&nbsp; Rate: <strong>Rs.${mat.rate.toLocaleString()}/${mat.unit}</strong> &nbsp;|&nbsp; Stock: <strong>${mat.stock} ${mat.unit}</strong>`;
-  // auto-set unit
-  document.getElementById('amp-unit').value = mat.unit;
+    `<strong>${mat.name}</strong> &nbsp;|&nbsp; ${mat.size||'-'}<br>`+
+    `📦 Stock: <strong>${Math.floor(mat.stock)} ${mat.unit}</strong>`+
+    (hasConv?` = <strong>${remaining.val} ${remaining.unit}</strong>`:'')+
+    ` &nbsp;|&nbsp; 💰 Rate: <strong>Rs.${effRate.toFixed(2)}/${issUnit}</strong>`+
+    (hasConv?` <span style="color:var(--muted);font-size:10px;">(Rs.${mat.rate}/${mat.unit} ÷ ${ul})</span>`:'');
+
+  // auto-set unit to issue unit
+  const unitSel = document.getElementById('amp-unit');
+  // ensure issue unit option exists
+  const exists=[...unitSel.options].some(o=>o.value===issUnit);
+  if(!exists){
+    const opt=document.createElement('option');
+    opt.value=issUnit; opt.textContent=issUnit;
+    unitSel.appendChild(opt);
+  }
+  unitSel.value = issUnit;
   ampCalcPreview();
 }
 
@@ -1153,9 +1191,14 @@ function ampCalcPreview(){
   const mat = DB.mats.find(m=>m.id==sel.value);
   const qty = parseFloat(document.getElementById('amp-qty').value)||0;
   if(!mat||!qty){ document.getElementById('amp-cost-preview').style.display='none'; return; }
-  const cost = qty * mat.rate;
+  const selUnit2 = document.getElementById('amp-unit').value || mat.issueUnit || mat.unit;
+  const {rate:r2, cost:c2} = calcCostForUnit(mat, qty, selUnit2);
   document.getElementById('amp-cost-preview').style.display='block';
-  document.getElementById('amp-cost-val').textContent = 'Rs. '+cost.toLocaleString();
+  const issU = mat.issueUnit||mat.unit;
+  const hasConv2 = mat.issueUnit && mat.issueUnit!==mat.unit && (mat.ul||1)>1;
+  let rateNote2 = `Rs.${r2.toFixed(4)}/${selUnit2}`;
+  if(hasConv2) rateNote2 += ` (Rs.${mat.rate}/${mat.unit} ÷ ${mat.ul||1})`;
+  document.getElementById('amp-cost-val').innerHTML = `<strong>Rs. ${c2.toLocaleString()}</strong> <span style="font-size:11px;color:var(--muted);font-family:var(--fb);">${rateNote2}</span>`;
 }
 
 function ampConfirm(){
@@ -1165,35 +1208,35 @@ function ampConfirm(){
   const qty = parseFloat(document.getElementById('amp-qty').value)||0;
   if(!qty){ toast('Quantity enter කරන්න!','warn'); return; }
   const unit = document.getElementById('amp-unit').value || mat.unit;
-  const cost = qty * mat.rate;
+  // Calculate cost based on selected unit vs material definition
+  const selUnit = document.getElementById('amp-unit').value || mat.issueUnit || mat.unit;
+  const {rate:finalRate, cost:finalCost} = calcCostForUnit(mat, qty, selUnit);
 
   if(_ampContext.type === 'board'){
-    // New Project boards
     const bi = _ampContext.bi;
-    CBoards[bi].items.push({n:mat.name, qty, u:unit, r:mat.rate, cost, note:'Added'});
+    CBoards[bi].items.push({n:mat.name, qty, u:selUnit, r:finalRate, cost:finalCost, note:'Added'});
     recalcSub(bi);
     renderBoards();
   } else if(_ampContext.type === 'project'){
-    // Saved project edit
     const bi = _ampContext.bi;
     const p = DB.projects.find(x=>x.id===_editProjId);
     if(!p) return;
-    p.boards[bi].items.push({n:mat.name, qty, u:unit, r:mat.rate, cost, note:'Added'});
+    p.boards[bi].items.push({n:mat.name, qty, u:selUnit, r:finalRate, cost:finalCost, note:'Added'});
     pdRecalc(bi,p);
     DB.projects = DB.projects.map(x=>x.id===_editProjId?p:x);
     renderProjDetail();
   } else if(_ampContext.type === 'extra'){
-    // Board modal extra materials
     const prefix = _ampContext.prefix;
     const id = prefix+'-'+Date.now();
     if(!_extraMats[prefix]) _extraMats[prefix]=[];
-    _extraMats[prefix].push({id, mat, qty});
+    // Store effective rate with the mat
+    _extraMats[prefix].push({id, mat, qty, issueUnit:selUnit, _selUnit:selUnit});
     renderExtraRows(prefix);
     abCalc();
   }
 
   closeModal('modal-addmat-popup');
-  toast(`✓ ${mat.name} — ${qty} ${unit} — Rs.${cost.toLocaleString()} added`);
+  toast(`✓ ${mat.name} — ${qty} ${selUnit} — Rs.${finalCost.toLocaleString()}`);
 }
 
 
@@ -1535,18 +1578,44 @@ function setMobTab(id){
 // UNIT CONVERSION SYSTEM
 // ══════════════════════════════════════════════════
 const UNIT_DEFAULTS = {
-  'Sheet':  { issueUnit:'sq.ft', ul:32,  eg:'eg: Cladding 8×4 = 32 sq.ft',   ulEg:'8×4=32, 6×4=24' },
-  'Bar':    { issueUnit:'ft',    ul:18,  eg:'eg: Box Bar 18ft, GI Pipe 8ft',  ulEg:'Box Bar=18, GI Pipe 6"=8' },
-  'Length': { issueUnit:'ft',    ul:12,  eg:'eg: Angle Iron, Flat Iron 12ft', ulEg:'12ft/length' },
-  'Roll':   { issueUnit:'mtr',   ul:50,  eg:'eg: Wire Roll, Tape Roll',       ulEg:'Wire Roll=50mtr' },
-  'Box':    { issueUnit:'Nos',   ul:100, eg:'eg: Paper Cutter Blades, Nails', ulEg:'Blade Box=100nos' },
-  'Nos':    { issueUnit:'Nos',   ul:1,   eg:'eg: LED, Bolts, Nobs',           ulEg:'1 Nos = 1 Nos' },
-  'mtr':    { issueUnit:'mtr',   ul:1,   eg:'eg: Wire TT, 2 Core Wire',       ulEg:'1 mtr = 1 mtr' },
-  'L':      { issueUnit:'L',     ul:1,   eg:'eg: Thinner, Paint, Shampoo',    ulEg:'1 L = 1 L' },
-  'kg':     { issueUnit:'kg',    ul:1,   eg:'eg: Iron Plate by weight',       ulEg:'1 kg = 1 kg' },
-  'Can':    { issueUnit:'L',     ul:4,   eg:'eg: Multi Bond, Paint Can',      ulEg:'1 Can = 4L' },
-  'Tube':   { issueUnit:'Tube',  ul:1,   eg:'eg: Silicon, Adhesive',          ulEg:'1 Tube = 1 Tube' },
-  'sq.ft':  { issueUnit:'sq.ft', ul:1,   eg:'eg: Print, Lamination',         ulEg:'1 sq.ft = 1 sq.ft' },
+  // Sheets
+  'Sheet':  { issueUnit:'sq.ft', ul:32,   eg:'eg: Cladding 8×4=32sqft, 6×4=24sqft',  ulEg:'8×4=32 | 6×4=24 | 12.5×4=50' },
+  // Bars & Lengths
+  'Bar':    { issueUnit:'ft',    ul:18,   eg:'eg: Box Bar 18ft/bar, GI Pipe',          ulEg:'Box Bar=18ft | Aluminum=20ft' },
+  'Length': { issueUnit:'ft',    ul:12,   eg:'eg: Angle Iron, Flat Iron 12ft',         ulEg:'12ft/length' },
+  // Rolls
+  'Roll':   { issueUnit:'mtr',   ul:50,   eg:'eg: Wire Roll 50mtr, Tape Roll',         ulEg:'Wire Roll=50mtr | Tape=varies' },
+  // Boxes / Packs / Bundles
+  'Box':    { issueUnit:'Nos',   ul:100,  eg:'eg: Paper Cutter Box, Nail Box',         ulEg:'Blade Box=100 | Nail Box=100' },
+  'Bundle': { issueUnit:'Nos',   ul:50,   eg:'eg: Bundle of nails/screws',             ulEg:'Bundle=50nos' },
+  'Pack':   { issueUnit:'Nos',   ul:10,   eg:'eg: Pack of items',                      ulEg:'Pack=10nos' },
+  // Liquid containers
+  'Bottle': { issueUnit:'ml',    ul:750,  eg:'eg: QD Paint 750ml, Thinner bottle',     ulEg:'750ml bottle | 500ml bottle' },
+  'Can':    { issueUnit:'ml',    ul:4000, eg:'eg: Paint Can 4L, Multi Bond',            ulEg:'4L can=4000ml | 1L can=1000ml' },
+  'L':      { issueUnit:'ml',    ul:1000, eg:'eg: Thinner, Liquid (by liter)',          ulEg:'1L=1000ml' },
+  // Count
+  'Nos':    { issueUnit:'Nos',   ul:1,    eg:'eg: LED, Bolts, Nobs (each)',             ulEg:'1 Nos = 1 Nos' },
+  'Tube':   { issueUnit:'Tube',  ul:1,    eg:'eg: Silicon Tube, Adhesive Tube',         ulEg:'1 Tube = 1 Tube' },
+  'Set':    { issueUnit:'Set',   ul:1,    eg:'eg: Nut & Bolt Set',                      ulEg:'1 Set = 1 Set' },
+  // Weight
+  'kg':     { issueUnit:'kg',    ul:1,    eg:'eg: Iron Plate, Metal by weight',         ulEg:'1 kg = 1 kg (or use g)' },
+  // Direct
+  'mtr':    { issueUnit:'mtr',   ul:1,    eg:'eg: Wire TT, 2 Core Wire (per mtr)',      ulEg:'1 mtr = 1 mtr' },
+  'sq.ft':  { issueUnit:'sq.ft', ul:1,    eg:'eg: Print, Lamination (per sq.ft)',       ulEg:'1 sq.ft = 1 sq.ft' },
+};
+
+// Unit conversion factors to standard SI units (for display)
+const UNIT_CONV = {
+  // Length → meters
+  'mm':0.001, 'cm':0.01, 'mtr':1, 'ft':0.3048, 'inch':0.0254,
+  // Volume → liters
+  'ml':0.001, 'L':1,
+  // Weight → kg
+  'g':0.001, 'kg':1,
+  // Area → sq.ft
+  'sq.inch':1/144, 'sq.ft':1, 'sq.mtr':10.764,
+  // Count
+  'Nos':1,
 };
 
 function amUnitChange(){
@@ -1560,6 +1629,9 @@ function amUnitChange(){
   if(unitEg) unitEg.textContent = def.eg;
   const ulEg = document.getElementById('am-ul-eg');
   if(ulEg) ulEg.textContent = def.ulEg;
+  // Update the "1 X unit ලදී" label
+  const stockInLbl=document.getElementById('am-stock-unit-in-label');
+  if(stockInLbl) stockInLbl.textContent=unit;
   amUpdatePreview();
 }
 
@@ -1568,40 +1640,46 @@ function amUpdatePreview(){
   const issueUnit = document.getElementById('am-issue-unit').value;
   const ul = parseFloat(document.getElementById('am-ul').value)||1;
   const stock = parseFloat(document.getElementById('am-stock').value)||0;
+  const rate = parseFloat(document.getElementById('am-rate').value)||0;
   const isSame = issueUnit==='same'||unit===issueUnit;
   const realIssue = isSame ? unit : issueUnit;
 
-  // update unit label next to ul input
+  // Update labels
   const ulUnitLbl=document.getElementById('am-ul-unit-label');
   if(ulUnitLbl) ulUnitLbl.textContent=realIssue;
-
-  // update stock unit labels
   const sLbl=document.getElementById('am-stock-unit-lbl');
   if(sLbl) sLbl.textContent=`(${unit})`;
   const mLbl=document.getElementById('am-min-unit-lbl');
   if(mLbl) mLbl.textContent=`in ${unit}`;
+  const stockInLbl=document.getElementById('am-stock-unit-in-label');
+  if(stockInLbl) stockInLbl.textContent=unit;
 
-  // conversion preview
+  // Conversion preview
   const convEl=document.getElementById('am-conversion-preview');
   const convText=document.getElementById('am-conv-text');
   if(!isSame && ul>0){
     convEl.style.display='block';
+    const ratePerIssue = rate>0 ? (rate/ul) : 0;
     convText.innerHTML=
-      `📥 Receive 1 <strong>${unit}</strong> → Stock +1 ${unit} (+${ul} ${realIssue})<br>`+
-      `📤 Issue ${ul} <strong>${realIssue}</strong> → Stock -1 ${unit}<br>`+
-      `📤 Issue 1 <strong>${realIssue}</strong> → Stock -${(1/ul).toFixed(4)} ${unit}`;
+      `📥 <strong>Receive:</strong> 1 ${unit} → Stock +1 ${unit}<br>`+
+      `&nbsp;&nbsp;&nbsp;= ${ul} ${realIssue} available<br>`+
+      `📤 <strong>Issue:</strong> 1 ${realIssue} → deduct ${(1/ul).toFixed(6)} ${unit}<br>`+
+      `📤 &nbsp;&nbsp;&nbsp;Issue ${ul} ${realIssue} → deduct 1 ${unit}<br>`+
+      (rate>0?`💰 <strong>Rate:</strong> Rs.${rate.toLocaleString()}/${unit} → Rs.${ratePerIssue.toFixed(4)}/${realIssue}`:'');
   } else {
     convEl.style.display='none';
   }
 
-  // stock preview
+  // Stock preview
   const sPrev=document.getElementById('am-stock-preview');
   if(sPrev){
-    if(stock>0 && !isSame && ul>0){
-      sPrev.textContent=`= ${(stock*ul).toFixed(1)} ${realIssue} total`;
-      sPrev.style.display='block';
-    } else if(stock>0){
-      sPrev.textContent=`${stock} ${unit}`;
+    if(stock>0){
+      if(!isSame && ul>0){
+        const totalIssue = (stock*ul);
+        sPrev.innerHTML=`${stock} ${unit} = <strong>${totalIssue % 1 === 0 ? totalIssue : totalIssue.toFixed(2)} ${realIssue}</strong> total`;
+      } else {
+        sPrev.textContent=`${stock} ${unit}`;
+      }
       sPrev.style.display='block';
     } else {
       sPrev.style.display='none';
@@ -1613,19 +1691,122 @@ function amUpdatePreview(){
 function amStockPreview(){ amUpdatePreview(); }
 function amUpdateConversionPreview(){ amUpdatePreview(); }
 
+// Get effective rate per issue unit for a material
+function effectiveRate(mat){
+  if(!mat) return 0;
+  if(!mat.issueUnit || mat.issueUnit===mat.unit || mat.issueUnit==='same') return mat.rate;
+  const ul = mat.ul||1;
+  if(ul<=0) return mat.rate;
+  return mat.rate / ul;
+}
+
+// Get unit conversion factor between two units (for future cross-unit calcs)
+function convertUnit(qty, fromUnit, toUnit){
+  if(fromUnit===toUnit) return qty;
+  // Length conversions
+  const lengthToMtr = {mm:0.001,cm:0.01,mtr:1,ft:0.3048,inch:0.0254};
+  // Volume conversions
+  const volToMl = {ml:1,L:1000};
+  // Weight conversions
+  const weightToG = {g:1,kg:1000};
+  // Area conversions
+  const areaToSqFt = {'sq.inch':1/144,'sq.ft':1,'sq.mtr':10.764};
+
+  if(lengthToMtr[fromUnit]&&lengthToMtr[toUnit]) return qty*(lengthToMtr[fromUnit]/lengthToMtr[toUnit]);
+  if(volToMl[fromUnit]&&volToMl[toUnit]) return qty*(volToMl[fromUnit]/volToMl[toUnit]);
+  if(weightToG[fromUnit]&&weightToG[toUnit]) return qty*(weightToG[fromUnit]/weightToG[toUnit]);
+  if(areaToSqFt[fromUnit]&&areaToSqFt[toUnit]) return qty*(areaToSqFt[fromUnit]/areaToSqFt[toUnit]);
+  return qty; // fallback
+}
+
+// Get effective issue unit for a material
+function issueUnitOf(mat){
+  if(!mat) return 'Nos';
+  return (mat.issueUnit && mat.issueUnit!==mat.unit) ? mat.issueUnit : mat.unit;
+}
+
+// Get rate display string
+function rateDisplay(mat){
+  const eu = issueUnitOf(mat);
+  const er = effectiveRate(mat);
+  if(er !== mat.rate){
+    return `Rs.${er.toFixed(2)}/${eu}`;
+  }
+  return `Rs.${er.toLocaleString()}/${eu}`;
+}
+
 // Calculate remaining issue units from stock
 function getRemaining(mat){
   const issueUnit = mat.issueUnit||mat.unit;
-  if(issueUnit===mat.unit||!mat.ul||mat.ul===1) return {val:mat.stock, unit:mat.unit};
-  return {val:parseFloat((mat.stock*mat.ul).toFixed(2)), unit:issueUnit};
+  const ul = mat.ul||1;
+  if(issueUnit===mat.unit||ul<=1) return {val:parseFloat(mat.stock.toFixed(3)), unit:mat.unit};
+  return {val:parseFloat((mat.stock*ul).toFixed(2)), unit:issueUnit};
 }
 
-// Convert issued quantity to stock units
-function issueToStock(issuedQty, mat){
-  const issueUnit = mat.issueUnit||mat.unit;
-  if(issueUnit===mat.unit||!mat.ul||mat.ul===1) return issuedQty;
-  return issuedQty / mat.ul;
+
+
+
+// ══════════════════════════════════════════════════
+// COST CALCULATION ENGINE
+// ══════════════════════════════════════════════════
+
+// Unit conversion factors
+const LENGTH_TO_FT = {ft:1, inch:1/12, mtr:3.28084, cm:0.0328084, mm:0.00328084};
+const AREA_TO_SQFT = {'sq.ft':1, 'sq.inch':1/144, 'sq.mtr':10.7639};
+const VOL_TO_ML = {ml:1, L:1000};
+const WEIGHT_TO_G = {g:1, kg:1000};
+
+// Convert qty from selUnit to mat's issueUnit
+function convertToIssueUnit(qty, selUnit, mat){
+  const issUnit = mat.issueUnit||mat.unit;
+  if(selUnit===issUnit) return qty;
+  // Same dimension conversions
+  if(LENGTH_TO_FT[selUnit]&&LENGTH_TO_FT[issUnit])
+    return qty * LENGTH_TO_FT[selUnit] / LENGTH_TO_FT[issUnit];
+  if(AREA_TO_SQFT[selUnit]&&AREA_TO_SQFT[issUnit])
+    return qty * AREA_TO_SQFT[selUnit] / AREA_TO_SQFT[issUnit];
+  if(VOL_TO_ML[selUnit]&&VOL_TO_ML[issUnit])
+    return qty * VOL_TO_ML[selUnit] / VOL_TO_ML[issUnit];
+  if(WEIGHT_TO_G[selUnit]&&WEIGHT_TO_G[issUnit])
+    return qty * WEIGHT_TO_G[selUnit] / WEIGHT_TO_G[issUnit];
+  return qty; // fallback — same unit assumed
 }
+
+// Get rate per selUnit and total cost
+function calcCostForUnit(mat, qty, selUnit){
+  const ul = mat.ul||1;
+  const issUnit = mat.issueUnit||mat.unit;
+  const stockUnit = mat.unit;
+
+  // Case 1: Selected = Stock Unit (Sheet, Bar, Nos etc)
+  if(selUnit===stockUnit){
+    return {rate:mat.rate, cost:parseFloat((qty*mat.rate).toFixed(2))};
+  }
+
+  // Case 2: Selected = Issue Unit or convertible to Issue Unit
+  // First convert selUnit qty to issueUnit qty
+  const inIssueUnits = convertToIssueUnit(qty, selUnit, mat);
+
+  // Rate per issue unit = rate / ul
+  const ratePerIssue = mat.rate / ul;
+
+  // Cost = qty_in_issue_units × rate_per_issue_unit
+  const cost = parseFloat((inIssueUnits * ratePerIssue).toFixed(2));
+
+  // Display rate is per selUnit
+  let ratePerSel = ratePerIssue;
+  if(selUnit!==issUnit && LENGTH_TO_FT[selUnit]&&LENGTH_TO_FT[issUnit]){
+    ratePerSel = ratePerIssue * LENGTH_TO_FT[issUnit] / LENGTH_TO_FT[selUnit];
+  } else if(selUnit!==issUnit && AREA_TO_SQFT[selUnit]&&AREA_TO_SQFT[issUnit]){
+    ratePerSel = ratePerIssue * AREA_TO_SQFT[issUnit] / AREA_TO_SQFT[selUnit];
+  } else if(selUnit!==issUnit && VOL_TO_ML[selUnit]&&VOL_TO_ML[issUnit]){
+    ratePerSel = ratePerIssue * VOL_TO_ML[issUnit] / VOL_TO_ML[selUnit];
+  }
+
+  return {rate:parseFloat(ratePerSel.toFixed(6)), cost};
+}
+
+
 
 // ══════════════════════════════════════════════════
 // STOCK REQUESTS SYSTEM
@@ -1678,20 +1859,98 @@ async function loadRequestsFromDB(){
 function openStockRequest(matId){
   const mat = DB.mats.find(m=>m.id===matId);
   if(!mat) return;
-  const qty = parseFloat(prompt(`${mat.name} — Request Qty (${mat.unit}):`)||0);
-  if(!qty) return;
-  const reason = prompt('Reason (optional):') || '';
-  const req = {
-    id: Date.now(),
-    name: mat.name,
-    qty, unit: mat.unit,
-    reason, status: 'pending',
-    by: '', date: new Date().toISOString()
+  const issUnit = mat.issueUnit||mat.unit;
+  const ul = mat.ul||1;
+  const hasConv = mat.issueUnit && mat.issueUnit!==mat.unit && ul>1;
+  const effRate = hasConv ? mat.rate/ul : mat.rate;
+  const remaining = getRemaining(mat);
+
+  document.getElementById('req-mat-id').value=matId;
+  document.getElementById('req-mat-name').textContent=mat.name;
+  document.getElementById('req-qty').value='';
+  document.getElementById('req-reason').value='';
+  document.getElementById('req-qty-preview').style.display='none';
+
+  // Populate unit options
+  const unitSel=document.getElementById('req-unit-sel');
+  const stockU=mat.unit;
+  const issueU=mat.issueUnit||mat.unit;
+  const opts=[];
+  // Always add issue unit first (default)
+  opts.push(`<option value="${issueU}">${issueU} — Issue unit</option>`);
+  // Add stock unit if different
+  if(stockU!==issueU) opts.push(`<option value="${stockU}">${stockU} — Stock unit</option>`);
+  // Add common conversions based on type
+  if(issueU==='sq.ft') opts.push('<option value="sq.inch">sq.inch</option>','<option value="sq.mtr">sq.mtr</option>');
+  if(issueU==='ft') opts.push('<option value="inch">inch</option>','<option value="mtr">mtr</option>');
+  if(issueU==='mtr') opts.push('<option value="ft">ft</option>','<option value="cm">cm</option>');
+  if(issueU==='ml') opts.push('<option value="L">L</option>');
+  if(issueU==='L') opts.push('<option value="ml">ml</option>');
+  unitSel.innerHTML=opts.join('');
+  unitSel.value=issueU;
+  reqUnitChange();
+
+  document.getElementById('req-mat-detail').innerHTML=
+    `📦 Size: ${mat.size||'-'} &nbsp;|&nbsp; Stock Unit: ${mat.unit}<br>`+
+    `📊 Current Stock: <strong>${Math.floor(mat.stock)} ${mat.unit}</strong>`+
+    (hasConv?` = <strong>${remaining.val} ${remaining.unit}</strong>`:'')+`<br>`+
+    `💰 Rate: Rs.${effRate.toFixed(2)}/${issUnit}`+
+    (hasConv?` (Rs.${mat.rate}/${mat.unit} ÷ ${ul})`:'');
+
+  openModal('modal-request');
+  setTimeout(()=>document.getElementById('req-qty').focus(),100);
+}
+
+function reqUnitChange(){
+  const matId=document.getElementById('req-mat-id').value;
+  const mat=DB.mats.find(m=>m.id==matId); if(!mat) return;
+  const selU=document.getElementById('req-unit-sel').value;
+  document.getElementById('req-unit-lbl').textContent=`(${selU})`;
+  reqCalcPreview();
+}
+
+function reqCalcPreview(){
+  const matId=document.getElementById('req-mat-id').value;
+  const mat=DB.mats.find(m=>m.id==matId); if(!mat) return;
+  const qty=parseFloat(document.getElementById('req-qty').value)||0;
+  const selU=document.getElementById('req-unit-sel').value||mat.issueUnit||mat.unit;
+  const prev=document.getElementById('req-qty-preview');
+  if(!qty){prev.style.display='none';return;}
+  const {rate,cost}=calcCostForUnit(mat,qty,selU);
+  // Stock deduct calculation
+  const issU=mat.issueUnit||mat.unit;
+  const ul=mat.ul||1;
+  const inIssueU=convertToIssueUnit(qty,selU,mat);
+  const stockDeduct=selU===mat.unit?qty:inIssueU/ul;
+  const hasConv=mat.issueUnit&&mat.issueUnit!==mat.unit&&ul>1;
+  prev.style.display='block';
+  prev.innerHTML=
+    `💰 Estimated cost: <strong>Rs.${cost.toLocaleString()}</strong>`+
+    ` &nbsp;|&nbsp; Rs.${rate.toFixed(4)}/${selU}<br>`+
+    (hasConv&&selU!==mat.unit?`📦 Stock deduct: ${stockDeduct.toFixed(4)} ${mat.unit}`:'');
+}
+
+function submitStockRequest(){
+  const matId=document.getElementById('req-mat-id').value;
+  const mat=DB.mats.find(m=>m.id==matId); if(!mat) return;
+  const qty=parseFloat(document.getElementById('req-qty').value)||0;
+  if(!qty){toast('Quantity enter කරන්න!','warn');return;}
+  const reason=document.getElementById('req-reason').value||'';
+  const selU=document.getElementById('req-unit-sel').value||mat.issueUnit||mat.unit;
+  const {cost}=calcCostForUnit(mat,qty,selU);
+  const req={
+    id:Date.now(), name:mat.name,
+    qty, unit:selU,
+    reason, status:'pending',
+    estimatedCost:cost,
+    by:'', date:new Date().toISOString()
   };
   _stockRequests.unshift(req);
   saveRequests();
-  toast(`✓ Request added — ${mat.name} ${qty} ${mat.unit}`);
+  closeModal('modal-request');
+  toast(`✓ Request added — ${mat.name} ${qty} ${issUnit}`);
   renderRequests();
+  renderDash();
 }
 
 let _reqFilter='all';
@@ -2099,7 +2358,7 @@ function buildItems(type,W,H){
     if(doLam) items.push({n:'Lamination',qty:totalArea,u:'sq.ft',r:rateOf('Lamination')});
 
     const dtape=v('dir-dtape'),fix=v('dir-fixing');
-    if(dtape>0) items.push({n:'Double Tape',qty:dtape,u:'Roll',r:rateOf('Double Tape 1"')||200,note:'Manual'});
+    if(dtape>0){ const _dt=getM('Double Tape 1"'); items.push({n:'Double Tape',qty:dtape,u:_dt?issueUnitOf(_dt):'Roll',r:_dt?effectiveRate(_dt):200,note:'Manual'}); }
     getExtraItems('dir').forEach(i=>items.push(i));
     if(fix) items.push({n:'Fixing Cost',qty:1,u:'Lump',r:fix});
 
@@ -2138,10 +2397,10 @@ function buildItems(type,W,H){
     items.push({n:'Flat Iron',qty:Math.ceil(perim/12),u:'Length',r:rateOf('Flat Iron 1x1')});
     if(tubes>0) items.push({n:'LED Tube Light',qty:tubes,u:'Nos',r:rateOf('LED Tube Light')});
     const rivet=v('ts-rivet'),ttwire=v('ts-ttwire'),core2=v('ts-2core'),wtape=v('ts-wtape');
-    if(rivet>0) items.push({n:'Pop Rivet',qty:rivet,u:'Nos',r:2,note:'Manual'});
-    if(ttwire>0) items.push({n:'Wire TT',qty:ttwire,u:'mtr',r:rateOf('Wire TT 16/0.20'),note:'Manual'});
-    if(core2>0) items.push({n:'2 Core Wire',qty:core2,u:'mtr',r:rateOf('2 Core Wire'),note:'Manual'});
-    if(wtape>0) items.push({n:'Wiring Tape',qty:wtape,u:'Roll',r:rateOf('Wiring Tape'),note:'Manual'});
+    if(rivet>0){ const _rm=DB.mats.find(m=>m.name.includes('Pop Rivet')&&m.unit==='Box'); const _rr=_rm?effectiveRate(_rm):2; items.push({n:_rm?_rm.name:'Pop Rivet',qty:rivet,u:'Nos',r:_rr,note:'Manual'}); }
+    if(ttwire>0){ const _wm=getM('Wire TT 16/0.20'); items.push({n:'Wire TT',qty:ttwire,u:'mtr',r:_wm?effectiveRate(_wm):69,note:'Manual'}); }
+    if(core2>0){ const _cm=getM('2 Core Wire'); items.push({n:'2 Core Wire',qty:core2,u:'mtr',r:_cm?effectiveRate(_cm):105,note:'Manual'}); }
+    if(wtape>0){ const _wt=getM('Wiring Tape'); items.push({n:'Wiring Tape',qty:wtape,u:_wt?issueUnitOf(_wt):'Roll',r:_wt?effectiveRate(_wt):150,note:'Manual'}); }
     getExtraItems('ts').forEach(i=>items.push(i));
     if(weld)  items.push({n:'Welding',    qty:1,u:'Lump',r:weld});
     if(trans) items.push({n:'Transport',  qty:1,u:'Lump',r:trans});
@@ -2195,10 +2454,10 @@ function buildItems(type,W,H){
       if(leds>0) items.push({n:ledName,qty:leds,u:'Nos',r:rateOf(ledName)});
     }
 
-    if(ttwire>0) items.push({n:'Wire TT',qty:ttwire,u:'mtr',r:rateOf('Wire TT 16/0.20'),note:'Manual'});
+    if(ttwire>0){ const _wm=getM('Wire TT 16/0.20'); items.push({n:'Wire TT',qty:ttwire,u:'mtr',r:_wm?effectiveRate(_wm):69,note:'Manual'}); }
     if(core2>0)  items.push({n:'2 Core Wire',qty:core2,u:'mtr',r:rateOf('2 Core Wire'),note:'Manual'});
-    if(wtape>0)  items.push({n:'Wiring Tape',qty:wtape,u:'Roll',r:rateOf('Wiring Tape'),note:'Manual'});
-    if(rivet>0)  items.push({n:'Pop Rivet',qty:rivet,u:'Nos',r:2,note:'Manual'});
+    if(wtape>0){ const _wt=getM('Wiring Tape'); items.push({n:'Wiring Tape',qty:wtape,u:_wt?issueUnitOf(_wt):'Roll',r:_wt?effectiveRate(_wt):150,note:'Manual'}); }
+    if(rivet>0){ const _rm2=DB.mats.find(m=>m.name.includes('Pop Rivet')&&m.unit==='Box'); const _rr2=_rm2?effectiveRate(_rm2):2; items.push({n:_rm2?_rm2.name:'Pop Rivet',qty:rivet,u:'Nos',r:_rr2,note:'Manual'}); }
     getExtraItems('mb').forEach(i=>items.push(i));
     if(fix) items.push({n:'Fixing Cost',qty:1,u:'Lump',r:fix});
 
@@ -2233,8 +2492,8 @@ function buildItems(type,W,H){
         {n:'Light Board Cover',  qty:area,   u:'sq.ft', r:180,     note:`Rs.180/sqft`},
         {n:ledName,              qty:leds,   u:'Nos',   r:ledRate},
       ];
-      if(ttwire>0) items.push({n:'Wire TT',    qty:ttwire, u:'mtr', r:rateOf('Wire TT 16/0.20'), note:'Manual'});
-      if(core2>0)  items.push({n:'2 Core Wire',qty:core2,  u:'mtr', r:rateOf('2 Core Wire'),     note:'Manual'});
+      if(ttwire>0){ const _wm2=getM('Wire TT 16/0.20'); items.push({n:'Wire TT',qty:ttwire,u:'mtr',r:_wm2?effectiveRate(_wm2):69,note:'Manual'}); }
+      if(core2>0){ const _cm2=getM('2 Core Wire'); items.push({n:'2 Core Wire',qty:core2,u:'mtr',r:_cm2?effectiveRate(_cm2):105,note:'Manual'}); }
     }
     getExtraItems('vm').forEach(i=>items.push(i));
     if(fix) items.push({n:'Fixing Cost',qty:1,u:'Lump',r:fix});
@@ -2264,7 +2523,18 @@ function buildItems(type,W,H){
     if(fix) items.push({n:'Fixing Cost',qty:1,u:'Lump',r:fix});
   }
 
-  return items.filter(i=>i.qty>0).map(i=>({...i, cost:i.qty*i.r}));
+  return items.filter(i=>i.qty>0).map(i=>{
+    // Calculate effective rate per issue unit
+    const mat = DB.mats.find(m=>m.name===i.n);
+    let effectiveRate = i.r;
+    let displayRate = i.r;
+    if(mat && mat.issueUnit && mat.issueUnit!==mat.unit && mat.ul>1){
+      // Rate is per stock unit — convert to per issue unit
+      effectiveRate = mat.rate / mat.ul;
+      displayRate = effectiveRate;
+    }
+    return {...i, r:displayRate, cost:parseFloat((i.qty*effectiveRate).toFixed(2))};
+  });
 }
 
 function abCalc(){
@@ -2290,9 +2560,16 @@ function abCalc(){
   items.forEach(it=>{
     const mStock=DB.mats.find(m=>m.name===it.n);
     const low=mStock&&it.u!=='sq.ft'&&it.u!=='Lump'&&mStock.stock<it.qty;
+    const matInfo = DB.mats.find(m=>m.name===it.n);
+    const rateStr = matInfo && it.r!==matInfo.rate
+      ? `Rs.${it.r.toFixed(2)}/${it.u}`
+      : `Rs.${it.r.toLocaleString()}/${it.u}`;
     html+=`<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;gap:8px;">
-      <div style="flex:1;"><span>${it.n}</span>${it.note?`<div style="font-size:10px;color:var(--muted);">${it.note}</div>`:''}</div>
-      <span style="color:var(--muted);white-space:nowrap;">${it.qty} ${it.u}</span>
+      <div style="flex:1;">
+        <span>${it.n}</span>
+        ${it.note?`<div style="font-size:10px;color:var(--muted);">${it.note}</div>`:''}
+        <div style="font-size:10px;color:var(--muted);">${it.qty} ${it.u} × ${rateStr}</div>
+      </div>
       <span style="font-family:var(--fh);font-weight:700;color:var(--accent);white-space:nowrap;">Rs.${it.cost.toLocaleString()}</span>
       ${low?`<span class="badge b-low" style="font-size:9px;">Low</span>`:''}
     </div>`;
@@ -2698,10 +2975,12 @@ function renderStock(){
         <button class="btn btn-xs" id="rate-save-${m.id}" onclick="updateRate(${m.id})" style="margin-left:3px;background:rgba(240,165,0,0.15);color:var(--accent);border:1px solid rgba(240,165,0,0.3);">Save</button>
       </td>
       <td>
-        <div style="font-weight:700;font-size:13px;">${Math.floor(m.stock)} <span style="color:var(--muted);font-size:11px;font-weight:400;">${m.unit}</span></div>
-        ${(m.issueUnit&&m.issueUnit!==m.unit&&m.ul>1)?
-          `<div style="font-size:11px;color:var(--blue);margin-top:2px;">${(m.stock*m.ul).toFixed(1)} ${m.issueUnit}</div>`
-          :''
+        <div style="font-weight:700;font-size:13px;">${m.stock%1===0?m.stock:m.stock.toFixed(3)} <span style="color:var(--muted);font-size:11px;font-weight:400;">${m.unit}</span></div>
+        ${(m.issueUnit&&m.issueUnit!==m.unit&&m.ul>1)?(()=>{
+          const totalIssue=m.stock*m.ul;
+          const displayVal=totalIssue%1===0?totalIssue:totalIssue.toFixed(2);
+          return `<div style="font-size:11px;color:var(--blue);margin-top:2px;">${displayVal} ${m.issueUnit}</div>`;
+        })():''
         }
       </td>
       <td>${m.min}</td>
@@ -2763,28 +3042,36 @@ function updateRate(id){
 function issueS(id){ requirePin(()=>{
   const q=parseFloat(document.getElementById('iss-'+id)?.value)||0; if(!q) return;
   const ms=DB.mats,m=ms.find(x=>x.id===id); if(!m) return;
-  // Convert issued qty to stock units
-  const stockDeduct = issueToStock(q, m);
-  const newStock = Math.max(0, m.stock - stockDeduct);
-  const rem = getRemaining({...m, stock:newStock});
-  m.stock = parseFloat(newStock.toFixed(4));
+  const issUnit=m.issueUnit||m.unit;
+  const ul=m.ul||1;
+  const isSameUnit = issUnit===m.unit || ul<=1;
+
+  let stockDeduct;
+  if(isSameUnit){
+    // Direct: issued qty = stock qty (Nos, Roll etc)
+    stockDeduct = q;
+  } else {
+    // Convert: issued issue-units → stock units
+    // q is in issueUnit (sq.ft, ft, ml etc)
+    // stockDeduct = q / ul (since convertToIssueUnit same→same returns q)
+    stockDeduct = q / ul;
+  }
+
+  const newStock=Math.max(0, m.stock-stockDeduct);
+  m.stock=parseFloat(newStock.toFixed(6));
   DB.mats=ms; renderStock(); saveMatToSheet(m);
-  const issUnit = m.issueUnit&&m.issueUnit!==m.unit?m.issueUnit:m.unit;
-  const remStockUnits = Math.floor(newStock);
-  const remIssueUnits = (m.issueUnit&&m.issueUnit!==m.unit&&m.ul>1)
-    ? ` = ${(newStock*m.ul).toFixed(1)} ${m.issueUnit}` : '';
-  toast(`📤 Issued ${q} ${issUnit} — ${m.name}\n✅ Remaining: ${remStockUnits} ${m.unit}${remIssueUnits}`,'warn');
+  const rem=getRemaining(m);
+  const extra=rem.unit!==m.unit?` = ${rem.val} ${rem.unit}`:'';
+  toast(`📤 Issued ${q} ${issUnit} — ${m.name}\n✅ Remaining: ${m.stock.toFixed(3)} ${m.unit}${extra}`,'warn');
 }); }
 function receiveS(id){ requirePin(()=>{
   const q=parseFloat(document.getElementById('rcv-'+id)?.value)||0; if(!q) return;
   const ms=DB.mats,m=ms.find(x=>x.id===id); if(!m) return;
-  // Receive in stock units (Bars, Sheets etc)
-  m.stock=parseFloat((m.stock+q).toFixed(4));
+  m.stock=parseFloat((m.stock+q).toFixed(6));
   DB.mats=ms; renderStock(); saveMatToSheet(m);
-  const remR=getRemaining(m);
-  const extraR=(m.issueUnit&&m.issueUnit!==m.unit&&m.ul>1)?
-    ` = ${remR.val} ${remR.unit}` : '';
-  toast(`📥 Received ${q} ${m.unit} — ${m.name}\n✅ Stock: ${Math.floor(m.stock)} ${m.unit}${extraR}`);
+  const rem=getRemaining(m);
+  const extra=rem.unit!==m.unit?` = ${rem.val} ${rem.unit}`:'';
+  toast(`📥 Received ${q} ${m.unit} — ${m.name}\n✅ Stock: ${m.stock} ${m.unit}${extra}`);
 }); }
 function delMatFromStock(id){ requirePin(()=>{ if(!confirm('Delete this material?')) return; DB.mats=DB.mats.filter(m=>m.id!==id); renderStock(); }); }
 
@@ -2854,7 +3141,13 @@ function printMaterialsList(){
 function openAddMat(){
   document.getElementById('mat-modal-title').textContent='Add Material';
   document.getElementById('edit-mat-id').value='';
-  ['am-name','am-size','am-unit','am-ul','am-rate','am-stock','am-min'].forEach(id=>document.getElementById(id).value='');
+  ['am-name','am-size','am-rate','am-stock','am-min'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('am-unit').value='Sheet';
+  document.getElementById('am-issue-unit').value='sq.ft';
+  document.getElementById('am-ul').value='32';
+  document.getElementById('am-conversion-preview').style.display='none';
+  document.getElementById('am-stock-preview').style.display='none';
+  amUnitChange();
   openModal('modal-mat');
 }
 function openEditMat(id){
@@ -2863,13 +3156,32 @@ function openEditMat(id){
   document.getElementById('edit-mat-id').value=id;
   document.getElementById('am-name').value=m.name;
   document.getElementById('am-size').value=m.size||'';
-  document.getElementById('am-unit').value=m.unit;
-  document.getElementById('am-issue-unit').value=m.issueUnit||m.unit;
-  document.getElementById('am-ul').value=m.ul||1;
-  const _ulUnitLbl=document.getElementById('am-ul-unit-label'); if(_ulUnitLbl) _ulUnitLbl.textContent=m.issueUnit||m.unit;
-  document.getElementById('am-rate').value=m.rate||'';
+  document.getElementById('am-rate').value=m.rate||0;
   document.getElementById('am-stock').value=m.stock||0;
   document.getElementById('am-min').value=m.min||0;
+  // Set stock unit first
+  const unitSel=document.getElementById('am-unit');
+  if(unitSel) unitSel.value=m.unit||'Sheet';
+  // Set issue unit — must match one of the options
+  const issueSel=document.getElementById('am-issue-unit');
+  const issueVal=m.issueUnit||m.unit||'sq.ft';
+  if(issueSel){
+    // Check if option exists, otherwise add it
+    const exists=[...issueSel.options].some(o=>o.value===issueVal);
+    if(!exists){
+      const opt=document.createElement('option');
+      opt.value=issueVal; opt.textContent=issueVal;
+      issueSel.appendChild(opt);
+    }
+    issueSel.value=issueVal;
+  }
+  // Set UL
+  document.getElementById('am-ul').value=m.ul||1;
+  // Update labels
+  const _ulUnitLbl=document.getElementById('am-ul-unit-label');
+  if(_ulUnitLbl) _ulUnitLbl.textContent=issueVal;
+  const _stockInLbl=document.getElementById('am-stock-unit-in-label');
+  if(_stockInLbl) _stockInLbl.textContent=m.unit||'Sheet';
   amUpdatePreview();
   openModal('modal-mat');
 }
@@ -3020,6 +3332,46 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <div id="print-area" style="display:none;"></div>
 
+<!-- ══════════ MODAL: STOCK REQUEST ══════════ -->
+<div class="overlay" id="modal-request" onclick="overlayClose(event,'modal-request')">
+<div class="modal" style="width:min(440px,100%);">
+  <div class="modal-title">📋 Stock Request</div>
+  <input type="hidden" id="req-mat-id">
+
+  <!-- Material Info -->
+  <div id="req-mat-info" style="background:rgba(240,165,0,0.08);border:1px solid rgba(240,165,0,0.2);border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+    <div id="req-mat-name" style="font-weight:700;font-size:15px;margin-bottom:4px;"></div>
+    <div id="req-mat-detail" style="font-size:12px;color:var(--muted);line-height:1.7;"></div>
+  </div>
+
+  <!-- Unit Select + Qty -->
+  <div class="g2" style="margin-bottom:12px;">
+    <div class="fg fg0">
+      <label>Request Unit</label>
+      <select id="req-unit-sel" onchange="reqUnitChange()" style="font-size:14px;">
+      </select>
+    </div>
+    <div class="fg fg0">
+      <label>Quantity <span id="req-unit-lbl" style="color:var(--accent);font-weight:700;font-size:11px;"></span></label>
+      <input type="number" id="req-qty" placeholder="eg: 5" min="0" step="0.01"
+        style="font-size:16px;" oninput="reqCalcPreview()">
+    </div>
+  </div>
+  <div id="req-qty-preview" style="font-size:12px;color:var(--green);margin-bottom:12px;display:none;padding:8px 12px;background:rgba(34,197,94,0.08);border-radius:8px;"></div>
+
+  <!-- Reason -->
+  <div class="fg">
+    <label>Reason / Note (optional)</label>
+    <input type="text" id="req-reason" placeholder="eg: Project ABC, Low stock">
+  </div>
+
+  <div class="flex gap-12 mt-12">
+    <button class="btn btn-blue" onclick="submitStockRequest()" style="flex:1;justify-content:center;">📋 Submit Request</button>
+    <button class="btn btn-ghost" onclick="closeModal('modal-request')">Cancel</button>
+  </div>
+</div>
+</div>
+
 <!-- ══════════ MODAL: PIN ══════════ -->
 <div class="overlay" id="modal-pin" onclick="">
 <div class="modal" style="width:min(340px,100%);text-align:center;">
@@ -3082,17 +3434,35 @@ document.addEventListener('DOMContentLoaded',()=>{
     <label>Unit</label>
     <select id="amp-unit" style="font-size:13px;" onchange="ampCalcPreview()">
       <option value="">-- Auto (from material) --</option>
-      <option value="sq.ft">sq.ft (Square Feet)</option>
-      <option value="ft">ft (Feet)</option>
-      <option value="mtr">mtr (Meter)</option>
-      <option value="inch">inch (Inches)</option>
-      <option value="Nos">Nos (Numbers)</option>
-      <option value="Bar">Bar</option>
-      <option value="Sheet">Sheet</option>
-      <option value="Roll">Roll</option>
-      <option value="Box">Box</option>
-      <option value="Length">Length</option>
-      <option value="Lump">Lump Sum</option>
+      <optgroup label="📐 Area">
+        <option value="sq.ft">sq.ft — Square Feet</option>
+        <option value="sq.inch">sq.inch — Square Inches</option>
+      </optgroup>
+      <optgroup label="📏 Length">
+        <option value="ft">ft — Feet</option>
+        <option value="inch">inch — Inches</option>
+        <option value="mtr">mtr — Meters</option>
+        <option value="cm">cm — Centimeters</option>
+        <option value="mm">mm — Millimeters</option>
+      </optgroup>
+      <optgroup label="🧴 Volume">
+        <option value="ml">ml — Milliliters</option>
+        <option value="L">L — Liters</option>
+      </optgroup>
+      <optgroup label="⚖️ Weight">
+        <option value="g">g — Grams</option>
+        <option value="kg">kg — Kilograms</option>
+      </optgroup>
+      <optgroup label="🔢 Count / Units">
+        <option value="Nos">Nos — Numbers</option>
+        <option value="Sheet">Sheet</option>
+        <option value="Bar">Bar</option>
+        <option value="Roll">Roll</option>
+        <option value="Box">Box</option>
+        <option value="Bottle">Bottle</option>
+        <option value="Length">Length</option>
+        <option value="Lump">Lump Sum</option>
+      </optgroup>
     </select>
   </div>
   <div id="amp-cost-preview" style="display:none;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;">
