@@ -23,7 +23,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20
 .ntab{padding:0 14px;height:100%;display:flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap;user-select:none;}
 
 /* MOBILE BOTTOM NAV */
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:400;padding:6px 0 10px;}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:400;padding:6px 0 env(safe-area-inset-bottom,10px);}
 .mobile-nav-inner{display:flex;justify-content:space-around;}
 .mob-tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;cursor:pointer;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-radius:8px;transition:all .2s;user-select:none;}
 .mob-tab .icon{font-size:20px;line-height:1;}
@@ -166,9 +166,56 @@ tr:hover td{background:rgba(255,255,255,.015);}
 }
 
 @media(max-width:680px){
-  .g2,.g3,.g4{grid-template-columns:1fr;}
-  .mat-hdr,.mat-row{grid-template-columns:1fr 60px 80px 100px 28px;}
-  .mat-hdr span:nth-child(2),.mat-row>span:nth-child(2){display:none;}
+  /* Grid fixes */
+  .g2,.g3{grid-template-columns:1fr;}
+  .g4{grid-template-columns:1fr 1fr;}
+
+  /* Board material rows — stack on mobile */
+  .mat-hdr{display:none;}
+  .mat-row{
+    display:flex;flex-direction:column;gap:4px;
+    padding:10px 0;border-bottom:1px solid var(--border);
+    position:relative;
+  }
+  .mat-row .mat-note{font-size:10px;color:var(--muted);}
+  .mat-cost{text-align:left!important;font-size:14px;}
+
+  /* Stock table — horizontal scroll */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{min-width:600px;}
+
+  /* Project detail rows */
+  #pd-body .mat-row-pd{flex-direction:column;}
+
+  /* Board header */
+  .board-header{flex-direction:column;align-items:flex-start!important;}
+  .board-subtotal{font-size:15px;}
+
+  /* Modal full width */
+  .modal{padding:16px 14px;border-radius:10px 10px 0 0;margin:auto 0 0;}
+  .overlay{align-items:flex-end;padding:0;}
+
+  /* Reduce font sizes */
+  .pg-title{font-size:22px;}
+  .total-amt{font-size:22px;}
+  .proj-total{font-size:20px;}
+  .proj-name{font-size:17px;}
+
+  /* Nav adjustments */
+  .brand{font-size:16px;margin-right:8px;}
+
+  /* Quick action buttons */
+  .flex.flex-wrap .btn{font-size:12px;padding:8px 12px;}
+
+  /* Stat cards */
+  .stat{padding:10px 14px;}
+  .stat-val{font-size:22px;}
+}
+
+@media(max-width:400px){
+  .g4{grid-template-columns:1fr 1fr;}
+  nav{padding:0 10px;}
+  .page{padding:14px 12px 80px;}
 }
 </style>
 </head>
@@ -878,7 +925,13 @@ tr:hover td{background:rgba(255,255,255,.015);}
 <!-- ══════════ MODAL: PROJECT DETAIL ══════════ -->
 <div class="overlay" id="modal-proj" onclick="overlayClose(event,'modal-proj')">
 <div class="modal" style="width:min(800px,100%);">
-  <div class="modal-title" id="pd-title">Project</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+    <div class="modal-title" id="pd-title" style="margin-bottom:0;">Project</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span id="pd-save-indicator" style="font-size:12px;color:var(--green);"></span>
+      <button class="btn btn-green btn-xs" onclick="manualSaveProject()" title="Save to database">💾 Save</button>
+    </div>
+  </div>
   <div id="pd-body"></div>
   <div class="flex gap-12 mt-16" style="flex-wrap:wrap;">
     <button class="btn btn-ghost btn-sm" onclick="printCosting(_editProjId)" style="flex:1;justify-content:center;min-width:120px;">🖨 Print</button>
@@ -1811,11 +1864,10 @@ async function loadProjectsFromDB(){
 
 async function saveProjectToDB(proj){
   try{
-    // Always use current status from proj, not hardcode 'pending'
     const payload={
       id:proj.id, name:proj.name, client:proj.client||'',
       date:proj.date,
-      boards:JSON.parse(JSON.stringify(proj.boards||[])), // deep copy for jsonb
+      boards:JSON.parse(JSON.stringify(proj.boards||[])),
       total:proj.total||0,
       status:proj.status||'pending'
     };
@@ -1824,10 +1876,13 @@ async function saveProjectToDB(proj){
       headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates'},
       body:JSON.stringify(payload)
     });
-    if(res.ok){
-      toast('✓ Project saved to database — GM approval pending');
-    } else throw new Error(await res.text());
-  }catch(e){ toast('DB save failed: '+e.message,'warn'); }
+    if(!res.ok) throw new Error(await res.text());
+    return true;
+  }catch(e){
+    console.error('Project save error:',e);
+    toast('DB save failed — check connection','warn');
+    return false;
+  }
 }
 
 async function approveProject(projId){
@@ -2303,12 +2358,18 @@ function renderBoards(){
   con.innerHTML=CBoards.map((b,bi)=>{
     const rows=b.items.map((it,ii)=>{
       return `<div class="mat-row">
-        <div><div>${it.n}</div>${it.note?`<div class="mat-note">${it.note}</div>`:''}</div>
-        <span style="color:var(--muted);font-size:12px;text-align:center;">${it.u}</span>
-        <input type="number" value="${it.qty}" style="padding:5px 8px;font-size:12px;" onchange="updQty(${bi},${ii},this.value)">
-        <span style="font-size:12px;color:var(--muted);text-align:right;">Rs.${it.r.toLocaleString()}</span>
-        <span class="mat-cost" id="mc-${bi}-${ii}">Rs.${it.cost.toLocaleString()}</span>
-        <button class="btn btn-red btn-xs" onclick="rmMat(${bi},${ii})">✕</button>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;width:100%;">
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:500;">${it.n}</div>
+            ${it.note?`<div class="mat-note">${it.note}</div>`:''}
+          </div>
+          <button class="btn btn-red btn-xs" onclick="rmMat(${bi},${ii})" style="flex-shrink:0;">✕</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;">
+          <input type="number" value="${it.qty}" style="padding:5px 8px;font-size:13px;width:80px;" onchange="updQty(${bi},${ii},this.value)">
+          <span style="font-size:12px;color:var(--muted);">${it.u} × Rs.${it.r.toLocaleString()}</span>
+          <span class="mat-cost" id="mc-${bi}-${ii}" style="margin-left:auto;">Rs.${it.cost.toLocaleString()}</span>
+        </div>
       </div>`;
     }).join('');
     return `<div class="board-block">
@@ -2470,12 +2531,16 @@ function renderProjDetail(){
 
     // item rows
     b.items.forEach((it,ii)=>{
-      html+=`<div style="display:grid;grid-template-columns:2fr 80px 90px 100px 28px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;">
-        <span>${it.n} ${it.note?`<span style='color:var(--muted);font-size:10px;'>(${it.note})</span>`:''}</span>
-        <input type="number" value="${it.qty}" style="padding:4px 6px;font-size:12px;border-radius:6px;border:1px solid var(--border2);background:rgba(255,255,255,0.04);color:var(--text);width:100%;" onchange="pdUpdQty(${bi},${ii},this.value)">
-        <span style="color:var(--muted);font-size:11px;">${it.u} × Rs.${it.r.toLocaleString()}</span>
-        <span style="font-family:var(--fh);font-weight:700;color:var(--accent);text-align:right;" id="pd-ic-${bi}-${ii}">Rs.${it.cost.toLocaleString()}</span>
-        <button class="btn btn-red btn-xs" onclick="pdRemoveItem(${bi},${ii})">✕</button>
+      html+=`<div style="padding:8px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:5px;">
+          <span style="font-size:12px;flex:1;">${it.n} ${it.note?`<span style='color:var(--muted);font-size:10px;'>(${it.note})</span>`:''}</span>
+          <button class="btn btn-red btn-xs" onclick="pdRemoveItem(${bi},${ii})" style="flex-shrink:0;">✕</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <input type="number" value="${it.qty}" style="padding:4px 8px;font-size:12px;border-radius:6px;border:1px solid rgba(240,165,0,0.4);background:rgba(240,165,0,0.05);color:var(--text);width:75px;" onchange="pdUpdQty(${bi},${ii},this.value)" title="Edit quantity">
+          <span style="color:var(--muted);font-size:11px;">${it.u} × Rs.${it.r.toLocaleString()}</span>
+          <span style="font-family:var(--fh);font-weight:700;color:var(--accent);margin-left:auto;" id="pd-ic-${bi}-${ii}">Rs.${it.cost.toLocaleString()}</span>
+        </div>
       </div>`;
     });
 
@@ -2503,6 +2568,14 @@ function pdUpdQty(bi,ii,val){
   if(costEl) costEl.textContent='Rs.'+p.boards[bi].items[ii].cost.toLocaleString();
   pdRecalc(bi,p);
   DB.projects=DB.projects.map(x=>x.id===_editProjId?p:x);
+  // Auto save to DB with debounce
+  clearTimeout(window._pdSaveTimer);
+  window._pdSaveTimer=setTimeout(()=>{
+    saveProjectToDB(p);
+    const saveInd=document.getElementById('pd-save-indicator');
+    if(saveInd){saveInd.textContent='✓ Saved';saveInd.style.color='var(--green)';
+      setTimeout(()=>{saveInd.textContent='';},2000);}
+  },800);
 }
 
 function pdRecalc(bi,p){
@@ -2520,8 +2593,9 @@ function pdRemoveItem(bi,ii){
   p.boards[bi].items.splice(ii,1);
   pdRecalc(bi,p);
   DB.projects=DB.projects.map(x=>x.id===_editProjId?p:x);
+  saveProjectToDB(p);
   renderProjDetail();
-  toast('Item removed','warn');
+  toast('✓ Item removed & saved','warn');
 }
 
 function pdRemoveBoard(bi){
@@ -2551,6 +2625,15 @@ function pdAddItem(bi){
   toast(`✓ ${mat.name} (${qty} ${mat.unit}) — Rs.${cost.toLocaleString()} added`);
 }
 
+
+function manualSaveProject(){
+  const p=DB.projects.find(x=>x.id===_editProjId); if(!p) return;
+  saveProjectToDB(p).then(()=>{
+    const saveInd=document.getElementById('pd-save-indicator');
+    if(saveInd){saveInd.textContent='✓ Saved to DB!';saveInd.style.color='var(--green)';
+      setTimeout(()=>{saveInd.textContent='';},3000);}
+  });
+}
 function delProj(id){ if(!confirm('Delete project?')) return; DB.projects=DB.projects.filter(p=>p.id!==id); renderProjects(); closeModal('modal-proj');
   // Also delete from DB
   fetch(SUPABASE_URL+'/rest/v1/projects?id=eq.'+id,{method:'DELETE',headers:SB_HEADERS}).catch(()=>{});
