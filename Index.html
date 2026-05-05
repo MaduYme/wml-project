@@ -3006,9 +3006,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   initExtraMats();
   loadRequests();
   renderDirBoardList();
-  autoSync();
-  loadRequestsFromDB();
-  loadProjectsFromDB();
+  autoSync(); // loads materials + projects + requests together
   document.getElementById('p-date').value=new Date().toISOString().split('T')[0];
 
   // wire up mb-type change
