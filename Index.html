@@ -557,7 +557,7 @@ nav .brand span{opacity:.85;}
   </div>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>#</th><th>Name</th><th>Size</th><th>Unit</th><th>Unit Length</th><th>Rate (Rs.)</th><th>Stock</th><th>Is Box Bar</th></tr></thead>
+      <thead><tr><th>#</th><th>Name</th><th>Size</th><th>Unit</th><th>Unit Length</th><th>Rate (Rs.)</th><th>Stock</th><th>Stock Value</th></tr></thead>
       <tbody id="mat-tbody"></tbody>
     </table>
   </div>
@@ -2307,7 +2307,13 @@ function printRequests(){
     <div style="font-size:20px;font-weight:bold;margin-bottom:4px;">Stock Requests</div>
     <div style="color:#555;font-size:12px;margin-bottom:16px;">Pending: ${pending.length} | GM Approved: ${gmApproved.length} | Received: ${received.length}</div>
     <table><thead><tr><th>#</th><th>Material</th><th>Qty</th><th>Reason</th><th>Date</th><th>Status</th></tr></thead>
-    <tbody>${rows}</tbody></table></body></html>`);
+    <tbody>${rows}</tbody>
+    <tfoot><tr style="background:#1e2436;color:#fff;">
+      <td colspan="6" style="padding:10px;font-weight:bold;text-align:right;">TOTAL STOCK VALUE</td>
+      <td style="padding:10px;font-weight:bold;font-size:15px;">Rs.${mats.reduce((s,m)=>s+Math.floor(m.stock)*m.rate,0).toLocaleString()}</td>
+      <td></td>
+    </tr></tfoot>
+    </table></body></html>`);
   win.document.close();
 }
 
@@ -3354,7 +3360,9 @@ function delMatFromStock(id){ requirePin(()=>{ if(!confirm('Delete this material
 // MATERIALS
 // ══════════════════════════════════════════════════
 function renderMats(){
-  document.getElementById('mat-tbody').innerHTML=DB.mats.map((m,i)=>{
+  const mats = DB.mats;
+  let grandTotal = 0;
+  const rows = mats.map((m,i)=>{
     const needBuy = m.stock < m.min && m.min > 0;
     const outOfStock = m.stock === 0;
     const rowBg = outOfStock
@@ -3367,8 +3375,13 @@ function renderMats(){
     const needTag = outOfStock
       ? '<span style="margin-left:6px;font-size:10px;padding:1px 7px;border-radius:10px;background:rgba(239,68,68,0.2);color:#ef4444;font-weight:700;">Buy!</span>'
       : needBuy ? '<span style="margin-left:6px;font-size:10px;padding:1px 7px;border-radius:10px;background:rgba(240,165,0,0.2);color:#f0a500;font-weight:700;">Low</span>' : '';
-    // Stock display — show in stock units (for print list clarity)
-    const stockDisplay = `<strong style="${stockColor}">${Math.floor(m.stock)}</strong> <span style="color:var(--muted);font-size:11px;">${m.unit}</span>`;
+    const stockDisplay = `<span style="font-family:var(--fh);font-size:20px;font-weight:900;color:#fff;">${m.stock%1===0?m.stock:m.stock.toFixed(2)}</span>`;
+    // Stock value = stock × rate (in stock units)
+    const stockVal = m.stock * (m.rate||0);
+    grandTotal += stockVal;
+    const stockValDisplay = stockVal > 0
+      ? `<span style="font-family:var(--fh);font-weight:700;color:var(--blue);">Rs.${Math.round(stockVal).toLocaleString()}</span>`
+      : `<span style="color:var(--muted);font-size:12px;">—</span>`;
     return `<tr style="${rowBg}">
       <td style="color:var(--muted);font-size:12px;">${i+1}</td>
       <td><strong>${m.name}</strong>${m.isBoxBar?'<span class="badge b-teal" style="margin-left:5px;font-size:9px;">Bar</span>':''}${needTag}</td>
@@ -3377,9 +3390,17 @@ function renderMats(){
       <td style="color:var(--muted);font-size:12px;">${m.ul||'-'}</td>
       <td style="color:var(--accent);font-weight:600;">Rs.${(m.rate||0).toLocaleString()}</td>
       <td>${stockDisplay}</td>
-      <td style="color:var(--muted);font-size:12px;">${m.isBoxBar?'✓':'-'}</td>
+      <td>${stockValDisplay}</td>
     </tr>`;
   }).join('');
+
+  // Add total row
+  const totalRow = `<tr style="background:rgba(59,130,246,0.1);border-top:2px solid rgba(59,130,246,0.3);">
+    <td colspan="7" style="font-family:var(--fh);font-weight:700;font-size:13px;color:var(--blue);text-align:right;padding-right:12px;">TOTAL STOCK VALUE</td>
+    <td style="font-family:var(--fh);font-weight:900;font-size:16px;color:var(--blue);">Rs.${Math.round(grandTotal).toLocaleString()}</td>
+  </tr>`;
+
+  document.getElementById('mat-tbody').innerHTML = rows + totalRow;
 }
 
 function printMaterialsList(){
@@ -3398,6 +3419,7 @@ function printMaterialsList(){
       <td>${m.unit}</td>
       <td style="text-align:right;">Rs.${(m.rate||0).toLocaleString()}</td>
       <td style="text-align:center;font-weight:bold;">${stockUnits} ${m.unit}</td>
+      <td style="text-align:right;">Rs.${Math.round(stockUnits*m.rate).toLocaleString()}</td>
       <td style="text-align:center;font-weight:bold;color:${statusColor};">${statusLabel}</td>
     </tr>`;
   }).join('');
@@ -3420,8 +3442,14 @@ function printMaterialsList(){
         <div>+94 71 898 9060</div>
       </div>
     </div>
-    <table><thead><tr><th>#</th><th>Name</th><th>Size</th><th>Unit</th><th>Rate (Rs.)</th><th>Stock</th><th>Status</th></tr></thead>
-    <tbody>${rows}</tbody></table></body></html>`);
+    <table><thead><tr><th>#</th><th>Name</th><th>Size</th><th>Unit</th><th>Rate (Rs.)</th><th>Stock</th><th>Stock Value (Rs.)</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr style="background:#1e2436;color:#fff;">
+      <td colspan="6" style="padding:10px;font-weight:bold;text-align:right;">TOTAL STOCK VALUE</td>
+      <td style="padding:10px;font-weight:bold;font-size:15px;">Rs.${mats.reduce((s,m)=>s+Math.floor(m.stock)*m.rate,0).toLocaleString()}</td>
+      <td></td>
+    </tr></tfoot>
+    </table></body></html>`);
   win.document.close();
 }
 function openAddMat(){
