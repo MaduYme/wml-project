@@ -14,9 +14,13 @@
   --fh:'Barlow Condensed',sans-serif;--fb:'Barlow',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59,130,246,.06), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(240,165,0,.04), transparent);
+}
 
-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:52px;position:sticky;top:0;z-index:300;}
+nav{background:rgba(22,27,36,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:52px;position:sticky;top:0;z-index:300;}
 .brand{font-family:var(--fh);font-size:22px;font-weight:900;color:var(--accent);letter-spacing:2px;margin-right:24px;white-space:nowrap;}
 .brand span{color:var(--text);}
 .ntabs{display:flex;height:100%;overflow-x:auto;}
@@ -118,9 +122,9 @@ tr:hover td{background:rgba(255,255,255,.015);}
 .total-amt{font-family:var(--fh);font-size:28px;font-weight:900;color:#000;}
 
 /* MODAL */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);z-index:500;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
 .overlay.show{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:22px 24px;width:min(600px,100%);margin:auto;}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:22px 24px;width:min(600px,100%);margin:auto;box-shadow:0 24px 64px rgba(0,0,0,.5);}
 .modal-title{font-family:var(--fh);font-size:22px;font-weight:700;margin-bottom:18px;}
 
 /* SECTION DIVIDER */
@@ -144,10 +148,102 @@ tr:hover td{background:rgba(255,255,255,.015);}
 
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#000;font-family:var(--fh);font-size:15px;font-weight:700;padding:12px 20px;border-radius:10px;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none;}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#000;font-family:var(--fh);font-size:15px;font-weight:700;padding:12px 20px;border-radius:10px;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.4);}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.warn{background:var(--accent);}
 .toast.err{background:var(--red);color:#fff;}
+
+/* ══ ANIMATIONS ══ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes borderGlow{0%,100%{box-shadow:0 0 0 0 rgba(240,165,0,0)}50%{box-shadow:0 0 0 4px rgba(240,165,0,.18)}}
+
+/* Page animate in */
+.page.active{animation:fadeUp .32s ease both;}
+.page.active .stat{animation:scaleIn .3s ease both;}
+.page.active .stat:nth-child(1){animation-delay:.04s}
+.page.active .stat:nth-child(2){animation-delay:.08s}
+.page.active .stat:nth-child(3){animation-delay:.12s}
+.page.active .stat:nth-child(4){animation-delay:.16s}
+
+/* Card hover lift */
+.card,.proj-card,.board-block,.stat{transition:all .2s ease;}
+.proj-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.25);}
+.stat:hover{border-color:rgba(255,255,255,.18);transform:translateY(-1px);}
+
+/* Nav brand pulse on load */
+.brand{position:relative;}
+.brand::after{content:'';position:absolute;bottom:-2px;left:0;width:100%;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+
+/* Button press effect */
+.btn:active{transform:scale(.97);}
+
+/* Table row slide in */
+tbody tr{animation:fadeIn .2s ease both;}
+tbody tr:nth-child(1){animation-delay:.02s}
+tbody tr:nth-child(2){animation-delay:.04s}
+tbody tr:nth-child(3){animation-delay:.06s}
+tbody tr:nth-child(4){animation-delay:.08s}
+tbody tr:nth-child(5){animation-delay:.10s}
+
+/* Modal slide up */
+.overlay.show .modal{animation:scaleIn .25s cubic-bezier(.34,1.2,.64,1) both;}
+
+/* Board block animate */
+.board-block{animation:fadeUp .25s ease both;}
+
+/* WML Logo glow */
+.brand{text-shadow:0 0 20px rgba(240,165,0,.3);}
+
+/* Sync status pulse */
+#sync-btn:disabled{animation:pulse 1.2s ease infinite;}
+
+/* Stat value counter effect */
+.stat-val{transition:color .3s ease;}
+
+/* Low stock row highlight */
+@keyframes lowBlink{0%,100%{background:rgba(239,68,68,.06)}50%{background:rgba(239,68,68,.12)}}
+
+/* Official header line */
+nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4;}
+
+/* Section divider shimmer */
+.sec-div{position:relative;overflow:hidden;}
+
+/* Badge pop */
+.badge{transition:all .15s ease;}
+.badge:hover{transform:scale(1.05);}
+
+/* Input focus glow */
+input:focus,select:focus{box-shadow:0 0 0 3px rgba(59,130,246,.15);}
+
+/* Card gradient border on hover */
+.board-block:hover{border-color:rgba(240,165,0,.3);box-shadow:0 4px 20px rgba(0,0,0,.2);}
+
+/* Total bar shine */
+.total-bar{position:relative;overflow:hidden;}
+.total-bar::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);animation:shimmer 3s ease infinite;}
+
+/* Mobile nav active indicator */
+.mob-tab.active .icon{filter:drop-shadow(0 0 6px currentColor);}
+
+/* Official watermark */
+nav .brand span{opacity:.85;}
+
+/* Scrollbar styling */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2);}
+
+/* Status badge glow */
+.b-ok{box-shadow:0 0 8px rgba(34,197,94,.2);}
+.b-out{box-shadow:0 0 8px rgba(239,68,68,.2);}
+.b-low{box-shadow:0 0 8px rgba(240,165,0,.2);}
 
 
 @media print {
@@ -222,7 +318,14 @@ tr:hover td{background:rgba(255,255,255,.015);}
 <body>
 
 <nav>
-  <div class="brand">WML<span>project</span></div>
+  <div class="brand" style="display:flex;align-items:center;gap:8px;">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style="flex-shrink:0;">
+      <rect width="22" height="22" rx="5" fill="rgba(240,165,0,0.15)"/>
+      <path d="M4 16L7.5 8L11 13L14.5 8L18 16" stroke="#f0a500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="11" cy="6" r="1.5" fill="#f0a500"/>
+    </svg>
+    WML<span>project</span>
+  </div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
     <span id="sync-status" style="font-size:11px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
     <button class="btn btn-ghost btn-sm" onclick="saveAllToSheet()" style="white-space:nowrap;margin-right:4px;">⬆ Save to DB</button>
@@ -343,6 +446,19 @@ tr:hover td{background:rgba(255,255,255,.015);}
   </div>
   <div id="boards-container"></div>
   <button class="btn btn-blue btn-w" onclick="openAddBoard()" style="margin-bottom:14px;">＋ Add Board / Item</button>
+
+  <!-- Extra Costs -->
+  <div class="card" id="extra-costs-section" style="margin-bottom:14px;">
+    <div class="ctitle" style="justify-content:space-between;">
+      <span>➕ Extra Costs</span>
+      <button class="btn btn-ghost btn-xs" onclick="addExtraCostRow()">＋ Add</button>
+    </div>
+    <div id="extra-costs-container">
+      <p class="empty" id="extra-costs-empty">No extra costs. Click ＋ Add to add.</p>
+    </div>
+    <div id="extra-costs-total" style="display:none;text-align:right;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-family:var(--fh);font-size:15px;font-weight:700;color:var(--accent);"></div>
+  </div>
+
   <div id="grand-bar" style="display:none;">
     <div class="total-bar"><div class="total-lbl">PROJECT TOTAL ESTIMATE</div><div class="total-amt" id="grand-amt">Rs. 0</div></div>
   </div>
@@ -1317,7 +1433,18 @@ function printCosting(projId){
     html += `<div class="print-total">Sub-total: Rs.${(b.sub||0).toLocaleString()}</div></div>`;
   });
 
-  html += `<div class="print-grand">TOTAL ESTIMATE: Rs.${grand.toLocaleString()}</div>`;
+  // Extra costs in print
+  if(p.extraCosts&&p.extraCosts.length){
+    html+=`<div class="print-board">
+      <div class="print-board-title">Extra Costs</div>
+      <div class="print-row print-row-hdr"><span>Description</span><span></span><span></span><span style="text-align:right;">Amount (Rs.)</span></div>
+      ${p.extraCosts.map(ec=>`<div class="print-row"><span>${ec.reason||'Extra'}</span><span></span><span></span><span style="text-align:right;font-weight:600;">Rs.${(ec.amount||0).toLocaleString()}</span></div>`).join('')}
+      <div class="print-total">Extra Total: Rs.${p.extraCosts.reduce((s,x)=>s+(x.amount||0),0).toLocaleString()}</div>
+    </div>`;
+  }
+  const extraTotal=(p.extraCosts||[]).reduce((s,x)=>s+(x.amount||0),0);
+  const grandWithExtra=grand+extraTotal;
+  html += `<div class="print-grand">TOTAL ESTIMATE: Rs.${grandWithExtra.toLocaleString()}</div>`;
 
   const win = window.open('','_blank','width=800,height=600');
   win.document.write(`<!DOCTYPE html><html><head><title>${p.name} — Costing</title>
@@ -1746,6 +1873,84 @@ function getRemaining(mat){
 
 
 
+
+// ══════════════════════════════════════════════════
+// EXTRA COSTS SYSTEM
+// ══════════════════════════════════════════════════
+let _extraCosts = []; // [{id, reason, amount}]
+
+function addExtraCostRow(reason='', amount=''){
+  const id = 'ec-' + Date.now();
+  _extraCosts.push({id, reason, amount:parseFloat(amount)||0});
+  renderExtraCosts();
+}
+
+function removeExtraCost(id){
+  _extraCosts = _extraCosts.filter(x=>x.id!==id);
+  renderExtraCosts();
+  updGrand();
+}
+
+function updateExtraCost(id, field, val){
+  const item = _extraCosts.find(x=>x.id===id);
+  if(!item) return;
+  if(field==='reason') item.reason=val;
+  if(field==='amount') item.amount=parseFloat(val)||0;
+  // update total display
+  const total = _extraCosts.reduce((s,x)=>s+x.amount,0);
+  const totEl=document.getElementById('extra-costs-total');
+  if(totEl&&total>0){
+    totEl.style.display='block';
+    totEl.textContent='Extra Total: Rs.'+total.toLocaleString();
+  } else if(totEl){
+    totEl.style.display='none';
+  }
+  updGrand();
+}
+
+function renderExtraCosts(){
+  const con = document.getElementById('extra-costs-container');
+  const empty = document.getElementById('extra-costs-empty');
+  const totEl = document.getElementById('extra-costs-total');
+  if(!con) return;
+  if(!_extraCosts.length){
+    if(empty) empty.style.display='block';
+    if(totEl) totEl.style.display='none';
+    con.innerHTML='<p class="empty" id="extra-costs-empty">No extra costs. Click ＋ Add to add.</p>';
+    updGrand();
+    return;
+  }
+  if(empty) empty.style.display='none';
+  const total = _extraCosts.reduce((s,x)=>s+x.amount,0);
+  con.innerHTML = _extraCosts.map(item=>`
+    <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+      <input type="text" value="${item.reason||''}" placeholder="eg: Welding, Transport, Labour, Boom Crane..."
+        style="font-size:13px;" onchange="updateExtraCost('${item.id}','reason',this.value)"
+        oninput="updateExtraCost('${item.id}','reason',this.value)">
+      <input type="number" value="${item.amount||''}" placeholder="Rs."
+        style="width:120px;font-size:13px;color:var(--accent);font-weight:600;"
+        oninput="updateExtraCost('${item.id}','amount',this.value)">
+      <button class="btn btn-red btn-xs" onclick="removeExtraCost('${item.id}')">✕</button>
+    </div>`).join('');
+
+  if(totEl&&total>0){
+    totEl.style.display='block';
+    totEl.textContent='Extra Total: Rs.'+total.toLocaleString();
+  } else if(totEl){
+    totEl.style.display='none';
+  }
+  updGrand();
+}
+
+function getExtraCostsTotal(){
+  return _extraCosts.reduce((s,x)=>s+x.amount,0);
+}
+
+function resetExtraCosts(){
+  _extraCosts=[];
+  renderExtraCosts();
+}
+
 // ══════════════════════════════════════════════════
 // COST CALCULATION ENGINE
 // ══════════════════════════════════════════════════
@@ -2104,6 +2309,7 @@ async function loadProjectsFromDB(){
     const projects=data.map(p=>({
       id:p.id, name:p.name, client:p.client||'',
       date:p.date, boards:p.boards||[],
+      extraCosts:p.extra_costs||[],
       total:p.total||0, status:p.status||'pending',
     }));
     // DB is source of truth
@@ -2126,6 +2332,7 @@ async function saveProjectToDB(proj){
       id:proj.id, name:proj.name, client:proj.client||'',
       date:proj.date,
       boards:JSON.parse(JSON.stringify(proj.boards||[])),
+      extra_costs:JSON.parse(JSON.stringify(proj.extraCosts||[])),
       total:proj.total||0,
       status:proj.status||'pending'
     };
@@ -2686,9 +2893,26 @@ function recalcSub(bi){
 function rmMat(bi,ii){ CBoards[bi].items.splice(ii,1); recalcSub(bi); renderBoards(); }
 function rmBoard(bi){ if(!confirm('Remove board?')) return; CBoards.splice(bi,1); renderBoards(); }
 function updGrand(){
-  const g=CBoards.reduce((s,b)=>s+b.sub,0);
-  document.getElementById('grand-bar').style.display=CBoards.length?'block':'none';
+  const boardsTotal=CBoards.reduce((s,b)=>s+b.sub,0);
+  const extraTotal=getExtraCostsTotal();
+  const g=boardsTotal+extraTotal;
+  document.getElementById('grand-bar').style.display=(CBoards.length||extraTotal>0)?'block':'none';
   document.getElementById('grand-amt').textContent='Rs. '+g.toLocaleString();
+  // Show breakdown if extra costs exist
+  const grandBar=document.getElementById('grand-bar');
+  if(grandBar && extraTotal>0 && CBoards.length>0){
+    grandBar.innerHTML=`<div class="total-bar">
+      <div>
+        <div class="total-lbl">PROJECT TOTAL ESTIMATE</div>
+        <div style="font-size:11px;color:rgba(0,0,0,.6);margin-top:3px;">
+          Boards: Rs.${boardsTotal.toLocaleString()} + Extra: Rs.${extraTotal.toLocaleString()}
+        </div>
+      </div>
+      <div class="total-amt">Rs. ${g.toLocaleString()}</div>
+    </div>`;
+  } else {
+    grandBar.innerHTML=`<div class="total-bar"><div class="total-lbl">PROJECT TOTAL ESTIMATE</div><div class="total-amt" id="grand-amt">Rs. ${g.toLocaleString()}</div></div>`;
+  }
 }
 
 function addMatToBoard(bi){
@@ -2732,9 +2956,15 @@ function confirmAddMatToBoard(bi){
 function saveProject(){
   const name=document.getElementById('p-name').value.trim();
   if(!name){alert('Project name enter කරන්න!');return;}
-  if(!CBoards.length){alert('Board add කරන්න!');return;}
-  const grand=CBoards.reduce((s,b)=>s+b.sub,0);
-  const proj={id:Date.now(),name,client:document.getElementById('p-client').value,date:document.getElementById('p-date').value||new Date().toISOString().split('T')[0],boards:JSON.parse(JSON.stringify(CBoards)),total:grand};
+  if(!CBoards.length&&!_extraCosts.length){alert('Board add කරන්න!');return;}
+  const boardsTotal=CBoards.reduce((s,b)=>s+b.sub,0);
+  const extraTotal=getExtraCostsTotal();
+  const grand=boardsTotal+extraTotal;
+  const proj={id:Date.now(),name,client:document.getElementById('p-client').value,
+    date:document.getElementById('p-date').value||new Date().toISOString().split('T')[0],
+    boards:JSON.parse(JSON.stringify(CBoards)),
+    extraCosts:JSON.parse(JSON.stringify(_extraCosts)),
+    total:grand};
   const ps=DB.projects; ps.unshift(proj); DB.projects=ps;
   // deduct stock
   const mats=DB.mats;
@@ -2744,6 +2974,7 @@ function saveProject(){
   }));
   DB.mats=mats;
   CBoards=[];
+  resetExtraCosts();
   document.getElementById('p-name').value='';
   document.getElementById('p-client').value='';
   renderBoards();
@@ -2828,9 +3059,29 @@ function renderProjDetail(){
     </div>`;
   });
 
+  // Extra costs
+  if(p.extraCosts&&p.extraCosts.length){
+    html+=`<div class="card" style="margin-top:12px;margin-bottom:8px;">
+      <div class="ctitle">➕ Extra Costs</div>
+      ${p.extraCosts.map(ec=>`
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">
+          <span>${ec.reason||'Extra Cost'}</span>
+          <span style="font-family:var(--fh);font-weight:700;color:var(--accent);">Rs.${(ec.amount||0).toLocaleString()}</span>
+        </div>`).join('')}
+      <div style="text-align:right;margin-top:8px;font-family:var(--fh);font-weight:700;color:var(--accent);">
+        Extra Total: Rs.${p.extraCosts.reduce((s,x)=>s+x.amount,0).toLocaleString()}
+      </div>
+    </div>`;
+  }
   // grand total
-  const grand=p.boards.reduce((s,b)=>s+b.sub,0);
-  html+=`<div class="total-bar" style="margin-top:8px;"><div class="total-lbl">TOTAL</div><div class="total-amt" id="pd-grand">Rs.${grand.toLocaleString()}</div></div>`;
+  const boardsTotal=p.boards.reduce((s,b)=>s+b.sub,0);
+  const extraTotal=(p.extraCosts||[]).reduce((s,x)=>s+x.amount,0);
+  const grand=boardsTotal+extraTotal;
+  const breakdown=extraTotal>0?`<div style="font-size:11px;color:rgba(0,0,0,.6);">Boards: Rs.${boardsTotal.toLocaleString()} + Extra: Rs.${extraTotal.toLocaleString()}</div>`:'';
+  html+=`<div class="total-bar" style="margin-top:8px;">
+    <div><div class="total-lbl">TOTAL</div>${breakdown}</div>
+    <div class="total-amt" id="pd-grand">Rs.${grand.toLocaleString()}</div>
+  </div>`;
 
   document.getElementById('pd-body').innerHTML=html;
 }
